@@ -76,5 +76,5 @@ void servo::disable(const uint8_t channel) {
 
 
 void servo::setAngle(const uint8_t channel, const uint8_t angle) {
-	getTimer(channel)->COUNT16.TC_CC[getTimerChannel(channel)] = angle / 4 + 63;
+	getTimer(channel)->COUNT16.TC_CCBUF[getTimerChannel(channel)] = angle / 4 + 63;
 }
