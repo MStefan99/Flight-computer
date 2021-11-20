@@ -40,6 +40,7 @@
       </logicalFolder>
       <logicalFolder name="f3" displayName="lib" projectFiles="true">
         <itemPath>../src/lib/systick.h</itemPath>
+        <itemPath>../src/lib/servo.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f2" displayName="packs" projectFiles="true">
         <logicalFolder name="f1" displayName="ATSAML10E16A_DFP" projectFiles="true">
@@ -184,6 +185,7 @@
       </logicalFolder>
       <logicalFolder name="f2" displayName="lib" projectFiles="true">
         <itemPath>../src/lib/systick.cpp</itemPath>
+        <itemPath>../src/lib/servo.cpp</itemPath>
       </logicalFolder>
       <itemPath>../src/main.cpp</itemPath>
     </logicalFolder>
