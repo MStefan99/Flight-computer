@@ -4,7 +4,6 @@
 #include "lib/servo.h"
 #include "lib/cpu.h"
 #include "lib/i2c.h"
-#include "config/default/peripheral/sercom/i2c_master/plib_sercom0_i2c_master.h"
 
 
 /* Clock distribution
@@ -34,7 +33,7 @@ int main() {
 	systick::init();
 	servo::init();
 	cpu::init();
-	//i2c::init();
+	i2c::init();
 	for (uint8_t i{0}; i < 6; ++i) {
 		servo::enable(i);
 	}
@@ -49,28 +48,8 @@ int main() {
 	PORT_REGS->GROUP[0].PORT_PMUX[8] = PORT_PMUX_PMUXE_D // Mux pin 16 to SERCOM0
 					| PORT_PMUX_PMUXO_D; // Mux pin 17 to SERCOM0
 	
-	DMAC_REGS->DMAC_BASEADDR = (uint32_t) DMAC_DESCRIPTORS;
-	DMAC_REGS->DMAC_WRBADDR = (uint32_t) _DMAC_WRITE_BACK_DESCRIPTORS;
-	DMAC_REGS->DMAC_CTRL = DMAC_CTRL_LVLEN0(1)
-					| DMAC_CTRL_DMAENABLE(1);
-	
-	DMAC_REGS->DMAC_CHID = 0;
-	DMAC_REGS->DMAC_CHCTRLB = DMAC_CHCTRLB_TRIGACT_BLOCK;
-	
-	DMAC_REGS->DMAC_CHINTENSET = DMAC_CHINTENSET_TCMPL(1) | DMAC_CHINTENSET_TERR(1);
-	NVIC_EnableIRQ(DMAC_0_IRQn);
-	
-	DMAC_DESCRIPTORS[DMA_CH_I2C_TX].DMAC_BTCTRL = DMAC_BTCTRL_BEATSIZE_BYTE
-					| DMAC_BTCTRL_VALID(1);
-	
-	uint8_t src {5};
-	uint8_t dst {};
-	DMAC_DESCRIPTORS[DMA_CH_I2C_TX].DMAC_SRCADDR = (uint32_t) &src;
-	DMAC_DESCRIPTORS[DMA_CH_I2C_TX].DMAC_DSTADDR = (uint32_t) &dst;
-	DMAC_REGS->DMAC_CHCTRLA = DMAC_CHCTRLA_ENABLE(1);
-	DMAC_REGS->DMAC_SWTRIGCTRL = 1;
-	
-	//i2c::read(0x19, 0x0f, 1, &data);
+	uint8_t data[] {0x1, 0x0};
+	i2c::streamOut(0x4d, data, 2);
 
 	// LED
 	//PORT_REGS->GROUP[0].PORT_DIRSET = 0x1 << 8u;

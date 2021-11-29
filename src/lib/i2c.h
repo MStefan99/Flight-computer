@@ -15,8 +15,12 @@
 
 namespace i2c {
 	void init();
-	void read(uint8_t devAdd, uint8_t regAdd, uint8_t size, uint8_t* buf);
-	void write(uint8_t devAdd, uint8_t regAdd, uint8_t size, uint8_t* buf);
+	
+	void streamOut(uint8_t devAddr, uint8_t* buf, uint8_t size = 1);
+	void streamIn(uint8_t devAddr, uint8_t* buf, uint8_t size = 1);
+	
+	void writeRegister(uint8_t devAddr, uint8_t regAddr, uint8_t* buf, uint8_t size = 1);
+	void readRegister(uint8_t devAddr, uint8_t regAddr, uint8_t* buf, uint8_t size = 1);
 }
 
 

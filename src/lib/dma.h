@@ -21,9 +21,9 @@
 #define DMA_CH_UART_RX 5
 
 
-	extern dmac_descriptor_registers_t DMAC_DESCRIPTORS[];
-	extern dmac_descriptor_registers_t _DMAC_WRITE_BACK_DESCRIPTORS[];
 namespace dma {
+	extern dmac_descriptor_registers_t DESCRIPTOR_TABLE[];
+	extern dmac_descriptor_registers_t WRITE_BACK_DESCRIPTOR_TABLE[];
 	
 	extern void I2C_TRCPT_Handler();
 	
