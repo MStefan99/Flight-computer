@@ -1,19 +1,21 @@
 /*******************************************************************************
- System Interrupts File
+  Serial Communication Interface Inter-Integrated Circuit (SERCOM I2C) Library
+  Instance Header File
 
   Company:
     Microchip Technology Inc.
 
   File Name:
-    interrupt.h
+    plib_sercom0_i2c.h
 
   Summary:
-    Interrupt vectors mapping
+    SERCOM I2C PLIB Header file
 
   Description:
-    This file contains declarations of device vectors used by Harmony 3
- *******************************************************************************/
-
+    This file defines the interface to the SERCOM I2C peripheral library. This
+    library provides access to and control of the associated peripheral
+    instance.
+*******************************************************************************/
 // DOM-IGNORE-BEGIN
 /*******************************************************************************
 * Copyright (C) 2018 Microchip Technology Inc. and its subsidiaries.
@@ -36,33 +38,63 @@
 * FULLEST EXTENT ALLOWED BY LAW, MICROCHIP'S TOTAL LIABILITY ON ALL CLAIMS IN
 * ANY WAY RELATED TO THIS SOFTWARE WILL NOT EXCEED THE AMOUNT OF FEES, IF ANY,
 * THAT YOU HAVE PAID DIRECTLY TO MICROCHIP FOR THIS SOFTWARE.
- *******************************************************************************/
+*******************************************************************************/
 // DOM-IGNORE-END
 
-#ifndef INTERRUPTS_H
-#define INTERRUPTS_H
+#ifndef PLIB_SERCOM0_I2C_H
+#define PLIB_SERCOM0_I2C_H
 
 // *****************************************************************************
 // *****************************************************************************
 // Section: Included Files
 // *****************************************************************************
 // *****************************************************************************
-#include <stdint.h>
+/* This section lists the other files that are included in this file.
+*/
 
+#include "plib_sercom_i2c_master_common.h"
 
+// DOM-IGNORE-BEGIN
+#ifdef __cplusplus // Provide C++ Compatibility
+
+    extern "C" {
+
+#endif
+// DOM-IGNORE-END
 
 // *****************************************************************************
 // *****************************************************************************
-// Section: Handler Routines
+// Section: Interface Routines
 // *****************************************************************************
 // *****************************************************************************
 
-void Reset_Handler (void);
-void NonMaskableInt_Handler (void);
-void HardFault_Handler (void);
+/*
+ * The following functions make up the methods (set of possible operations) of
+ * this interface.
+ */
 
-//void I2C_TCMPL_Handler();
-void DMAC_0_Handler();
+void SERCOM0_I2C_Initialize(void);
+
+bool SERCOM0_I2C_Read(uint16_t address, uint8_t* rdData, uint32_t rdLength);
+
+bool SERCOM0_I2C_Write(uint16_t address, uint8_t* wrData, uint32_t wrLength);
+
+bool SERCOM0_I2C_WriteRead(uint16_t address, uint8_t* wrData, uint32_t wrLength, uint8_t* rdData, uint32_t rdLength);
+
+bool SERCOM0_I2C_IsBusy(void);
+
+SERCOM_I2C_ERROR SERCOM0_I2C_ErrorGet(void);
+
+void SERCOM0_I2C_CallbackRegister(SERCOM_I2C_CALLBACK callback, uintptr_t contextHandle);
+
+bool SERCOM0_I2C_TransferSetup(SERCOM_I2C_TRANSFER_SETUP* setup, uint32_t srcClkFreq );
 
 
-#endif // INTERRUPTS_H
+
+// DOM-IGNORE-BEGIN
+#ifdef __cplusplus  // Provide C++ Compatibility
+}
+#endif
+// DOM-IGNORE-END
+
+#endif /* PLIB_SERCOM0_I2C_H */
