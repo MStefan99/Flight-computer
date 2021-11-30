@@ -1,12 +1,25 @@
 #include "i2c.h"
 
 
+uint8_t reg {};
+
+
 extern "C" {
 
 
 	void I2C_MB_Handler() {
 		static bool regAddrWritten{false};
 
+		if (!regAddrWritten) {
+			SERCOM0_REGS->I2CM.SERCOM_DATA = 0x01;
+			regAddrWritten = true;
+		} else {
+			SERCOM0_REGS->I2CM.SERCOM_CTRLB = SERCOM_I2CM_CTRLB_CMD(0x1);
+			uint8_t data[] {0};
+			i2c::streamIn(0x48, data);
+			SERCOM0_REGS->I2CM.SERCOM_INTENCLR = SERCOM_I2CM_INTENCLR_MB(1);
+			regAddrWritten = false;
+		}
 		SERCOM0_REGS->I2CM.SERCOM_INTFLAG = SERCOM_I2CM_INTFLAG_MB(1);
 	}
 
@@ -39,7 +52,7 @@ void i2c::init() {
 					| SERCOM_I2CM_CTRLA_MODE_I2C_MASTER;
 	SERCOM0_REGS->I2CM.SERCOM_BAUD = 39;
 	SERCOM0_REGS->I2CM.SERCOM_CTRLA |= SERCOM_I2CM_CTRLA_ENABLE(1);
-	SERCOM0_REGS->I2CM.SERCOM_INTENSET = SERCOM_I2CM_INTENSET_MB(1);
+	NVIC_EnableIRQ(SERCOM0_0_IRQn);
 
 	SERCOM0_REGS->I2CM.SERCOM_STATUS |= SERCOM_I2CM_STATUS_BUSSTATE(1);
 	while (!(SERCOM0_REGS->I2CM.SERCOM_STATUS & SERCOM_I2CM_STATUS_BUSSTATE_Msk));
@@ -47,6 +60,7 @@ void i2c::init() {
 
 
 void i2c::streamOut(uint8_t devAddr, uint8_t* buf, uint8_t size) {
+	DMAC_REGS->DMAC_CHID = DMA_CH_I2C_TX;
 	dma::DESCRIPTOR_TABLE[DMA_CH_I2C_TX].DMAC_BTCNT = size;
 	dma::DESCRIPTOR_TABLE[DMA_CH_I2C_TX].DMAC_SRCADDR = (uint32_t)(buf + size);
 	dma::DESCRIPTOR_TABLE[DMA_CH_I2C_TX].DMAC_DSTADDR = (uint32_t) & SERCOM0_REGS->I2CM.SERCOM_DATA;
@@ -59,21 +73,27 @@ void i2c::streamOut(uint8_t devAddr, uint8_t* buf, uint8_t size) {
 
 
 void i2c::streamIn(uint8_t devAddr, uint8_t* buf, uint8_t size) {
-	//	dma::DESCRIPTOR_TABLE[DMA_CH_I2C_TX].DMAC_SRCADDR = (uint32_t) & SERCOM0_REGS->I2CM.SERCOM_DATA;
-	//	dma::DESCRIPTOR_TABLE[DMA_CH_I2C_TX].DMAC_DSTADDR = (uint32_t)buf;
-	//	DMAC_REGS->DMAC_CHCTRLA = DMAC_CHCTRLA_ENABLE(1);
-	//
-	//	SERCOM0_REGS->I2CM.SERCOM_ADDR = SERCOM_I2CM_ADDR_ADDR(devAddr << 1u | 0x1)
-	//					| SERCOM_I2CM_ADDR_LEN(size)
-	//					| SERCOM_I2CM_ADDR_LENEN(1);
+	DMAC_REGS->DMAC_CHID = DMA_CH_I2C_RX;
+	dma::DESCRIPTOR_TABLE[DMA_CH_I2C_RX].DMAC_BTCNT = size;
+	dma::DESCRIPTOR_TABLE[DMA_CH_I2C_RX].DMAC_SRCADDR = (uint32_t) & SERCOM0_REGS->I2CM.SERCOM_DATA;
+	dma::DESCRIPTOR_TABLE[DMA_CH_I2C_RX].DMAC_DSTADDR = (uint32_t)(buf + size);
+	DMAC_REGS->DMAC_CHCTRLA = DMAC_CHCTRLA_ENABLE(1);
+
+	SERCOM0_REGS->I2CM.SERCOM_ADDR = SERCOM_I2CM_ADDR_ADDR(devAddr << 1u | 0x1)
+					| SERCOM_I2CM_ADDR_LEN(size)
+					| SERCOM_I2CM_ADDR_LENEN(1);
 }
 
 
 void i2c::writeRegister(uint8_t devAddr, uint8_t regAddr, uint8_t* buf, uint8_t size) {
-
+	reg = regAddr;
+	SERCOM0_REGS->I2CM.SERCOM_INTENSET = SERCOM_I2CM_INTENSET_MB(1);
+	SERCOM0_REGS->I2CM.SERCOM_ADDR = SERCOM_I2CM_ADDR_ADDR(devAddr << 1u);
 }
 
 
 void i2c::readRegister(uint8_t devAddr, uint8_t regAddr, uint8_t* buf, uint8_t size) {
-
+	reg = regAddr;
+	SERCOM0_REGS->I2CM.SERCOM_INTENSET = SERCOM_I2CM_INTENSET_MB(1);
+	SERCOM0_REGS->I2CM.SERCOM_ADDR = SERCOM_I2CM_ADDR_ADDR(devAddr << 1u);
 }

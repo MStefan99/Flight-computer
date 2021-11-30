@@ -11,7 +11,7 @@
 #include "device.h"
 
 
-#define DMA_CH_COUNT 1
+#define DMA_CH_COUNT 2
 
 #define DMA_CH_I2C_TX 0
 #define DMA_CH_I2C_RX 1
