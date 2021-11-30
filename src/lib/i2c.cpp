@@ -12,10 +12,9 @@ typedef struct __attribute__((packed)) {
 I2CTransfer;
 
 
-static std::list<I2CTransfer> pendingTransfers;  // TODO: replace
+static RingBuffer<I2CTransfer, uint8_t, 10> pendingTransfers;
 
 
-static void startTransfer();
 static void startStreamingIn(uint8_t devAddr, uint8_t* buf, uint8_t size);
 
 
@@ -40,8 +39,6 @@ extern "C" {
 
 	void I2C_TCMPL_Handler() {
 		pendingTransfers.pop_front();
-		while ((SERCOM0_REGS->I2CM.SERCOM_STATUS & SERCOM_I2CM_STATUS_BUSSTATE_Msk) != SERCOM_I2CM_STATUS_BUSSTATE(1));
-		startTransfer();
 		DMAC_REGS->DMAC_CHINTFLAG = 0xff;
 	}
 }
@@ -84,7 +81,7 @@ void i2c::streamOut(uint8_t devAddr, uint8_t* buf, uint8_t size) {
 		.read = false,
 		.stream = true
 	});
-	startTransfer();
+	i2c::startTransfer();
 }
 
 
@@ -96,7 +93,7 @@ void i2c::streamIn(uint8_t devAddr, uint8_t* buf, uint8_t size) {
 		.read = true,
 		.stream = true
 	});
-	startTransfer();
+	i2c::startTransfer();
 }
 
 
@@ -114,7 +111,7 @@ void i2c::writeRegister(uint8_t devAddr, uint8_t regAddr, uint8_t* buf, uint8_t 
 		.read = false,
 		.stream = true
 	});
-	startTransfer();
+	i2c::startTransfer();
 }
 
 
@@ -127,7 +124,7 @@ void i2c::readRegister(uint8_t devAddr, uint8_t regAddr, uint8_t* buf, uint8_t s
 		.read = true,
 		.stream = false
 	});
-	startTransfer();
+	i2c::startTransfer();
 }
 
 
@@ -144,7 +141,7 @@ static void startStreamingIn(uint8_t devAddr, uint8_t* buf, uint8_t size) {
 }
 
 
-static void startTransfer() {
+void i2c::startTransfer() {
 	if ((SERCOM0_REGS->I2CM.SERCOM_STATUS & SERCOM_I2CM_STATUS_BUSSTATE_Msk) != SERCOM_I2CM_STATUS_BUSSTATE(1)) {
 		return; // SERCOM not idle, cannot start transaction
 	} else if (pendingTransfers.empty()) {

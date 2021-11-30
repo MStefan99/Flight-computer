@@ -19,7 +19,6 @@ void systick::init() {
 	SysTick->CTRL = SysTick_CTRL_TICKINT_Msk
 					| SysTick_CTRL_CLKSOURCE_Msk
 					| SysTick_CTRL_ENABLE_Msk;
-	
 	NVIC_EnableIRQ(SysTick_IRQn);
 }
 
