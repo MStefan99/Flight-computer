@@ -48,8 +48,9 @@ int main() {
 	PORT_REGS->GROUP[0].PORT_PMUX[8] = PORT_PMUX_PMUXE_D // Mux pin 16 to SERCOM0
 					| PORT_PMUX_PMUXO_D; // Mux pin 17 to SERCOM0
 	
-	uint8_t data[] {0};
-	i2c::readRegister(0x48, 0x01, data);
+	uint8_t data[2] {0x0};
+	i2c::writeRegister(0x48, 0x01, data);
+	i2c::readRegister(0x48, 0x0, data);
 
 	// LED
 	//PORT_REGS->GROUP[0].PORT_DIRSET = 0x1 << 8u;

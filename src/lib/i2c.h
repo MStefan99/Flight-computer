@@ -9,6 +9,7 @@
 #define	I2C_H
 
 
+#include <list>
 #include "device.h"
 #include "lib/dma.h"
 
@@ -21,6 +22,8 @@ namespace i2c {
 	
 	void writeRegister(uint8_t devAddr, uint8_t regAddr, uint8_t* buf, uint8_t size = 1);
 	void readRegister(uint8_t devAddr, uint8_t regAddr, uint8_t* buf, uint8_t size = 1);
+	
+	// Note: The buffer for the writeRegister should contain one extra byte for the register address
 }
 
 
