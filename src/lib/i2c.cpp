@@ -5,14 +5,14 @@ extern "C" {
 
 
 	void I2C_MB_Handler() {
-		static bool regAddrWritten {false};
-		
+		static bool regAddrWritten{false};
+
 		SERCOM0_REGS->I2CM.SERCOM_INTFLAG = SERCOM_I2CM_INTFLAG_MB(1);
 	}
 
 
 	void I2C_TCMPL_Handler() {
-		DMAC_REGS->DMAC_CHINTFLAG = DMAC_CHINTFLAG_TCMPL(1);
+		DMAC_REGS->DMAC_CHINTFLAG = 0xff;
 	}
 }
 
@@ -47,7 +47,8 @@ void i2c::init() {
 
 
 void i2c::streamOut(uint8_t devAddr, uint8_t* buf, uint8_t size) {
-	dma::DESCRIPTOR_TABLE[DMA_CH_I2C_TX].DMAC_SRCADDR = (uint32_t)buf;
+	dma::DESCRIPTOR_TABLE[DMA_CH_I2C_TX].DMAC_BTCNT = size;
+	dma::DESCRIPTOR_TABLE[DMA_CH_I2C_TX].DMAC_SRCADDR = (uint32_t)(buf + size);
 	dma::DESCRIPTOR_TABLE[DMA_CH_I2C_TX].DMAC_DSTADDR = (uint32_t) & SERCOM0_REGS->I2CM.SERCOM_DATA;
 	DMAC_REGS->DMAC_CHCTRLA = DMAC_CHCTRLA_ENABLE(1);
 
@@ -58,13 +59,13 @@ void i2c::streamOut(uint8_t devAddr, uint8_t* buf, uint8_t size) {
 
 
 void i2c::streamIn(uint8_t devAddr, uint8_t* buf, uint8_t size) {
-	dma::DESCRIPTOR_TABLE[DMA_CH_I2C_TX].DMAC_SRCADDR = (uint32_t) & SERCOM0_REGS->I2CM.SERCOM_DATA;
-	dma::DESCRIPTOR_TABLE[DMA_CH_I2C_TX].DMAC_DSTADDR = (uint32_t)buf;
-	DMAC_REGS->DMAC_CHCTRLA = DMAC_CHCTRLA_ENABLE(1);
-
-	SERCOM0_REGS->I2CM.SERCOM_ADDR = SERCOM_I2CM_ADDR_ADDR(devAddr << 1u | 0x1)
-					| SERCOM_I2CM_ADDR_LEN(size)
-					| SERCOM_I2CM_ADDR_LENEN(1);
+	//	dma::DESCRIPTOR_TABLE[DMA_CH_I2C_TX].DMAC_SRCADDR = (uint32_t) & SERCOM0_REGS->I2CM.SERCOM_DATA;
+	//	dma::DESCRIPTOR_TABLE[DMA_CH_I2C_TX].DMAC_DSTADDR = (uint32_t)buf;
+	//	DMAC_REGS->DMAC_CHCTRLA = DMAC_CHCTRLA_ENABLE(1);
+	//
+	//	SERCOM0_REGS->I2CM.SERCOM_ADDR = SERCOM_I2CM_ADDR_ADDR(devAddr << 1u | 0x1)
+	//					| SERCOM_I2CM_ADDR_LEN(size)
+	//					| SERCOM_I2CM_ADDR_LENEN(1);
 }
 
 

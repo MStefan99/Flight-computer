@@ -48,8 +48,33 @@ int main() {
 	PORT_REGS->GROUP[0].PORT_PMUX[8] = PORT_PMUX_PMUXE_D // Mux pin 16 to SERCOM0
 					| PORT_PMUX_PMUXO_D; // Mux pin 17 to SERCOM0
 	
-	uint8_t data[] {0x1, 0x0};
-	i2c::streamOut(0x4d, data, 2);
+//	uint8_t src[] = {0x1a, 0x2b, 0x3c, 0x4d, 0x5e, 0x6f, 0};
+//	uint8_t dest[10] = {0};
+//	
+//	DMAC_REGS->DMAC_BASEADDR = (uint32_t)dma::DESCRIPTOR_TABLE;
+//	DMAC_REGS->DMAC_WRBADDR = (uint32_t)dma::WRITE_BACK_DESCRIPTOR_TABLE;
+//	DMAC_REGS->DMAC_CTRL = DMAC_CTRL_LVLEN0(1)
+//					| DMAC_CTRL_DMAENABLE(1);
+//
+//	DMAC_REGS->DMAC_CHID = 0;
+//	DMAC_REGS->DMAC_CHCTRLB = DMAC_CHCTRLB_TRIGACT_BLOCK;
+//
+//	DMAC_REGS->DMAC_CHINTENSET = DMAC_CHINTENSET_TCMPL(1) | DMAC_CHINTENSET_TERR(1);
+//	NVIC_EnableIRQ(DMAC_0_IRQn);
+//
+//	dma::DESCRIPTOR_TABLE[DMA_CH_I2C_TX].DMAC_BTCTRL = DMAC_BTCTRL_BEATSIZE_BYTE
+//					| DMAC_BTCTRL_SRCINC(1)
+//					| DMAC_BTCTRL_DSTINC(1)
+//					| DMAC_BTCTRL_VALID(1);
+//	dma::DESCRIPTOR_TABLE[DMA_CH_I2C_TX].DMAC_BTCNT = 6;
+//	
+//	dma::DESCRIPTOR_TABLE[DMA_CH_I2C_TX].DMAC_SRCADDR = (uint32_t) src + 6;
+//	dma::DESCRIPTOR_TABLE[DMA_CH_I2C_TX].DMAC_DSTADDR = (uint32_t) dest + 6;
+//	DMAC_REGS->DMAC_CHCTRLA = DMAC_CHCTRLA_ENABLE(1);
+//	DMAC_REGS->DMAC_SWTRIGCTRL = 1;
+	
+	uint8_t data[] {0x1, 0x80};
+	i2c::streamOut(0x48, data, 2);
 
 	// LED
 	//PORT_REGS->GROUP[0].PORT_DIRSET = 0x1 << 8u;
@@ -61,7 +86,7 @@ int main() {
 			servo::setAngle(i, ++angle);
 		}
 
-		systick::sleep(10);
+		systick::sleep(20);
 	}
 
 	return 1;

@@ -19,7 +19,7 @@ files:
   physicalPath: ''
   security: NON_SECURE
   type: SOURCE
-  userChecksum: F2ED4E0A59B984D043774F290D02BE2D
+  userChecksum: 7397169EDAAEF910ED8E2A272ADCC520
 - generatedChecksum: 6513F2461B8F476B68CA73906086047F
   logicalPath: config/default
   name: libc_syscalls.c
@@ -355,7 +355,7 @@ files:
   physicalPath: ''
   security: NON_SECURE
   type: HEADER
-  userChecksum: F0DF94C2D6E30DF13C7EB9502E87B906
+  userChecksum: 2876B3B7DBD6B0525135347118FA7BA3
 - generatedChecksum: B54440C2E900C8E34A7A7337710DA286
   logicalPath: packs/ATSAML10E16A_DFP/component
   name: mclk.h
