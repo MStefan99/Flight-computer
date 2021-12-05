@@ -5,6 +5,7 @@
 #include "lib/inc/cpu.h"
 #include "lib/inc/i2c.h"
 #include "lib/inc/lps22.h"
+#include "lib/inc/lsm303.h"
 
 
 /* Clock distribution
@@ -35,6 +36,7 @@ int main() {
 	cpu::init();
 	i2c::init();
 	lps22::init();
+	lsm303::init();
 	for (uint8_t i{0}; i < 6; ++i) {
 		servo::enable(i);
 	}
@@ -42,6 +44,7 @@ int main() {
 	// LED
 	//PORT_REGS->GROUP[0].PORT_DIRSET = 0x1 << 8u;
 	lps22::update();
+	lsm303::update();
 
 	while (1) {
 		i2c::startTransfer();

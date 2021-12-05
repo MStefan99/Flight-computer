@@ -198,3 +198,8 @@ void i2c::startTransfer() {
 			break;
 	}
 }
+
+
+bool transferPending() {
+	return !pendingTransfers.empty();
+}

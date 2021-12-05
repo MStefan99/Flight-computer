@@ -24,8 +24,9 @@ namespace i2c {
 	void writeRegister(uint8_t devAddr, uint8_t regAddr, uint8_t* buf, uint8_t size = 1);
 	void readRegister(uint8_t devAddr, uint8_t regAddr, uint8_t* buf, uint8_t size = 1);
 	
-	// If queue is used, startTransfer should be polled at regular intervals
+	// I2C transfers are queued, call this function to start next transaction
 	void startTransfer();
+	bool transferPending();
 }
 
 
