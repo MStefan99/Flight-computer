@@ -1,4 +1,4 @@
-#include "i2c.h"
+#include "lib/inc/i2c.h"
 
 
 enum I2CTransferType {

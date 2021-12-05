@@ -1,4 +1,4 @@
-#include "lib/servo.h"
+#include "lib/inc/servo.h"
 
 
 static tc_registers_t* getTimer(uint8_t channel);

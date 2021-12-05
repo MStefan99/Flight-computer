@@ -1,4 +1,4 @@
-#include "lib/lps22.h"
+#include "lib/inc/lps22.h"
 
 #define LPS22_ADDR_INT 0x5c
 #define LPS22_ADDR_EXT 0x5d
@@ -15,7 +15,7 @@ void lps22::init() {
 
 
 void lps22::update() {
-	i2c::readRegister(LPS22_ADDR_EXT,	0x95, (uint8_t*)&staticPressure, 3);
+	i2c::readRegister(LPS22_ADDR_EXT,	0xa8, (uint8_t*)&staticPressure, 3);
 }
 
 

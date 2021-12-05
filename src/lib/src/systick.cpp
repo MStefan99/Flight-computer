@@ -1,4 +1,4 @@
-#include "lib/systick.h"
+#include "lib/inc/systick.h"
 
 
 static uint32_t ticks {0};

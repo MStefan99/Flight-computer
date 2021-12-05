@@ -11,8 +11,8 @@
 
 #include <cstring>
 #include "device.h"
-#include "lib/list.h"
-#include "lib/dma.h"
+#include "lib/inc/list.h"
+#include "lib/inc/dma.h"
 
 
 namespace i2c {

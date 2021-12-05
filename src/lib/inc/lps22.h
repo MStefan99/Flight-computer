@@ -9,7 +9,7 @@
 #define	LPS22_H
 
 #include "device.h"
-#include "lib/i2c.h"
+#include "lib/inc/i2c.h"
 
 
 namespace lps22 {

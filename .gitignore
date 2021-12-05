@@ -25,9 +25,11 @@ nbdist/
 nbactions.xml
 nb-configuration.xml
 funclist
-nbproject/Makefile-*
+**/nbproject/Makefile-*
+**/configurations.xml
 disassembly/
 *.map
+.generated_files
 
 ### NetBeans ###
 **/nbproject/private/
