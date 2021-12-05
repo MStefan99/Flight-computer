@@ -61,8 +61,8 @@ void Reset_Handler (void);
 void NonMaskableInt_Handler (void);
 void HardFault_Handler (void);
 
-void I2C_MB_Handler();
-void I2C_TCMPL_Handler();
+void I2C_Handler();
+void DMA_Handler();
 
 
 #endif // INTERRUPTS_H

@@ -25,7 +25,7 @@ namespace dma {
 	extern dmac_descriptor_registers_t DESCRIPTOR_TABLE[];
 	extern dmac_descriptor_registers_t WRITE_BACK_DESCRIPTOR_TABLE[];
 	
-	extern void I2C_TRCPT_Handler();
+	extern void I2C_TCMPL_Handler();  // Interrupt is cleared automatically
 	
 	void initI2C();
 }

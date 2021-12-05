@@ -5,6 +5,21 @@ dmac_descriptor_registers_t dma::DESCRIPTOR_TABLE[DMA_CH_COUNT];
 dmac_descriptor_registers_t dma::WRITE_BACK_DESCRIPTOR_TABLE[DMA_CH_COUNT];
 
 
+extern "C" {
+	
+	void DMA_Handler() {
+		switch (DMAC_REGS->DMAC_INTPEND & DMAC_INTPEND_ID_Msk) {
+			case 0:
+			case 1:
+				dma::I2C_TCMPL_Handler();
+				break;				
+		}
+		DMAC_REGS->DMAC_CHID = DMAC_REGS->DMAC_INTPEND & DMAC_INTPEND_ID_Msk;
+		DMAC_REGS->DMAC_CHINTFLAG = DMAC_CHINTFLAG_Msk;
+	}
+}
+
+
 void dma::initI2C() {
 	// DMA config
 	DMAC_REGS->DMAC_BASEADDR = (uint32_t)dma::DESCRIPTOR_TABLE;
