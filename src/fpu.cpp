@@ -12,13 +12,15 @@
  * 
  * OSC16M @ 8MHz
  * |
- * |--> GCLK0 @ 8MHz 
- * |    |
- * |     `-> MCLK @ 8MHz
- * |
- *  `-> GCLK1 @ 62500Hz
+ *  `-> GCLK0 @ 8MHz 
  *      |
- *       `-> GCLK_TC0-2 @ 62500Hz
+ *       `-> MCLK @ 8MHz
+ *
+ * OSCULP32K @ 32768Hz
+ * |
+ *  `-> GCLK1 @ 32768Hz
+ *      |
+ *       `-> GCLK_TC0-2 @ 32768Hz
  */
 
 
@@ -26,6 +28,8 @@ int main() {
 	// OSCCTRL config
 	OSCCTRL_REGS->OSCCTRL_OSC16MCTRL = OSCCTRL_OSC16MCTRL_ENABLE(1) // Enable OSC16M
 					| OSCCTRL_OSC16MCTRL_FSEL_8; // Set frequency to 8MHz
+	OSC32KCTRL_REGS->OSC32KCTRL_OSCULP32K = OSC32KCTRL_OSCULP32K_CALIB(15)
+					| OSC32KCTRL_OSCULP32K_ULP32KSW(0);
 
 	// NVIC config
 	__DMB();

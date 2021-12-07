@@ -34,9 +34,9 @@ static uint8_t getPin(uint8_t channel) {
 void servo::init() {
 	// GLCK config
 	GCLK_REGS->GCLK_GENCTRL[1] = GCLK_GENCTRL_GENEN(1) // Enable GCLK 1
-					| GCLK_GENCTRL_SRC_OSC16M // Set OSC16M as a source
-					| GCLK_GENCTRL_DIVSEL_DIV2 // Set division mode (2^(x+1))
-					| GCLK_GENCTRL_DIV(6); // Divide by 128 (2^(6+1))
+					| GCLK_GENCTRL_SRC_OSCULP32K // Set OSC32ULP as a source
+					| GCLK_GENCTRL_DIVSEL_DIV1 // Set division mode (x + 1)
+					| GCLK_GENCTRL_DIV(0); // Divide by 1 (0 + 1)
 	GCLK_REGS->GCLK_PCHCTRL[14] = GCLK_PCHCTRL_CHEN(1) // Enable TC0-1 clock
 					| GCLK_PCHCTRL_GEN_GCLK1; //Set GCLK1 as a clock source
 	GCLK_REGS->GCLK_PCHCTRL[15] = GCLK_PCHCTRL_CHEN(1) // Enable TC2 clock
@@ -51,8 +51,8 @@ void servo::enable(const uint8_t channel) {
 	timer->COUNT16.TC_CTRLA = TC_CTRLA_MODE_COUNT16;
 	timer->COUNT16.TC_DBGCTRL = TC_DBGCTRL_DBGRUN(1);
 	timer->COUNT16.TC_WAVE = TC_WAVE_WAVEGEN_NPWM;
-	timer->COUNT16.TC_PER = 1250;
-	timer->COUNT16.TC_CC[getTimerChannel(channel)] = 96;
+	timer->COUNT16.TC_PER = 655;  // 20ms / GCLK_TC
+	timer->COUNT16.TC_CC[getTimerChannel(channel)] = 49;  // 1.5ms / GCLK_TC
 	timer->COUNT16.TC_CTRLA |= TC_CTRLA_ENABLE(1);
 
 	// PORT config
@@ -76,5 +76,6 @@ void servo::disable(const uint8_t channel) {
 
 
 void servo::setAngle(const uint8_t channel, const uint8_t angle) {
-	getTimer(channel)->COUNT16.TC_CCBUF[getTimerChannel(channel)] = angle / 4 + 63;
+	// map = (x1, y1, x2, y2, value) => (value - x1) * (y2 - x2) / (y1 - x1) + x2;
+	getTimer(channel)->COUNT16.TC_CCBUF[getTimerChannel(channel)] = angle / 8 + 32;
 }
