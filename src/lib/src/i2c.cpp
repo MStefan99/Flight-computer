@@ -63,7 +63,7 @@ void dma::I2C_TCMPL_Handler() {
 
 static void endTransfer() {
 	I2CTransfer transfer{pendingTransfers.front()};
-	if (transfer.type != I2CTransferType::Read) {
+	if (transfer.type == I2CTransferType::Write) {
 		delete[](transfer.buf);
 	}
 	pendingTransfers.pop_front();

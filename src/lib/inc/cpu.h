@@ -13,7 +13,7 @@
 
 namespace cpu {
 	enum CommandType {
-		TEST = 0
+		NUL = 0
 	};
 	
 	
@@ -25,6 +25,8 @@ namespace cpu {
 	
 	
 	void init();
+	
+	void send(uint8_t data);
 	void sendCommand(Command command);
 	Command getCommand();
 }

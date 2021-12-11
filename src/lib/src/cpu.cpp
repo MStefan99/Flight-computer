@@ -1,9 +1,6 @@
 #include "lib/inc/cpu.h"
 
 
-static void send(uint8_t data);
-
-
 void cpu::init() {
 	GCLK_REGS->GCLK_PCHCTRL[13] = GCLK_PCHCTRL_CHEN(1) // Enable SERCOM2 clock
 					| GCLK_PCHCTRL_GEN_GCLK0; //Set GCLK0 as a clock source
@@ -32,6 +29,6 @@ void cpu::init() {
 }
 
 
-static void send(uint8_t data) {
+void cpu::send(uint8_t data) {
 	SERCOM2_REGS->USART_INT.SERCOM_DATA = data;
 }

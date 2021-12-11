@@ -9,6 +9,7 @@
 #define	SERVO_H
 
 #include "device.h"
+#include "common.h"
 
 
 namespace servo {

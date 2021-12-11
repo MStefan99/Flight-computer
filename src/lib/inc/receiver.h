@@ -10,5 +10,12 @@
 
 #include "device.h"
 
+
+namespace receiver {
+	void init();
+	
+	uint8_t getChannel();
+}
+
 #endif	/* RECEIVER_H */
 

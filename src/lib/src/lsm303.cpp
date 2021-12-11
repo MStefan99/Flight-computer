@@ -18,3 +18,18 @@ void lsm303::init() {
 void lsm303::update() {
 	i2c::readRegister(LSM303_ADDR_ACC, 0xa8, accData, 6);
 }
+
+
+int16_t lsm303::getAccelerationX() {
+	return (int16_t)(accData[0] | accData[1] << 8u) >> 4u;
+}
+
+
+int16_t lsm303::getAccelerationY() {
+	return (int16_t)(accData[2] | accData[3] << 8u) >> 4u;
+}
+
+
+int16_t lsm303::getAccelerationZ() {
+	return (int16_t)(accData[4] | accData[5] << 8u) >> 4u;
+}
