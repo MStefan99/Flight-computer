@@ -19,7 +19,7 @@ int main() {
 
 	cpu::init();
 	i2c::init();
-	//lps22::init();
+	lps22::init();
 	lsm303::init();
 
 	while (1) {
@@ -31,7 +31,7 @@ int main() {
 		
 		if (!(system::getTickCount() % 20)) {
 			fastUpdate();
-			//lps22::update();
+			lps22::update();
 			lsm303::update();
 		}
 		
