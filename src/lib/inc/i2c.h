@@ -31,4 +31,3 @@ namespace i2c {
 
 
 #endif	/* I2C_H */
-

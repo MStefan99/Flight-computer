@@ -8,11 +8,13 @@
 #ifndef CPU_H
 #define	CPU_H
 
+#include <cstring>
 #include "device.h"
+#include "lib/inc/dma.h"
 
 
 namespace cpu {
-	enum CommandType {
+	enum CommandType: uint8_t {
 		NUL = 0
 	};
 	
@@ -20,15 +22,19 @@ namespace cpu {
 	struct Command {
 		CommandType _type;
 		uint8_t _len;
-		uint8_t data[];
+		uint8_t data[6];
 	};
 	
 	
 	void init();
 	
-	void send(uint8_t data);
+	void send(uint8_t* data, uint8_t size);
 	void sendCommand(Command command);
 	Command getCommand();
+	
+	// I2C transfers are queued, call this function to start next transaction
+	void startTransfer();
+	bool transferPending();
 }
 
 

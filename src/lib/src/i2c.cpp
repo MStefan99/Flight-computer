@@ -1,7 +1,7 @@
 #include "lib/inc/i2c.h"
 
 
-enum I2CTransferType {
+enum I2CTransferType: uint8_t {
 	Read,
 	Write,
 	WriteRead
@@ -85,12 +85,12 @@ void i2c::init() { // GCLK config
 	SERCOM0_REGS->I2CM.SERCOM_CTRLB = SERCOM_I2CM_CTRLB_SMEN(1);
 
 	// SERCOM config
+	SERCOM0_REGS->I2CM.SERCOM_BAUD = 33;
 	SERCOM0_REGS->I2CM.SERCOM_CTRLA = SERCOM_I2CM_CTRLA_LOWTOUTEN(1)
 					| SERCOM_I2CM_CTRLA_SPEED_STANDARD_AND_FAST_MODE
 					| SERCOM_I2CM_CTRLA_PINOUT(0)
-					| SERCOM_I2CM_CTRLA_MODE_I2C_MASTER;
-	SERCOM0_REGS->I2CM.SERCOM_BAUD = 33;
-	SERCOM0_REGS->I2CM.SERCOM_CTRLA |= SERCOM_I2CM_CTRLA_ENABLE(1);
+					| SERCOM_I2CM_CTRLA_MODE_I2C_MASTER
+					| SERCOM_I2CM_CTRLA_ENABLE(1);
 	SERCOM0_REGS->I2CM.SERCOM_INTENSET = SERCOM_I2CM_INTENSET_ERROR(1);
 	NVIC_EnableIRQ(SERCOM0_0_IRQn);
 	NVIC_EnableIRQ(SERCOM0_OTHER_IRQn);
@@ -200,6 +200,6 @@ void i2c::startTransfer() {
 }
 
 
-bool transferPending() {
+bool i2c::transferPending() {
 	return !pendingTransfers.empty();
 }

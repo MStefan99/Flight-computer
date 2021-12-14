@@ -8,7 +8,7 @@ void millisecondUpdate() {
 
 void fastUpdate() {
 	servo::setAngle(0, MAP(-1200, 1200, 0, 0xff, lsm303::getAccelerationY()));
-	servo::setAngle(0, MAP(-1200, 1200, 0, 0xff, lsm303::getAccelerationX()));
+	servo::setAngle(1, MAP(-1200, 1200, 0, 0xff, lsm303::getAccelerationX()));
 }
 
 

@@ -11,23 +11,24 @@
 #include "device.h"
 
 
-#define DMA_CH_COUNT 2
+#define DMA_CH_COUNT 4
 
 #define DMA_CH_I2C_TX 0
 #define DMA_CH_I2C_RX 1
-#define DMA_CH_SPI_TX 2
-#define DMA_CH_SPI_RX 3
-#define DMA_CH_UART_TX 4
-#define DMA_CH_UART_RX 5
+#define DMA_CH_CPU_TX 2
+#define DMA_CH_CPU_RX 3
 
 
 namespace dma {
 	extern dmac_descriptor_registers_t DESCRIPTOR_TABLE[];
 	extern dmac_descriptor_registers_t WRITE_BACK_DESCRIPTOR_TABLE[];
 	
-	extern void I2C_TCMPL_Handler();  // Interrupt is cleared automatically
+	// Interrupts are cleared automatically for the following handlers
+	extern void I2C_TCMPL_Handler();  
+	extern void CPU_TCMPL_Handler();
 	
 	void initI2C();
+	void initCPU();
 }
 
 #endif	/* DMA_H */
