@@ -1,3 +1,4 @@
+#include <cstring>
 #include "device.h"
 //#include <xc.h>  // TODO: explore, possibly delete Harmony files
 
@@ -14,31 +15,31 @@ int main() {
 	system::init();
 	servo::init();
 	for (uint8_t i{0}; i < 4; ++i) {
-		servo::enable(i);
-	}
+	servo::enable(i);
+}
 
 	cpu::init();
 	i2c::init();
 	lps22::init();
 	lsm303::init();
-	
-	uint8_t buf[] = {0xa5, 0x0f, 0xf0, 0x5a, 0xe7, 0x7e};
 
 	while (1) {
 		system::sleep(1);
-		
+
 		i2c::startTransfer();
 		cpu::startTransfer();
-		
+
 		millisecondUpdate();
-		
+
 		if (!(system::getTickCount() % 20)) {
 			fastUpdate();
 			lps22::update();
 			lsm303::update();
-			cpu::send(buf, 6);
+			cpu::Command cmd {cpu::SendAccData, 6};
+			memcpy(cmd.data, lsm303::getAcc(), cmd.len);
+			cpu::sendCommand(cmd);
 		}
-		
+
 		if (!(system::getTickCount() % 1000)) {
 			slowUpdate();
 		}

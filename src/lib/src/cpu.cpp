@@ -48,7 +48,7 @@ void cpu::init() {
 					| SERCOM_USART_INT_CTRLB_PMODE_EVEN
 					| SERCOM_USART_INT_CTRLB_SBMODE_1_BIT
 					| SERCOM_USART_INT_CTRLB_CHSIZE_8_BIT;
-	SERCOM2_REGS->USART_INT.SERCOM_BAUD = 50436;
+	SERCOM2_REGS->USART_INT.SERCOM_BAUD = 0;  // 500KHz
 	SERCOM2_REGS->USART_INT.SERCOM_CTRLA = SERCOM_USART_INT_CTRLA_DORD_LSB
 					| SERCOM_USART_INT_CTRLA_CMODE_ASYNC
 					| SERCOM_USART_INT_CTRLA_FORM_USART_FRAME_WITH_PARITY
@@ -68,6 +68,11 @@ void cpu::send(uint8_t* data, uint8_t size) {
 		.len = size,
 		.type = UARTTransferType::Send
 	});
+}
+
+
+void cpu::sendCommand(const cpu::Command& command) {
+	cpu::send((uint8_t*)&command, sizeof(cpu::Command));
 }
 
 

@@ -15,13 +15,14 @@
 
 namespace cpu {
 	enum CommandType: uint8_t {
-		NUL = 0
+		NUL = 0,
+		SendAccData = 1
 	};
 	
 	
 	struct Command {
-		CommandType _type;
-		uint8_t _len;
+		CommandType type;
+		uint8_t len;
 		uint8_t data[6];
 	};
 	
@@ -29,7 +30,7 @@ namespace cpu {
 	void init();
 	
 	void send(uint8_t* data, uint8_t size);
-	void sendCommand(Command command);
+	void sendCommand(const Command& command);
 	Command getCommand();
 	
 	// I2C transfers are queued, call this function to start next transaction

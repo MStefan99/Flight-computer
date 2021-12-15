@@ -17,13 +17,16 @@ namespace lsm303 {
 	void init();
 	void update();
 	
-	int16_t getAccelerationX();
-	int16_t getAccelerationY();
-	int16_t getAccelerationZ();
+	const int16_t* getAcc();
+	const int16_t* getMag();
 	
-	int16_t getMagneticX();
-	int16_t getMagneticY();
-	int16_t getMagneticZ();
+	int16_t getAccX();
+	int16_t getAccY();
+	int16_t getAccZ();
+	
+	int16_t getMagX();
+	int16_t getMagY();
+	int16_t getMagZ();
 }
 
 

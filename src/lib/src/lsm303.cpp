@@ -25,16 +25,21 @@ void lsm303::update() {
 }
 
 
-int16_t lsm303::getAccelerationX() {
+const int16_t* lsm303::getAcc() {
+	return accDataFiltered;
+}
+
+
+int16_t lsm303::getAccX() {
 	return accDataFiltered[0];
 }
 
 
-int16_t lsm303::getAccelerationY() {
+int16_t lsm303::getAccY() {
 	return accDataFiltered[1];
 }
 
 
-int16_t lsm303::getAccelerationZ() {
+int16_t lsm303::getAccZ() {
 	return accDataFiltered[2];
 }
