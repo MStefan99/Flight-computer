@@ -18,7 +18,7 @@ typedef struct __attribute__((packed)) {
 I2CTransfer;
 
 
-static list<I2CTransfer> pendingTransfers;
+static tl::list<I2CTransfer> pendingTransfers;
 
 
 static void streamOut(uint8_t devAddr, uint8_t* buf, uint8_t len);

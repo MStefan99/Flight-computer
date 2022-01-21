@@ -16,7 +16,7 @@ typedef struct __attribute__((packed)) {
 UARTTransfer;
 
 
-static list<UARTTransfer> pendingTransfers;
+static tl::list<UARTTransfer> pendingTransfers;
 //static list<>;
 
 
