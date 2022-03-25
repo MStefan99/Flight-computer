@@ -15,7 +15,7 @@ extern "C" {
 				break;	
 			case 2:
 			case 3:
-				dma::CPU_TCMPL_Handler();
+				dma::UART_TCMPL_Handler();
 				break;
 		}
 		DMAC_REGS->DMAC_CHID = DMAC_REGS->DMAC_INTPEND & DMAC_INTPEND_ID_Msk;
@@ -57,7 +57,7 @@ void dma::initI2C() {
 }
 
 
-void dma::initCPU() {
+void dma::initUART() {
 	// DMA config
 	DMAC_REGS->DMAC_BASEADDR = (uint32_t)dma::DESCRIPTOR_TABLE;
 	DMAC_REGS->DMAC_WRBADDR = (uint32_t)dma::WRITE_BACK_DESCRIPTOR_TABLE;

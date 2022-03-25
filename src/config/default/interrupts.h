@@ -62,6 +62,7 @@ void NonMaskableInt_Handler (void);
 void HardFault_Handler (void);
 
 void I2C_Handler();
+void UART_Handler();
 void DMA_Handler();
 
 

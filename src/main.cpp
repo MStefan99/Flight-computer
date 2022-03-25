@@ -4,7 +4,7 @@
 
 #include "lib/inc/system.h"
 #include "lib/inc/servo.h"
-#include "lib/inc/cpu.h"
+#include "lib/inc/pc.h"
 #include "lib/inc/i2c.h"
 #include "lib/inc/lps22.h"
 #include "lib/inc/lsm303.h"
@@ -18,7 +18,7 @@ int main() {
 	servo::enable(i);
 }
 
-	cpu::init();
+	pc::init();
 	i2c::init();
 	lps22::init();
 	lsm303::init();
@@ -27,7 +27,7 @@ int main() {
 		system::sleep(1);
 
 		i2c::startTransfer();
-		cpu::startTransfer();
+		pc::startTransfer();
 
 		millisecondUpdate();
 
@@ -35,9 +35,9 @@ int main() {
 			fastUpdate();
 			lps22::update();
 			lsm303::update();
-			cpu::Command cmd {cpu::SendAccData, 6};
+			pc::Command cmd {6, pc::SendAxisData};
 			memcpy(cmd.data, lsm303::getAcc(), cmd.len);
-			cpu::sendCommand(cmd);
+			pc::sendCommand(cmd);
 		}
 
 		if (!(system::getTickCount() % 1000)) {
