@@ -23,6 +23,7 @@ I2CTransfer;
 static tl::list<I2CTransfer> pendingTransfers;
 
 
+static void startTransfer();
 static void streamOut(uint8_t devAddr, uint8_t* buf, uint8_t len);
 static void streamIn(uint8_t devAddr, uint8_t* buf, uint8_t len);
 static void endTransfer();
@@ -33,7 +34,7 @@ extern "C" {
 
 	void I2C_Handler() {
 		I2CTransfer transfer{pendingTransfers.front()};
-
+        
 		if (SERCOM_REGS->I2CM.SERCOM_INTFLAG & SERCOM_I2CM_INTFLAG_ERROR_Msk ||
 						(SERCOM_REGS->I2CM.SERCOM_STATUS & SERCOM_I2CM_STATUS_RXNACK_Msk)) {
 			DMAC_REGS->DMAC_CHID = transfer.type == I2CTransferType::Read ? DMA_CH_I2C_RX : DMA_CH_I2C_TX;
@@ -60,6 +61,7 @@ extern "C" {
 
 void dma::I2C_TCMPL_Handler() {
 	endTransfer();
+    startTransfer();
 }
 
 
@@ -112,6 +114,8 @@ void i2c::write(uint8_t devAddr, uint8_t* buf, uint8_t size) {
 		.len = size,
 		.type = I2CTransferType::Write
 	});
+    
+    startTransfer();
 }
 
 
@@ -122,6 +126,8 @@ void i2c::read(uint8_t devAddr, uint8_t* buf, uint8_t size) {
 		.len = size,
 		.type = I2CTransferType::Read
 	});
+    
+    startTransfer();
 }
 
 
@@ -137,6 +143,9 @@ void i2c::writeRegister(uint8_t devAddr, uint8_t regAddr, uint8_t* buf, uint8_t 
 		.len = (uint8_t)(size + 1),
 		.type = I2CTransferType::Write
 	});
+    
+    
+    startTransfer();
 }
 
 
@@ -148,6 +157,9 @@ void i2c::readRegister(uint8_t devAddr, uint8_t regAddr, uint8_t* buf, uint8_t s
 		.len = size,
 		.type = I2CTransferType::WriteRead
 	});
+    
+    
+    startTransfer();
 }
 
 
@@ -177,7 +189,7 @@ static void streamIn(uint8_t devAddr, uint8_t* buf, uint8_t len) {
 }
 
 
-void i2c::startTransfer() {
+static void startTransfer() {
 	if ((SERCOM_REGS->I2CM.SERCOM_STATUS & SERCOM_I2CM_STATUS_BUSSTATE_Msk) != SERCOM_I2CM_STATUS_BUSSTATE(1)
 					|| DMAC_REGS->DMAC_ACTIVE & DMAC_ACTIVE_ABUSY_Msk) {
 		return; // SERCOM/DMA busy, cannot start another transfer

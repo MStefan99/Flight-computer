@@ -22,8 +22,7 @@
 namespace dma {
 	extern dmac_descriptor_registers_t DESCRIPTOR_TABLE[];
 	extern dmac_descriptor_registers_t WRITE_BACK_DESCRIPTOR_TABLE[];
-    extern uint8_t UARTIncomingData[];
-	
+    
 	// Interrupts are cleared automatically for the following handlers
 	extern void I2C_TCMPL_Handler();  
 	extern void UART_TCMPL_Handler();

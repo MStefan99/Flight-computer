@@ -26,7 +26,6 @@ int main() {
 	while (1) {
 		system::sleep(1);
 
-		i2c::startTransfer();
 		pc::startTransfer();
 
 		millisecondUpdate();
@@ -34,7 +33,7 @@ int main() {
 		if (!(system::getTickCount() % 20)) {
 			fastUpdate();
 			lps22::update();
-			lsm303::update();
+            lsm303::update();
 			pc::Command cmd {6, pc::SendAxisData};
 			memcpy(cmd.data, lsm303::getAcc(), cmd.len);
 			pc::sendCommand(cmd);
