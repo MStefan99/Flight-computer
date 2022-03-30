@@ -11,6 +11,7 @@ typedef struct __attribute__((packed)) {
 UARTTransfer;
 
 
+static void startTransfer();
 static void send(uint8_t* data, uint8_t size);
 static tl::list<UARTTransfer> pendingTransfers;
 
@@ -33,6 +34,7 @@ void dma::UART_TCMPL_Handler() {
 	UARTTransfer transfer{pendingTransfers.front()};
 	delete[](transfer.buf);
 	pendingTransfers.pop_front();
+    startTransfer();
 }
 
 
@@ -75,6 +77,8 @@ static void send(uint8_t* data, uint8_t size) {
 		.buf = txBuf,
 		.len = size
 	});
+    
+    startTransfer();
 }
 
 
@@ -83,7 +87,7 @@ void pc::sendCommand(const pc::Command& command) {
 }
 
 
-void pc::startTransfer() {
+static void startTransfer() {
 	if ((SERCOM_REGS->USART_INT.SERCOM_STATUS & SERCOM_USART_INT_STATUS_CTS_Msk)
 					|| DMAC_REGS->DMAC_ACTIVE & DMAC_ACTIVE_ABUSY_Msk) {
 		return; // SERCOM/DMA busy, cannot start another transfer

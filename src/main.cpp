@@ -15,9 +15,9 @@ int main() {
 	system::init();
 	servo::init();
 	for (uint8_t i{0}; i < 4; ++i) {
-	servo::enable(i);
-}
-
+        servo::enable(i);
+    }
+    
 	pc::init();
 	i2c::init();
 	lps22::init();
@@ -25,8 +25,6 @@ int main() {
 
 	while (1) {
 		system::sleep(1);
-
-		pc::startTransfer();
 
 		millisecondUpdate();
 

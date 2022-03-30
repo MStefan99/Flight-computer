@@ -32,9 +32,6 @@ namespace pc {
     
     uint8_t dataReceived();
 	uint8_t* getData();
-	
-	// I2C transfers are queued, call this function to start next transaction
-	void startTransfer();
 }
 
 
