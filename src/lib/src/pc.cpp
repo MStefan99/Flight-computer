@@ -4,18 +4,6 @@
 #define SERCOM_REGS SERCOM2_REGS
 
 
-typedef struct __attribute__((packed)) {
-	uint8_t* buf;
-	uint8_t len;
-}
-UARTTransfer;
-
-
-static void startTransfer();
-static void send(uint8_t* data, uint8_t size);
-static tl::list<UARTTransfer> pendingTransfers;
-
-
 static uint8_t incomingData[8] {};
 static uint8_t bytesReceived {0};
 
@@ -27,14 +15,6 @@ extern "C" {
         }
         SERCOM_REGS->USART_INT.SERCOM_INTFLAG = SERCOM_USART_INT_INTENSET_RXC(1);
     }
-}
-
-
-void dma::UART_TCMPL_Handler() {
-	UARTTransfer transfer{pendingTransfers.front()};
-	delete[](transfer.buf);
-	pendingTransfers.pop_front();
-    startTransfer();
 }
 
 
@@ -69,39 +49,20 @@ void pc::init() {
 }
 
 
-static void send(uint8_t* data, uint8_t size) {
+void pc::send(uint8_t* data, uint8_t size) {
 	uint8_t* txBuf = new uint8_t[size];
 	memcpy(txBuf, data, size);
 
-	pendingTransfers.push_back({
+	dma::startTransfer(dma::UARTTransfer{
 		.buf = txBuf,
-		.len = size
+		.len = size,
+        .sercom = SERCOM_REGS
 	});
-    
-    startTransfer();
 }
 
 
 void pc::sendCommand(const pc::Command& command) {
 	send((uint8_t*)&command, sizeof(pc::Command));
-}
-
-
-static void startTransfer() {
-	if ((SERCOM_REGS->USART_INT.SERCOM_STATUS & SERCOM_USART_INT_STATUS_CTS_Msk)
-					|| DMAC_REGS->DMAC_ACTIVE & DMAC_ACTIVE_ABUSY_Msk) {
-		return; // SERCOM/DMA busy, cannot start another transfer
-	} else if (pendingTransfers.empty()) {
-		return; // No pending transfer
-	}
-
-	UARTTransfer transfer{pendingTransfers.front()};
-
-    DMAC_REGS->DMAC_CHID = DMA_CH_CPU_TX;
-    dma::DESCRIPTOR_TABLE[DMA_CH_CPU_TX].DMAC_BTCNT = transfer.len;
-    dma::DESCRIPTOR_TABLE[DMA_CH_CPU_TX].DMAC_SRCADDR = (uint32_t)(transfer.buf + transfer.len);
-    dma::DESCRIPTOR_TABLE[DMA_CH_CPU_TX].DMAC_DSTADDR = (uint32_t) & SERCOM_REGS->USART_INT.SERCOM_DATA;
-    DMAC_REGS->DMAC_CHCTRLA = DMAC_CHCTRLA_ENABLE(1);
 }
 
 

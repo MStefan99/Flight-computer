@@ -11,7 +11,6 @@
 
 #include <cstring>
 #include "device.h"
-#include "lib/inc/list.h"
 #include "lib/inc/dma.h"
 
 

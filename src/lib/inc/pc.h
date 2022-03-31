@@ -28,6 +28,8 @@ namespace pc {
 	
 	
 	void init();
+    void send(uint8_t* data, uint8_t size);
+    
 	void sendCommand(const Command& command);
     
     uint8_t dataReceived();
