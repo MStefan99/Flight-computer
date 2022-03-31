@@ -16,14 +16,14 @@ int main() {
 	system::init();
 	servo::init();
 	for (uint8_t i{0}; i < 4; ++i) {
-        servo::enable(i);
-    }
-    
+	servo::enable(i);
+}
+
 	pc::init();
 	i2c::init();
 	lps22::init();
 	lsm303::init();
-  mpu6050::init();
+	mpu6050::init();
 
 	while (1) {
 		system::sleep(1);
@@ -33,9 +33,9 @@ int main() {
 		if (!(system::getTickCount() % 20)) {
 			fastUpdate();
 			lps22::update();
-      lsm303::update();
-      mpu6050::update();
-			pc::Command cmd {6, pc::SendAxisData};
+			lsm303::update();
+			mpu6050::update();
+			pc::Command cmd{6, pc::SendAxisData};
 			memcpy(cmd.data, mpu6050::getAcc(), cmd.len);
 			pc::sendCommand(cmd);
 		}

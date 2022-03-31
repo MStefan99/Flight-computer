@@ -5,6 +5,9 @@ dmac_descriptor_registers_t dma::DESCRIPTOR_TABLE[DMA_CH_COUNT];
 dmac_descriptor_registers_t dma::WRITE_BACK_DESCRIPTOR_TABLE[DMA_CH_COUNT];
 
 
+bool transferOngoing {false};
+
+
 static tl::list<dma::I2CTransfer> pendingI2CTransfers{};
 static tl::list<dma::UARTTransfer> pendingUARTTransfers{};
 
@@ -156,19 +159,15 @@ static void nextTransfer() {
 
 
 void dma::startTransfer(const I2CTransfer& transfer) {
-	__disable_irq();
 	pendingI2CTransfers.push_back(transfer);
 	nextI2CTransfer();
-	__enable_irq();
 }
 
 
 static void nextI2CTransfer() {
 	dma::I2CTransfer transfer{pendingI2CTransfers.front()};
 
-	if ((transfer.sercom->I2CM.SERCOM_STATUS & SERCOM_I2CM_STATUS_BUSSTATE_Msk)
-					!= SERCOM_I2CM_STATUS_BUSSTATE(1) ||
-					DMAC_REGS->DMAC_ACTIVE & DMAC_ACTIVE_ABUSY_Msk) {
+	if (transferOngoing) {
 		return; // SERCOM/DMA busy, cannot start another transfer
 	}
 
@@ -184,6 +183,8 @@ static void nextI2CTransfer() {
 			transfer.sercom->I2CM.SERCOM_ADDR = SERCOM_I2CM_ADDR_ADDR(transfer.devAddr << 1u);
 			break;
 	}
+	
+	transferOngoing = true;
 }
 
 
@@ -214,13 +215,12 @@ static void I2CStreamIn(const dma::I2CTransfer& transfer) {
 
 
 static void completeI2CTransfer() {
-	__disable_irq();
 	dma::I2CTransfer transfer{pendingI2CTransfers.front()};
 	if (transfer.type == dma::I2CTransferType::Write) {
 		delete[](transfer.buf);
 	}
 	pendingI2CTransfers.pop_front();
-	__enable_irq();
+	transferOngoing = false;
 }
 
 
@@ -228,35 +228,31 @@ static void completeI2CTransfer() {
 
 
 void dma::startTransfer(const dma::UARTTransfer& transfer) {
-	__disable_irq();
 	pendingUARTTransfers.push_back(transfer);
 	nextUARTTransfer();
-	__enable_irq();
 }
 
 
 static void nextUARTTransfer() {
 	dma::UARTTransfer transfer{pendingUARTTransfers.front()};
 
-	if ((transfer.sercom->USART_INT.SERCOM_STATUS & SERCOM_USART_INT_STATUS_CTS_Msk) ||
-					DMAC_REGS->DMAC_ACTIVE & DMAC_ACTIVE_ABUSY_Msk) {
+	if (transferOngoing) {
 		return; // SERCOM/DMA busy, cannot start another transfer
 	}
-
-	auto t{dma::DESCRIPTOR_TABLE[DMA_CH_CPU_TX]};
 
 	DMAC_REGS->DMAC_CHID = DMA_CH_CPU_TX;
 	dma::DESCRIPTOR_TABLE[DMA_CH_CPU_TX].DMAC_BTCNT = transfer.len;
 	dma::DESCRIPTOR_TABLE[DMA_CH_CPU_TX].DMAC_SRCADDR = (uint32_t) (transfer.buf + transfer.len);
 	dma::DESCRIPTOR_TABLE[DMA_CH_CPU_TX].DMAC_DSTADDR = (uint32_t) & transfer.sercom->USART_INT.SERCOM_DATA;
 	DMAC_REGS->DMAC_CHCTRLA = DMAC_CHCTRLA_ENABLE(1);
+	
+	transferOngoing = true;
 }
 
 
 static void completeUARTTransfer() {
-	__disable_irq();
 	dma::UARTTransfer transfer{pendingUARTTransfers.front()};
 	delete[](transfer.buf);
 	pendingUARTTransfers.pop_front();
-	__enable_irq();
+	transferOngoing = false;
 }
