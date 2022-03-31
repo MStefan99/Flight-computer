@@ -9,6 +9,7 @@ static tl::list<dma::I2CTransfer> pendingI2CTransfers {};
 static tl::list<dma::UARTTransfer> pendingUARTTransfers {};
 
 
+static void nextTransfer();
 static void nextI2CTransfer();
 static void nextUARTTransfer();
 
@@ -35,14 +36,7 @@ extern "C" {
 				completeUARTTransfer();
 				break;
 		}
-        // I2C gets priority but doesn't lock UART
-        if (pendingUARTTransfers.size() > 5) {
-            nextUARTTransfer();
-        } else if (pendingI2CTransfers.size()) {
-            nextI2CTransfer();
-        } else if (pendingUARTTransfers.size()) {
-            nextUARTTransfer();
-        }
+        nextTransfer();
 		DMAC_REGS->DMAC_CHID = DMAC_REGS->DMAC_INTPEND & DMAC_INTPEND_ID_Msk;
 		DMAC_REGS->DMAC_CHINTFLAG = DMAC_CHINTFLAG_Msk;
 	}
@@ -52,8 +46,9 @@ extern "C" {
 	void I2C_Handler() {
 		dma::I2CTransfer transfer{pendingI2CTransfers.front()};
         
-		if (transfer.sercom->I2CM.SERCOM_INTFLAG & SERCOM_I2CM_INTFLAG_ERROR_Msk ||
-						(transfer.sercom->I2CM.SERCOM_STATUS & SERCOM_I2CM_STATUS_RXNACK_Msk)) {
+		if ((transfer.sercom->I2CM.SERCOM_STATUS & SERCOM_I2CM_STATUS_RXNACK_Msk)) {
+            completeI2CTransfer();
+            nextTransfer();
 			DMAC_REGS->DMAC_CHID = transfer.type == dma::I2CTransferType::Read ? DMA_CH_I2C_RX : DMA_CH_I2C_TX;
 			transfer.sercom->I2CM.SERCOM_CTRLB = SERCOM_I2CM_CTRLB_CMD(3);
 			DMAC_REGS->DMAC_CHCTRLA = DMAC_CHCTRLA_ENABLE(0);
@@ -139,6 +134,18 @@ void dma::initUART() {
 	// Interrupt config
 	NVIC_EnableIRQ(DMAC_2_IRQn);
 	NVIC_EnableIRQ(DMAC_3_IRQn);
+}
+
+
+static void nextTransfer() {
+    // I2C gets priority but doesn't lock UART
+    if (pendingUARTTransfers.size() > 5) {
+        nextUARTTransfer();
+    } else if (pendingI2CTransfers.size()) {
+        nextI2CTransfer();
+    } else if (pendingUARTTransfers.size()) {
+        nextUARTTransfer();
+    }
 }
 
 
