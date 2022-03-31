@@ -13,19 +13,19 @@
 
 
 namespace mpu6050 {
-    // I2C needs to be initialized first
-    void init();
-    void update();
-    
-    const int16_t* getAcc();
-    
-    float getAccX();
-    float getAccY();
-    float getAccZ();
-    
-    float getRotP();
-    float getRotQ();
-    float getRotR();
+	// I2C needs to be initialized first
+	void init();
+	void update();
+
+	const int16_t* getAcc();
+
+	float getAccX();
+	float getAccY();
+	float getAccZ();
+
+	float getRotP();
+	float getRotQ();
+	float getRotR();
 }
 
 #endif	/* MPU6050_H */

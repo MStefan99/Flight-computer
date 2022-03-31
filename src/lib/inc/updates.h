@@ -13,9 +13,9 @@
 #include "servo.h"
 
 
-void millisecondUpdate();  // Called every millisecond
-void fastUpdate();  // Called every 20ms
-void slowUpdate();  // Called every second
+void millisecondUpdate(); // Called every millisecond
+void fastUpdate(); // Called every 20ms
+void slowUpdate(); // Called every second
 
 
 #endif	/* UPDATES_H */

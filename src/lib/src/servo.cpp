@@ -49,12 +49,12 @@ void servo::enable(const uint8_t channel) {
 	tc_registers_t * timer{getTimer(channel)};
 
 	// TC config
-	timer->COUNT16.TC_CTRLA = TC_CTRLA_MODE_COUNT16;  // 16-bit mode
-	timer->COUNT16.TC_DBGCTRL = TC_DBGCTRL_DBGRUN(1);  // Run while debugging
-	timer->COUNT16.TC_WAVE = TC_WAVE_WAVEGEN_NPWM;  // PWM generation
-	timer->COUNT16.TC_PER = 53333;  // 20ms * GCLK_TC
-	timer->COUNT16.TC_CC[getTimerChannel(channel)] = 4000;  // 1.5ms * GCLK_TC
-	timer->COUNT16.TC_CTRLA |= TC_CTRLA_ENABLE(1);  // Enable timer
+	timer->COUNT16.TC_CTRLA = TC_CTRLA_MODE_COUNT16; // 16-bit mode
+	timer->COUNT16.TC_DBGCTRL = TC_DBGCTRL_DBGRUN(1); // Run while debugging
+	timer->COUNT16.TC_WAVE = TC_WAVE_WAVEGEN_NPWM; // PWM generation
+	timer->COUNT16.TC_PER = 53333; // 20ms * GCLK_TC
+	timer->COUNT16.TC_CC[getTimerChannel(channel)] = 4000; // 1.5ms * GCLK_TC
+	timer->COUNT16.TC_CTRLA |= TC_CTRLA_ENABLE(1); // Enable timer
 
 	// PORT config
 	uint8_t pin{getPin(channel)};

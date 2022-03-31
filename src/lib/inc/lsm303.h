@@ -16,14 +16,14 @@ namespace lsm303 {
 	// I2C needs to be initialized first
 	void init();
 	void update();
-	
+
 	const int16_t* getAcc();
 	const int16_t* getMag();
-	
+
 	int16_t getAccX();
 	int16_t getAccY();
 	int16_t getAccZ();
-	
+
 	int16_t getMagX();
 	int16_t getMagY();
 	int16_t getMagZ();

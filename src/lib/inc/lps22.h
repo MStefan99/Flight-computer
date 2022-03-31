@@ -16,7 +16,7 @@ namespace lps22 {
 	// I2C needs to be initialized first
 	void init();
 	void update();
-	
+
 	uint32_t getStaticPressure();
 	uint32_t getRamPressure();
 }

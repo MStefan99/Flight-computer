@@ -30,7 +30,7 @@
 
 namespace system {
 	void init();
-	
+
 	uint32_t getTickCount();
 	void sleep(uint32_t ms);
 }

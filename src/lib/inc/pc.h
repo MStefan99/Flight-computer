@@ -14,25 +14,25 @@
 
 
 namespace pc {
-	enum CommandType: uint8_t {
+
+	enum CommandType : uint8_t {
 		NUL = 0,
 		SendAxisData = 1
 	};
-	
-	
+
 	struct Command {
 		uint8_t len;
 		CommandType type;
 		uint8_t data[6];
 	};
-	
-	
+
+
 	void init();
-    void send(uint8_t* data, uint8_t size);
-    
+	void send(uint8_t* data, uint8_t size);
+
 	void sendCommand(const Command& command);
-    
-    uint8_t dataReceived();
+
+	uint8_t dataReceived();
 	uint8_t* getData();
 }
 

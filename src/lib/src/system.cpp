@@ -1,10 +1,14 @@
 #include "lib/inc/system.h"
 
 
-static uint32_t ticks {0};
+static uint32_t ticks
+{
+	0
+};
 
 
 extern "C" {
+
 
 	void SysTick_Handler() {
 		++ticks;
@@ -54,7 +58,7 @@ uint32_t system::getTickCount() {
 
 
 void system::sleep(uint32_t ms) {
-	uint32_t t {ticks + ms};
+	uint32_t t{ticks + ms};
 
 	while (ticks < t) {
 		__WFI();

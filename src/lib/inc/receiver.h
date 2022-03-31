@@ -13,7 +13,7 @@
 
 namespace receiver {
 	void init();
-	
+
 	uint8_t getChannel();
 }
 

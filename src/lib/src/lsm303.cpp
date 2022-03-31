@@ -8,7 +8,7 @@
 static uint8_t accBuf[6];
 static uint8_t magBuf[6];
 
-static int16_t accData[3] {0};
+static int16_t accData[3]{0};
 
 
 void lsm303::init() {
@@ -19,8 +19,8 @@ void lsm303::init() {
 
 void lsm303::update() {
 	for (uint8_t i{0}; i < 3; ++i) {
-		accData[i] = ((int16_t)(accBuf[i * 2] | accBuf[i * 2 + 1] << 8u) >> 4u);
-	}
+	accData[i] = ((int16_t) (accBuf[i * 2] | accBuf[i * 2 + 1] << 8u) >> 4u);
+}
 	i2c::readRegister(LSM303_ADDR_ACC, 0xa8, accBuf, 6);
 }
 

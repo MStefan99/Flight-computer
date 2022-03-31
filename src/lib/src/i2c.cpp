@@ -18,7 +18,7 @@ void i2c::init() { // GCLK config
 	SERCOM_REGS->I2CM.SERCOM_CTRLB = SERCOM_I2CM_CTRLB_SMEN(1);
 
 	// SERCOM config
-	SERCOM_REGS->I2CM.SERCOM_BAUD = 9;  // 400KHz
+	SERCOM_REGS->I2CM.SERCOM_BAUD = 9; // 400KHz
 	SERCOM_REGS->I2CM.SERCOM_CTRLA = SERCOM_I2CM_CTRLA_LOWTOUTEN(1)
 					| SERCOM_I2CM_CTRLA_SPEED_STANDARD_AND_FAST_MODE
 					| SERCOM_I2CM_CTRLA_PINOUT(0)
@@ -42,7 +42,7 @@ void i2c::write(uint8_t devAddr, uint8_t* buf, uint8_t size) {
 		.buf = txBuf,
 		.len = size,
 		.type = dma::I2CTransferType::Write,
-        .sercom = SERCOM_REGS
+		.sercom = SERCOM_REGS
 	});
 }
 
@@ -53,7 +53,7 @@ void i2c::read(uint8_t devAddr, uint8_t* buf, uint8_t size) {
 		.buf = buf,
 		.len = size,
 		.type = dma::I2CTransferType::Read,
-        .sercom = SERCOM_REGS
+		.sercom = SERCOM_REGS
 	});
 }
 
@@ -63,13 +63,13 @@ void i2c::writeRegister(uint8_t devAddr, uint8_t regAddr, uint8_t* buf, uint8_t 
 	txBuf[0] = regAddr;
 	memcpy(txBuf + 1, buf, size);
 
-    dma::startTransfer(dma::I2CTransfer{
+	dma::startTransfer(dma::I2CTransfer{
 		.devAddr = devAddr,
 		.regAddr = regAddr,
 		.buf = txBuf,
-		.len = (uint8_t)(size + 1),
+		.len = (uint8_t) (size + 1),
 		.type = dma::I2CTransferType::Write,
-        .sercom = SERCOM_REGS
+		.sercom = SERCOM_REGS
 	});
 }
 
@@ -81,6 +81,6 @@ void i2c::readRegister(uint8_t devAddr, uint8_t regAddr, uint8_t* buf, uint8_t s
 		.buf = buf,
 		.len = size,
 		.type = dma::I2CTransferType::WriteRead,
-        .sercom = SERCOM_REGS
+		.sercom = SERCOM_REGS
 	});
 }
