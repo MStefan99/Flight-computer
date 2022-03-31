@@ -17,7 +17,8 @@ namespace pc {
 
 	enum CommandType : uint8_t {
 		NUL = 0,
-		SendAxisData = 1
+		SendAccData = 1,
+		SendRotData = 2
 	};
 
 	struct Command {

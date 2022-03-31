@@ -4,7 +4,8 @@
 #define MPU6050_ADDR 0x68
 
 
-static int16_t buf[6]{0};
+static int16_t rawAcc[3] {0};
+static int16_t rawRot[3] {0};
 
 
 void mpu6050::init() {
@@ -14,10 +15,16 @@ void mpu6050::init() {
 
 
 void mpu6050::update() {
-	i2c::readRegister(MPU6050_ADDR, 0x3b, (uint8_t*) buf, 6);
+	i2c::readRegister(MPU6050_ADDR, 0x3b, (uint8_t*) rawAcc, 6);
+	i2c::readRegister(MPU6050_ADDR, 0x43, (uint8_t*) rawRot, 6);
 }
 
 
 const int16_t* mpu6050::getAcc() {
-	return buf;
+	return rawAcc;
+}
+
+
+const int16_t* mpu6050::getRot() {
+	return rawRot;
 }

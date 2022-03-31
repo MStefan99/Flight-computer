@@ -17,8 +17,6 @@ namespace mpu6050 {
 	void init();
 	void update();
 
-	const int16_t* getAcc();
-
 	float getAccX();
 	float getAccY();
 	float getAccZ();
@@ -26,6 +24,10 @@ namespace mpu6050 {
 	float getRotP();
 	float getRotQ();
 	float getRotR();
+	
+	// Temporary, to be removed
+	const int16_t* getAcc();
+	const int16_t* getRot();
 }
 
 #endif	/* MPU6050_H */

@@ -21,8 +21,6 @@ int main() {
 
 	pc::init();
 	i2c::init();
-	lps22::init();
-	lsm303::init();
 	mpu6050::init();
 
 	while (1) {
@@ -32,12 +30,16 @@ int main() {
 
 		if (!(system::getTickCount() % 20)) {
 			fastUpdate();
-			lps22::update();
-			lsm303::update();
+			
 			mpu6050::update();
-			pc::Command cmd{6, pc::SendAxisData};
-			memcpy(cmd.data, mpu6050::getAcc(), cmd.len);
-			pc::sendCommand(cmd);
+			
+			pc::Command acc{8, pc::SendAccData};
+			memcpy(acc.data, mpu6050::getAcc(), 6);
+			pc::sendCommand(acc);
+			
+			pc::Command rot{8, pc::SendRotData};
+			memcpy(rot.data, mpu6050::getRot(), 6);
+			pc::sendCommand(rot);
 		}
 
 		if (!(system::getTickCount() % 1000)) {
