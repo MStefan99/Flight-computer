@@ -3,12 +3,13 @@
 //#include <xc.h>  // TODO: explore, possibly delete Harmony files
 
 #include "lib/inc/system.h"
+#include "lib/inc/updates.h"
 #include "lib/inc/servo.h"
 #include "lib/inc/pc.h"
 #include "lib/inc/i2c.h"
 #include "lib/inc/lps22.h"
 #include "lib/inc/lsm303.h"
-#include "lib/inc/updates.h"
+#include "lib/inc/mpu6050.h"
 
 
 int main() {
@@ -22,6 +23,7 @@ int main() {
 	i2c::init();
 	lps22::init();
 	lsm303::init();
+  mpu6050::init();
 
 	while (1) {
 		system::sleep(1);
@@ -31,9 +33,10 @@ int main() {
 		if (!(system::getTickCount() % 20)) {
 			fastUpdate();
 			lps22::update();
-            lsm303::update();
+      lsm303::update();
+      mpu6050::update();
 			pc::Command cmd {6, pc::SendAxisData};
-			memcpy(cmd.data, lsm303::getAcc(), cmd.len);
+			memcpy(cmd.data, mpu6050::getAcc(), cmd.len);
 			pc::sendCommand(cmd);
 		}
 

@@ -17,6 +17,8 @@ namespace mpu6050 {
     void init();
     void update();
     
+    const int16_t* getAcc();
+    
     float getAccX();
     float getAccY();
     float getAccZ();
