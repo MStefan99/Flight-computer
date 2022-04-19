@@ -2,12 +2,15 @@
 // Created by MStefan99 on 29.1.20.
 //
 
-#ifndef ARDUI_PAIR_H
-#define ARDUI_PAIR_H
+#ifndef ARDUI_PAIR_HPP
+#define ARDUI_PAIR_HPP
 
 namespace tl {
 	template <class T1, class T2>
 	struct pair {
+		using first_type = T1;
+		using second_type = T2;
+
 		pair() = default;
 		pair(const T1& x, const T2& y);
 		pair(const pair& p) = default;
@@ -15,9 +18,6 @@ namespace tl {
 
 		T1 first;
 		T2 second;
-
-		typedef T1 first_type;
-		typedef T2 second_type;
 	};
 
 
@@ -39,4 +39,4 @@ namespace tl {
 	}
 }
 
-#endif //ARDUI_PAIR_H
+#endif //ARDUI_PAIR_HPP

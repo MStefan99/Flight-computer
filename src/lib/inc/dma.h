@@ -9,7 +9,7 @@
 #define	DMA_H
 
 #include "device.h"
-#include "lib/inc/list.h"
+#include "lib/inc/tl/list.hpp"
 
 
 #define DMA_CH_COUNT 4

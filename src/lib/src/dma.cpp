@@ -5,7 +5,8 @@ dmac_descriptor_registers_t dma::DESCRIPTOR_TABLE[DMA_CH_COUNT];
 dmac_descriptor_registers_t dma::WRITE_BACK_DESCRIPTOR_TABLE[DMA_CH_COUNT];
 
 
-bool transferOngoing {false};
+static bool transferOngoing {false};
+static tl::allocator<uint8_t> byteAllocator {};
 
 
 static tl::list<dma::I2CTransfer> pendingI2CTransfers{};
@@ -217,7 +218,7 @@ static void I2CStreamIn(const dma::I2CTransfer& transfer) {
 static void completeI2CTransfer() {
 	dma::I2CTransfer transfer{pendingI2CTransfers.front()};
 	if (transfer.type == dma::I2CTransferType::Write) {
-		delete[](transfer.buf);
+		byteAllocator.deallocate(transfer.buf);
 	}
 	pendingI2CTransfers.pop_front();
 	transferOngoing = false;
@@ -252,7 +253,7 @@ static void nextUARTTransfer() {
 
 static void completeUARTTransfer() {
 	dma::UARTTransfer transfer{pendingUARTTransfers.front()};
-	delete[](transfer.buf);
+	byteAllocator.deallocate(transfer.buf);
 	pendingUARTTransfers.pop_front();
 	transferOngoing = false;
 }

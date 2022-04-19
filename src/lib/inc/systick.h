@@ -28,7 +28,7 @@
 }
 
 
-namespace system {
+namespace systick {
 	void init();
 
 	uint32_t getTickCount();

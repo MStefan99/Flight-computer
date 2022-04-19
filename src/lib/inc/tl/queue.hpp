@@ -2,8 +2,8 @@
 // Created by MStefan99 on 3.4.20.
 //
 
-#ifndef ARDUI_QUEUE_H
-#define ARDUI_QUEUE_H
+#ifndef ARDUI_QUEUE_HPP
+#define ARDUI_QUEUE_HPP
 
 namespace tl {
 	template <class T, class Container = list <T>>
@@ -62,4 +62,4 @@ namespace tl {
 	}
 }
 
-#endif //ARDUI_QUEUE_H
+#endif //ARDUI_QUEUE_HPP

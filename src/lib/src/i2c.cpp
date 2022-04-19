@@ -3,6 +3,9 @@
 #define SERCOM_REGS SERCOM0_REGS
 
 
+static tl::allocator<uint8_t> byteAllocator {};
+
+
 void i2c::init() { // GCLK config
 	GCLK_REGS->GCLK_PCHCTRL[11] = GCLK_PCHCTRL_CHEN(1) // Enable SERCOM0 clock
 					| GCLK_PCHCTRL_GEN_GCLK0; //Set GCLK0 as a clock source
@@ -34,7 +37,7 @@ void i2c::init() { // GCLK config
 
 
 void i2c::write(uint8_t devAddr, uint8_t* buf, uint8_t size) {
-	uint8_t* txBuf = new uint8_t[size];
+	uint8_t* txBuf = byteAllocator.allocate(size);
 	memcpy(txBuf, buf, size);
 
 	dma::startTransfer(dma::I2CTransfer{
@@ -59,7 +62,7 @@ void i2c::read(uint8_t devAddr, uint8_t* buf, uint8_t size) {
 
 
 void i2c::writeRegister(uint8_t devAddr, uint8_t regAddr, uint8_t* buf, uint8_t size) {
-	uint8_t* txBuf = new uint8_t[size + 1];
+	uint8_t* txBuf = byteAllocator.allocate(size + 1);
 	txBuf[0] = regAddr;
 	memcpy(txBuf + 1, buf, size);
 

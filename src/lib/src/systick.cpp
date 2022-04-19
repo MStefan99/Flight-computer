@@ -1,4 +1,4 @@
-#include "lib/inc/system.h"
+#include "lib/inc/systick.h"
 
 
 static uint32_t ticks
@@ -16,7 +16,7 @@ extern "C" {
 }
 
 
-void system::init() {
+void systick::init() { // TODO: move away
 	/* Clock distribution
 	 * 
 	 * OSC16M @ 8MHz
@@ -52,12 +52,12 @@ void system::init() {
 }
 
 
-uint32_t system::getTickCount() {
+uint32_t systick::getTickCount() {
 	return ticks;
 }
 
 
-void system::sleep(uint32_t ms) {
+void systick::sleep(uint32_t ms) {
 	uint32_t t{ticks + ms};
 
 	while (ticks < t) {

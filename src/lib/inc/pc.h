@@ -9,7 +9,9 @@
 #define	PC_H
 
 #include <cstring>
+
 #include "device.h"
+#include "lib/inc/tl/allocator.hpp"
 #include "lib/inc/dma.h"
 
 

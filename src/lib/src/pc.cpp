@@ -1,11 +1,12 @@
 #include "lib/inc/pc.h"
-#include "lib/inc/list.h"
+
 
 #define SERCOM_REGS SERCOM2_REGS
 
 
 static uint8_t incomingData[8]{};
 static uint8_t bytesReceived{0};
+static tl::allocator<uint8_t> byteAllocator {};
 
 
 extern "C" {
@@ -52,7 +53,7 @@ void pc::init() {
 
 
 void pc::send(uint8_t* data, uint8_t size) {
-	uint8_t* txBuf = new uint8_t[size];
+	uint8_t* txBuf = byteAllocator.allocate(size);
 	memcpy(txBuf, data, size);
 
 	dma::startTransfer(dma::UARTTransfer{

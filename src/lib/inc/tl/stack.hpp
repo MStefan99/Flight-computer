@@ -2,8 +2,8 @@
 // Created by MStefan99 on 4.2.20.
 //
 
-#ifndef ARDUI_STACK_H
-#define ARDUI_STACK_H
+#ifndef ARDUI_STACK_HPP
+#define ARDUI_STACK_HPP
 
 namespace tl {
 	template <class T, class Container = list <T>>
@@ -55,4 +55,4 @@ namespace tl {
 	}
 }
 
-#endif //ARDUI_STACK_H
+#endif //ARDUI_STACK_HPP
