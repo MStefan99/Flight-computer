@@ -19,13 +19,25 @@ void updates::ms() {
 void updates::fast() {
 	mpu6050::update();
 
-	pc::Command acc {8, pc::SendAccData};
-	memcpy(acc.data, mpu6050::getAcc(), 6);
-	pc::sendCommand(acc);
+	e.measure( {
+		{mpu6050::getRotP()},
+		{mpu6050::getRotP()},
+		{mpu6050::getRotP()}
+	},
+	{
+		{mpu6050::getAccX()},
+		{mpu6050::getAccY()},
+		{mpu6050::getAccZ()}
+	},
+	0.2);
+	
+	uint16_t roll = e.getRoll();
+	uint16_t pitch = e.getPitch();
 
-	pc::Command rot {8, pc::SendRotData};
-	memcpy(rot.data, mpu6050::getRot(), 6);
-	pc::sendCommand(rot);
+	pc::Command cmd {8, pc::SendAccData};
+	memcpy(cmd.data, (uint8_t*)&roll, 2);
+	memcpy(cmd.data + 2, (uint8_t*)&pitch, 2);
+	pc::sendCommand(cmd);
 }
 
 

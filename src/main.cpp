@@ -3,19 +3,19 @@
 
 #include "lib/inc/util.h"
 #include "lib/inc/updates.h"
-#include "lib/inc/servo.h"
 #include "lib/inc/pc.h"
 #include "lib/inc/i2c.h"
 
 
+/*
+ * THIS FILE IS FOR INITIALIZATION ONLY!
+ * 
+ * Use the updates.cpp file for the main program logic
+ */
+
 int main() {
 	util::init();
-	servo::init();
 	updates::init();
-	
-	for (uint8_t i{0}; i < 4; ++i) {
-		servo::enable(i);
-	}
 
 	pc::init();
 	i2c::init();
