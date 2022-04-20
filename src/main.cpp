@@ -1,49 +1,36 @@
-#include <cstring>
 #include "device.h"
 //#include <xc.h>  // TODO: explore, possibly delete Harmony files
 
-#include "lib/inc/systick.h"
+#include "lib/inc/util.h"
 #include "lib/inc/updates.h"
 #include "lib/inc/servo.h"
 #include "lib/inc/pc.h"
 #include "lib/inc/i2c.h"
-#include "lib/inc/lps22.h"
-#include "lib/inc/lsm303.h"
-#include "lib/inc/mpu6050.h"
 
 
 int main() {
-	systick::init();
+	util::init();
 	servo::init();
+	updates::init();
+	
 	for (uint8_t i{0}; i < 4; ++i) {
-	servo::enable(i);
-}
+		servo::enable(i);
+	}
 
 	pc::init();
 	i2c::init();
-	mpu6050::init();
 
 	while (1) {
-		systick::sleep(1);
+		util::sleep(1);
 
-		millisecondUpdate();
+		updates::ms();
 
-		if (!(systick::getTickCount() % 20)) {
-			fastUpdate();
-			
-			mpu6050::update();
-			
-			pc::Command acc{8, pc::SendAccData};
-			memcpy(acc.data, mpu6050::getAcc(), 6);
-			pc::sendCommand(acc);
-			
-			pc::Command rot{8, pc::SendRotData};
-			memcpy(rot.data, mpu6050::getRot(), 6);
-			pc::sendCommand(rot);
+		if (!(util::getTickCount() % 20)) {
+			updates::fast();
 		}
 
-		if (!(systick::getTickCount() % 1000)) {
-			slowUpdate();
+		if (!(util::getTickCount() % 1000)) {
+			updates::slow();
 		}
 	}
 

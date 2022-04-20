@@ -9,6 +9,7 @@
 #define	MPU6050_H
 
 #include "device.h"
+#include "util.h"
 #include "lib/inc/i2c.h"
 
 

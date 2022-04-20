@@ -9,14 +9,21 @@
 #define	UPDATES_H
 
 #include "device.h"
-#include "lsm303.h"
+
+#include "pc.h"
 #include "servo.h"
+#include "util.h"
+#include "mpu6050.h"
+#include "AttitudeEstimator.h"
 
 
-void millisecondUpdate(); // Called every millisecond
-void fastUpdate(); // Called every 20ms
-void slowUpdate(); // Called every second
+namespace updates {
+	void init();
 
+	void ms(); // Called every millisecond
+	void fast(); // Called every 20ms
+	void slow(); // Called every second
+}
 
 #endif	/* UPDATES_H */
 
