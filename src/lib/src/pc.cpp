@@ -54,7 +54,7 @@ void pc::init() {
 
 void pc::send(uint8_t* data, uint8_t size) {
 	uint8_t* txBuf = byteAllocator.allocate(size);
-	memcpy(txBuf, data, size);
+	util::copy(txBuf, data, size);
 
 	dma::startTransfer(dma::UARTTransfer{
 		.buf = txBuf,

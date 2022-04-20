@@ -64,4 +64,3 @@ void util::sleep(uint32_t ms) {
 		__WFI();
 	}
 }
-

@@ -38,7 +38,7 @@ void i2c::init() { // GCLK config
 
 void i2c::write(uint8_t devAddr, uint8_t* buf, uint8_t size) {
 	uint8_t* txBuf = byteAllocator.allocate(size);
-	memcpy(txBuf, buf, size);
+	util::copy(txBuf, buf, size);
 
 	dma::startTransfer(dma::I2CTransfer{
 		.devAddr = devAddr,
@@ -64,7 +64,7 @@ void i2c::read(uint8_t devAddr, uint8_t* buf, uint8_t size) {
 void i2c::writeRegister(uint8_t devAddr, uint8_t regAddr, uint8_t* buf, uint8_t size) {
 	uint8_t* txBuf = byteAllocator.allocate(size + 1);
 	txBuf[0] = regAddr;
-	memcpy(txBuf + 1, buf, size);
+	util::copy(txBuf + 1, buf, size);
 
 	dma::startTransfer(dma::I2CTransfer{
 		.devAddr = devAddr,

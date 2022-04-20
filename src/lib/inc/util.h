@@ -41,6 +41,20 @@ namespace util {
 
 	uint32_t getTickCount();
 	void sleep(uint32_t ms);
+
+	
+	template <class T>
+	void copy(T* dest, const T* src, size_t len) {
+		for (size_t i{0}; i < len; ++i) {
+			dest[i] = src[i];
+		}
+	}
+	
+	
+	template <class T>
+	void copy(T* dest, const T& src) {
+		*dest = src;
+	}
 }
 
 

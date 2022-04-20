@@ -35,8 +35,8 @@ void updates::fast() {
 	uint16_t pitch = e.getPitch();
 
 	pc::Command cmd {8, pc::SendAccData};
-	memcpy(cmd.data, (uint8_t*)&roll, 2);
-	memcpy(cmd.data + 2, (uint8_t*)&pitch, 2);
+	util::copy((uint16_t*)cmd.data, roll);
+	util::copy((uint16_t*)cmd.data + 2, pitch);
 	pc::sendCommand(cmd);
 }
 

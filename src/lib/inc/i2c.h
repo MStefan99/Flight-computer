@@ -9,10 +9,10 @@
 #define	I2C_H
 
 
-#include <cstring>
 #include "device.h"
 
 #include "lib/inc/tl/allocator.hpp"
+#include "lib/inc/util.h"
 #include "lib/inc/dma.h"
 
 
