@@ -23,8 +23,8 @@ Matrix extrapolateState(const Matrix& x, const Matrix& u, float dt) {
 	float tan_theta = tanf(theta);
 
 	return {
-			{phi + (p + q * sin_phi * tan_theta + r * cos_phi * tan_theta) * dt},
-			{theta + (q * cos_phi + r * sin_phi) * dt}
+			{std::fmod(phi + (p + q * sin_phi * tan_theta + r * cos_phi * tan_theta) * dt, pi)},
+			{std::fmod(theta + (q * cos_phi + r * sin_phi) * dt, pi)}
 	};
 }
 

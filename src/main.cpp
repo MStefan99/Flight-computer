@@ -15,10 +15,11 @@
 
 int main() {
 	util::init();
-	updates::init();
 
 	pc::init();
 	i2c::init();
+	
+	updates::init();
 
 	while (1) {
 		util::sleep(1);

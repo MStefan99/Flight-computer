@@ -42,21 +42,33 @@ namespace util {
 	uint32_t getTickCount();
 	void sleep(uint32_t ms);
 
-	
 	template <class T>
-	void copy(T* dest, const T* src, size_t len) {
+	void copy(T* dest, const T* src, size_t len = 1) {
 		for (size_t i{0}; i < len; ++i) {
 			dest[i] = src[i];
 		}
 	}
-	
-	
+
 	template <class T>
 	void copy(T* dest, const T& src) {
 		*dest = src;
 	}
-}
 
+	template <class T>
+	T switchEndianness(T val) {
+		if (sizeof (T) == 2) {
+			return (val << 8u)
+							| (val >> 8u & 0xff);
+		} else if (sizeof (T) == 4) {
+			return (val << 24u)
+							| (val << 8u  & 0x00ff0000)
+							| (val >> 8u  & 0x0000ff00)
+							| (val >> 24u & 0x000000ff);
+		} else {
+			return val;
+		}
+	}
+}
 
 #endif	/* SYSTEM_H */
 

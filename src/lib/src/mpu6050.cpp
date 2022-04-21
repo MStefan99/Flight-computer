@@ -30,32 +30,32 @@ void mpu6050::update() {
 
 
 float mpu6050::getAccX() {
-	return rawAcc[0] * ACC_FACTOR;
+	return util::switchEndianness(rawAcc[0]) * ACC_FACTOR;
 }
 
 
 float mpu6050::getAccY() {
-	return rawAcc[1] * ACC_FACTOR;
+	return util::switchEndianness(rawAcc[1]) * ACC_FACTOR;
 }
 
 
 float mpu6050::getAccZ() {
-	return rawAcc[2] * ACC_FACTOR;
+	return util::switchEndianness(rawAcc[2]) * ACC_FACTOR;
 }
 
 
 float mpu6050::getRotP() {
-	return rawRot[0] * GYRO_FACTOR;
+	return util::switchEndianness(rawRot[0]) * GYRO_FACTOR;
 }
 
 
 float mpu6050::getRotQ() {
-	return rawRot[1] * GYRO_FACTOR;
+	return util::switchEndianness(rawRot[1]) * GYRO_FACTOR;
 }
 
 
 float mpu6050::getRotR() {
-	return rawRot[2] * GYRO_FACTOR;
+	return util::switchEndianness(rawRot[2]) * GYRO_FACTOR;
 }
 
 
