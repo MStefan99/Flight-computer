@@ -1,10 +1,10 @@
 #include "device.h"
 //#include <xc.h>  // TODO: explore, possibly delete Harmony files
 
-#include "lib/inc/util.h"
-#include "lib/inc/updates.h"
-#include "lib/inc/pc.h"
-#include "lib/inc/i2c.h"
+#include "lib/inc/util.hpp"
+#include "lib/inc/updates.hpp"
+#include "lib/inc/pc.hpp"
+#include "lib/inc/i2c.hpp"
 
 
 /*

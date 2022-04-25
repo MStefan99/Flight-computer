@@ -1,4 +1,4 @@
-#include "lib/inc/dma.h"
+#include "lib/inc/dma.hpp"
 
 
 dmac_descriptor_registers_t dma::DESCRIPTOR_TABLE[DMA_CH_COUNT];

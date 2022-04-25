@@ -9,7 +9,7 @@
 #define	LSM303_H
 
 #include "device.h"
-#include "lib/inc/i2c.h"
+#include "lib/inc/i2c.hpp"
 
 
 namespace lsm303 {

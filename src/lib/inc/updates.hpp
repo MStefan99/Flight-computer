@@ -10,14 +10,14 @@
 
 #include "device.h"
 
-#include "pc.h"
-#include "servo.h"
-#include "util.h"
+#include "pc.hpp"
+#include "servo.hpp"
+#include "util.hpp"
 
 #include "PID.hpp"
-#include "AttitudeEstimator.h"
+#include "AttitudeEstimator.hpp"
 
-#include "mpu6050.h"
+#include "mpu6050.hpp"
 
 
 namespace updates {

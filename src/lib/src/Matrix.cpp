@@ -2,7 +2,7 @@
 // Created by MStefan99 on 23.7.21.
 //
 
-#include "lib/inc/Matrix.h"
+#include "lib/inc/Matrix.hpp"
 
 
 Matrix::Matrix(size w, size h):

@@ -6,7 +6,7 @@
 #define FILTERS_ATTITUDEESTIMATOR_H
 
 #include <cmath>
-#include "EKF.h"
+#include "EKF.hpp"
 
 
 class AttitudeEstimator {

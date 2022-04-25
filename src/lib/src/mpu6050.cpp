@@ -1,4 +1,4 @@
-#include "lib/inc/mpu6050.h"
+#include "lib/inc/mpu6050.hpp"
 
 
 #define G ( 9.81 )

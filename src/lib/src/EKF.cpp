@@ -2,8 +2,7 @@
 // Created by MStefan99 on 29.3.22.
 //
 
-#include "lib/inc/EKF.h"
-#include "device.h"
+#include "lib/inc/EKF.hpp"
 
 
 EKF::EKF(const Matrix& Q, const Matrix& R):

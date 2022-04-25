@@ -12,8 +12,8 @@
 #include "device.h"
 
 #include "lib/inc/tl/allocator.hpp"
-#include "lib/inc/util.h"
-#include "lib/inc/dma.h"
+#include "lib/inc/util.hpp"
+#include "lib/inc/dma.hpp"
 
 
 namespace i2c {

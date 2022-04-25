@@ -1,4 +1,4 @@
-#include "lib/inc/i2c.h"
+#include "lib/inc/i2c.hpp"
 
 #define SERCOM_REGS SERCOM0_REGS
 

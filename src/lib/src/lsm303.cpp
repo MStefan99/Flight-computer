@@ -1,4 +1,4 @@
-#include "lib/inc/lsm303.h"
+#include "lib/inc/lsm303.hpp"
 
 
 #define LSM303_ADDR_ACC 0x19

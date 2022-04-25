@@ -1,4 +1,4 @@
-#include "lib/inc/servo.h"
+#include "lib/inc/servo.hpp"
 
 
 static tc_registers_t* getTimer(uint8_t channel);
@@ -60,11 +60,11 @@ void servo::enable(const uint8_t channel) {
 	uint8_t pin{getPin(channel)};
 	PORT_REGS->GROUP[0].PORT_PINCFG[pin] = PORT_PINCFG_PMUXEN(1); // Enable mux on pin
 	if (pin & 0x1) { // Odd pin
-		PORT_REGS->GROUP[0].PORT_PMUX[pin / 2] = PORT_REGS->GROUP[0].PORT_PMUX[pin / 2] & 0xf
+		PORT_REGS->GROUP[0].PORT_PMUX[pin / 2] = (PORT_REGS->GROUP[0].PORT_PMUX[pin / 2] & 0xf)
 						| PORT_PMUX_PMUXO_E;
 	} else { // Even pin
 		PORT_REGS->GROUP[0].PORT_PMUX[pin / 2] = PORT_PMUX_PMUXE_E
-						| PORT_REGS->GROUP[0].PORT_PMUX[pin / 2] & 0xf0;
+						| (PORT_REGS->GROUP[0].PORT_PMUX[pin / 2] & 0xf0);
 	}
 }
 

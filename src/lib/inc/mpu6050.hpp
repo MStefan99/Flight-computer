@@ -9,8 +9,9 @@
 #define	MPU6050_H
 
 #include "device.h"
-#include "util.h"
-#include "lib/inc/i2c.h"
+
+#include "util.hpp"
+#include "lib/inc/i2c.hpp"
 
 
 namespace mpu6050 {

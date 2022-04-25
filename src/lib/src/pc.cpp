@@ -1,4 +1,4 @@
-#include "lib/inc/pc.h"
+#include "lib/inc/pc.hpp"
 
 
 #define SERCOM_REGS SERCOM2_REGS

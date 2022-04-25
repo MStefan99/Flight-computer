@@ -1,4 +1,4 @@
-#include "lib/inc/lps22.h"
+#include "lib/inc/lps22.hpp"
 
 
 #define LPS22_ADDR_INT 0x5c
