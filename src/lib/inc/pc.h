@@ -31,7 +31,7 @@ namespace pc {
 
 
 	void init();
-	void send(uint8_t* data, uint8_t size);
+	void send(uint8_t* data, uint8_t size = 1);
 
 	void sendCommand(const Command& command);
 

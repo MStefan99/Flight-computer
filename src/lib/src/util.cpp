@@ -31,7 +31,7 @@ void util::init() { // TODO: move away
 	 *      |
 	 *       `-> GCLK_TC0-2 @ 32768Hz
 	 */
-
+	
 	// OSCCTRL config
 	OSCCTRL_REGS->OSCCTRL_OSC16MCTRL = OSCCTRL_OSC16MCTRL_ENABLE(1) // Enable OSC16M
 					| OSCCTRL_OSC16MCTRL_FSEL_8; // Set frequency to 8MHz

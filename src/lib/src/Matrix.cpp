@@ -154,7 +154,7 @@ Matrix Matrix::operator*(const Matrix& matrix) const {
 	} else if (_w != matrix._h) {
 		return *this;
 	}
-
+		
 	Matrix result {matrix._w, _h};
 	for (size j {0}; j < matrix._w; ++j) {
 		for (size i {0}; i < _h; ++i) {

@@ -76,7 +76,7 @@ void servo::disable(const uint8_t channel) {
 }
 
 
-void servo::setAngle(const uint8_t channel, const uint8_t angle) {
+void servo::setAngle(const uint8_t channel, const int16_t angle) {
 	// Range: [1ms * GCLK_TC; 2ms * GCLK_TC]
-	getTimer(channel)->COUNT16.TC_CCBUF[getTimerChannel(channel)] = MAP(0, 0xff, 2667, 5333, angle);
+	getTimer(channel)->COUNT16.TC_CCBUF[getTimerChannel(channel)] = MAP(-16384, 16383, 2667, 5333, angle);
 }

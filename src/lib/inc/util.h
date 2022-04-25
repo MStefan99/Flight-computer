@@ -42,6 +42,7 @@ namespace util {
 	uint32_t getTickCount();
 	void sleep(uint32_t ms);
 
+	
 	template <class T>
 	void copy(T* dest, const T* src, size_t len = 1) {
 		for (size_t i{0}; i < len; ++i) {
@@ -49,10 +50,18 @@ namespace util {
 		}
 	}
 
+	
 	template <class T>
 	void copy(T* dest, const T& src) {
 		*dest = src;
 	}
+	
+	
+	template <class T>
+	void copy(T* dest, T&& src) {
+		*dest = src;
+	}
+	
 
 	template <class T>
 	T switchEndianness(T val) {

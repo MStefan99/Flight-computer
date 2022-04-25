@@ -16,7 +16,7 @@ namespace servo {
 	void init();
 	void enable(const uint8_t channel);
 	void disable(const uint8_t channel);
-	void setAngle(const uint8_t channel, const uint8_t angle);
+	void setAngle(const uint8_t channel, const int16_t angle);
 }
 
 
