@@ -10,11 +10,13 @@
 
 #include "device.h"
 
+#include "util.hpp"
+
 
 namespace receiver {
 	void init();
 
-	uint8_t getChannel();
+	int16_t getChannel(uint8_t channel);
 }
 
 #endif	/* RECEIVER_H */

@@ -12,6 +12,7 @@
 
 #include "pc.hpp"
 #include "servo.hpp"
+#include "receiver.hpp"
 #include "util.hpp"
 
 #include "PID.hpp"

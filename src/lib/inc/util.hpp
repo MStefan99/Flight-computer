@@ -31,8 +31,9 @@
   b = t;\
 }
 #define timeout(condition, time, body) {uint32_t _tme {system::getTickCount() + time}; \
-    while (condition && _tme < system::getTickCount()) \
+    while (condition && _tme < system::getTickCount()) {\
         body\
+		}\
 }
 
 
