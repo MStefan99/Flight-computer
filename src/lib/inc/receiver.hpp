@@ -11,10 +11,13 @@
 #include "device.h"
 
 #include "util.hpp"
+#include "dma.hpp"
+#include "pc.hpp"
 
 
 namespace receiver {
-	void init();
+	void initPWM();  // Not supported on L10
+	void initSBUS();
 
 	int16_t getChannel(uint8_t channel);
 }

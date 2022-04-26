@@ -1,74 +1,59 @@
 #include "lib/inc/receiver.hpp"
 
-
-uint16_t timeRising[8];
-uint16_t timeHigh[8];
+#define SERCOM_REGS SERCOM1_REGS
 
 
-static uint8_t getPin(uint8_t val) {
-	for (uint8_t i {0}; i < 8; ++i) {
-		if (val & 0x1) {
-			return i;
-		}
-		val >>= 1u;
+uint8_t SBUSBuffer[25] {};
+
+
+static uint16_t getValue(const uint8_t* data, uint8_t idx) {
+	uint16_t res = 0;
+	uint8_t startBit = idx * 11;
+	uint8_t endBit = startBit + 11;
+
+	while (startBit < endBit) {
+		uint8_t bitPos = startBit % 8;
+		uint8_t bitCount = MIN(8 - bitPos, endBit - startBit);
+		uint8_t shift = 11 - (endBit - startBit);
+
+		res |= (data[startBit / 8] & ((0x1 << bitCount) - 1)) << shift;
+		startBit += bitCount;
 	}
-	return 0;
+
+	return res;
+
 }
 
 
-extern "C" {
-	void EIC_Handler() {
-		TC2_REGS->COUNT16.TC_CTRLBSET = TC_CTRLBSET_CMD_READSYNC;
-		while (TC2_REGS->COUNT16.TC_CTRLBSET);
-		
-		uint16_t time {TC2_REGS->COUNT16.TC_COUNT};
-		uint8_t intFlag = EIC_REGS->EIC_INTFLAG >> 1u;
-		uint8_t pin {getPin(intFlag)};
-		uint8_t pinState = (PORT_REGS->GROUP[0].PORT_IN & 0xC00) >> 10u
-						| (PORT_REGS->GROUP[0].PORT_IN & 0xC000) >> 12u;
-		
-		if (pinState & intFlag) {
-			timeRising[pin] = time;
-		} else {
-			if (time > timeRising[pin]) {
-				timeHigh[pin] = time - timeRising[pin];
-			} else {
-				timeHigh[pin] = TC2_REGS->COUNT16.TC_PER - timeRising[pin] + time;
-			}
-		}
-		
-		EIC_REGS->EIC_INTFLAG = 0xff;  // Clear interrupt flag
-	}
+
+void receiver::initSBUS() {
+	GCLK_REGS->GCLK_PCHCTRL[12] = GCLK_PCHCTRL_CHEN(1) | // Enable SERCOM1 clock
+					GCLK_PCHCTRL_GEN_GCLK0; //Set GCLK0 as a clock source
+
+	// PORT config
+	PORT_REGS->GROUP[0].PORT_PINCFG[9] = PORT_PINCFG_PMUXEN(1); // Enable mux on pin 9
+	PORT_REGS->GROUP[0].PORT_PMUX[4] = PORT_PMUX_PMUXO_C; // Mux pin 9 to SERCOM1
+
+	// DMA config
+	dma::initSBUS(SBUSBuffer, 25);
+
+	// SERCOM config
+	SERCOM_REGS->USART_INT.SERCOM_CTRLB = SERCOM_USART_INT_CTRLB_RXEN(1) |
+					//SERCOM_USART_INT_CTRLB_TXEN(1) |  // For future use
+					SERCOM_USART_INT_CTRLB_PMODE_EVEN |
+					SERCOM_USART_INT_CTRLB_SBMODE_2_BIT |
+					SERCOM_USART_INT_CTRLB_CHSIZE_8_BIT;
+	SERCOM_REGS->USART_INT.SERCOM_BAUD = 52429; // 100KHz
+	SERCOM_REGS->USART_INT.SERCOM_CTRLA = SERCOM_USART_INT_CTRLA_DORD_LSB |
+					SERCOM_USART_INT_CTRLA_CMODE_ASYNC |
+					SERCOM_USART_INT_CTRLA_FORM_USART_FRAME_WITH_PARITY |
+					SERCOM_USART_INT_CTRLA_RXPO_PAD1 |
+					//SERCOM_USART_INT_CTRLA_TXPO_PAD0 |
+					SERCOM_USART_INT_CTRLA_MODE_USART_INT_CLK |
+					SERCOM_USART_INT_CTRLA_ENABLE(1);
 }
 
 
-void receiver::init() {
-	PORT_REGS->GROUP[0].PORT_PINCFG[10] = PORT_PINCFG_PMUXEN(1);
-	PORT_REGS->GROUP[0].PORT_PINCFG[11] = PORT_PINCFG_PMUXEN(1);
-	PORT_REGS->GROUP[0].PORT_PINCFG[14] = PORT_PINCFG_PMUXEN(1);
-	PORT_REGS->GROUP[0].PORT_PINCFG[15] = PORT_PINCFG_PMUXEN(1);
-	
-	PORT_REGS->GROUP[0].PORT_PMUX[5] = PORT_PMUX_PMUXE_A 
-					| PORT_PMUX_PMUXO_A;
-	PORT_REGS->GROUP[0].PORT_PMUX[7] = PORT_PMUX_PMUXE_A 
-					| PORT_PMUX_PMUXO_A;
-	
-	EIC_REGS->EIC_INTENSET = 0xff;  // All 8 pins enabled
-	EIC_REGS->EIC_ASYNCH = 0xff;  // Asynchronous mode
-	EIC_REGS->EIC_CONFIG = EIC_CONFIG_SENSE1_BOTH
-					| EIC_CONFIG_SENSE2_BOTH
-					| EIC_CONFIG_SENSE3_BOTH
-					| EIC_CONFIG_SENSE4_BOTH;
-	EIC_REGS->EIC_CTRLA = EIC_CTRLA_ENABLE(1);
-	
-	NVIC_EnableIRQ(EIC_EXTINT_0_IRQn);
-	NVIC_EnableIRQ(EIC_EXTINT_1_IRQn);
-	NVIC_EnableIRQ(EIC_EXTINT_2_IRQn);
-	NVIC_EnableIRQ(EIC_EXTINT_3_IRQn);
-	NVIC_EnableIRQ(EIC_OTHER_IRQn);	
-}
-
-
-int16_t receiver::getChannel(uint8_t channel) {
-	return MAP(2500, 5500, (int16_t)0x8000, (int16_t)0x7fff, timeHigh[channel]);
+int16_t receiver::getChannel(const uint8_t channel) {
+	return MAP(170, 1850, (int16_t)0x8000, (int16_t)0x7fff, getValue(SBUSBuffer + 1, channel));
 }

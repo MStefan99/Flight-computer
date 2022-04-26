@@ -12,22 +12,19 @@
 #include "lib/inc/tl/list.hpp"
 
 
-#define DMA_CH_COUNT 4
+#define DMA_CH_COUNT 6
 
 #define DMA_CH_I2C_TX 0
 #define DMA_CH_I2C_RX 1
-#define DMA_CH_CPU_TX 2
-#define DMA_CH_CPU_RX 3
+#define DMA_CH_PC_TX 2
+#define DMA_CH_PC_RX 3
+#define DMA_CH_SBUS_TX 4
+#define DMA_CH_SBUS_RX 5
 
 
 namespace dma {
-	extern dmac_descriptor_registers_t DESCRIPTOR_TABLE[];
-	extern dmac_descriptor_registers_t WRITE_BACK_DESCRIPTOR_TABLE[];
-
-
 	// Interrupts are cleared automatically for the following handlers
-	extern void I2C_TCMPL_Handler();
-	extern void UART_TCMPL_Handler();
+	extern void SBUS_Handler();
 
 	enum I2CTransferType : uint8_t {
 		Read,
@@ -53,8 +50,10 @@ namespace dma {
 	UARTTransfer;
 
 
+	void init();
 	void initI2C();
-	void initUART();
+	void initPC();
+	void initSBUS(uint8_t* rxBuf, uint16_t len);
 
 
 	// The following functions are for internal use only, don't call them!

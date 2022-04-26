@@ -64,7 +64,6 @@ void HardFault_Handler (void);
 void I2C_Handler();
 void UART_Handler();
 void DMA_Handler();
-void EIC_Handler();
 
 
 #endif // INTERRUPTS_H

@@ -5,6 +5,7 @@
 #include "lib/inc/updates.hpp"
 #include "lib/inc/pc.hpp"
 #include "lib/inc/i2c.hpp"
+#include "lib/inc/dma.hpp"
 
 
 /*
@@ -16,6 +17,7 @@
 int main() {
 	util::init();
 
+	dma::init();
 	pc::init();
 	i2c::init();
 	
