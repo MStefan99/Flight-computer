@@ -21,7 +21,7 @@ extern "C" {
 		TC2_REGS->COUNT16.TC_CTRLBSET = TC_CTRLBSET_CMD_READSYNC;
 		while (TC2_REGS->COUNT16.TC_CTRLBSET);
 		
-		uint32_t time {TC2_REGS->COUNT16.TC_COUNT};
+		uint16_t time {TC2_REGS->COUNT16.TC_COUNT};
 		uint8_t intFlag = EIC_REGS->EIC_INTFLAG >> 1u;
 		uint8_t pin {getPin(intFlag)};
 		uint8_t pinState = (PORT_REGS->GROUP[0].PORT_IN & 0xC00) >> 10u
@@ -33,7 +33,7 @@ extern "C" {
 			if (time > timeRising[pin]) {
 				timeHigh[pin] = time - timeRising[pin];
 			} else {
-				timeHigh[pin] = 0xffff - timeRising[pin] + time;
+				timeHigh[pin] = TC2_REGS->COUNT16.TC_PER - timeRising[pin] + time;
 			}
 		}
 		
@@ -55,15 +55,10 @@ void receiver::init() {
 	
 	EIC_REGS->EIC_INTENSET = 0xff;  // All 8 pins enabled
 	EIC_REGS->EIC_ASYNCH = 0xff;  // Asynchronous mode
-	EIC_REGS->EIC_CONFIG = 
-					EIC_CONFIG_SENSE0_BOTH
-					| EIC_CONFIG_SENSE1_BOTH
+	EIC_REGS->EIC_CONFIG = EIC_CONFIG_SENSE1_BOTH
 					| EIC_CONFIG_SENSE2_BOTH
 					| EIC_CONFIG_SENSE3_BOTH
-					| EIC_CONFIG_SENSE4_BOTH
-					| EIC_CONFIG_SENSE5_BOTH
-					| EIC_CONFIG_SENSE6_BOTH
-					| EIC_CONFIG_SENSE7_BOTH;
+					| EIC_CONFIG_SENSE4_BOTH;
 	EIC_REGS->EIC_CTRLA = EIC_CTRLA_ENABLE(1);
 	
 	NVIC_EnableIRQ(EIC_EXTINT_0_IRQn);
@@ -75,5 +70,5 @@ void receiver::init() {
 
 
 int16_t receiver::getChannel(uint8_t channel) {
-	return MAP(2667, 5333, (int16_t)0x8000, (int16_t)0x7fff, timeHigh[channel]);
+	return MAP(2500, 5500, (int16_t)0x8000, (int16_t)0x7fff, timeHigh[channel]);
 }
