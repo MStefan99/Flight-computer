@@ -6,8 +6,8 @@ uint16_t timeHigh[8];
 
 
 static uint8_t getPin(uint8_t val) {
-	for (uint8_t i {0}; i < val; ++i) {
-		if (val & 1) {
+	for (uint8_t i {0}; i < 8; ++i) {
+		if (val & 0x1) {
 			return i;
 		}
 		val >>= 1u;
@@ -21,11 +21,13 @@ extern "C" {
 		TC2_REGS->COUNT16.TC_CTRLBSET = TC_CTRLBSET_CMD_READSYNC;
 		while (TC2_REGS->COUNT16.TC_CTRLBSET);
 		
-		uint32_t time = TC2_REGS->COUNT16.TC_COUNT;
-		uint8_t pin {getPin(EIC_REGS->EIC_INTFLAG)};
-		uint8_t pinState = (PORT_REGS->GROUP[0].PORT_IN & 0xC00) >> 9u;
+		uint32_t time {TC2_REGS->COUNT16.TC_COUNT};
+		uint8_t intFlag = EIC_REGS->EIC_INTFLAG >> 1u;
+		uint8_t pin {getPin(intFlag)};
+		uint8_t pinState = (PORT_REGS->GROUP[0].PORT_IN & 0xC00) >> 10u
+						| (PORT_REGS->GROUP[0].PORT_IN & 0xC000) >> 12u;
 		
-		if (pinState & EIC_REGS->EIC_INTFLAG) {
+		if (pinState & intFlag) {
 			timeRising[pin] = time;
 		} else {
 			if (time > timeRising[pin]) {
@@ -43,8 +45,12 @@ extern "C" {
 void receiver::init() {
 	PORT_REGS->GROUP[0].PORT_PINCFG[10] = PORT_PINCFG_PMUXEN(1);
 	PORT_REGS->GROUP[0].PORT_PINCFG[11] = PORT_PINCFG_PMUXEN(1);
+	PORT_REGS->GROUP[0].PORT_PINCFG[14] = PORT_PINCFG_PMUXEN(1);
+	PORT_REGS->GROUP[0].PORT_PINCFG[15] = PORT_PINCFG_PMUXEN(1);
 	
 	PORT_REGS->GROUP[0].PORT_PMUX[5] = PORT_PMUX_PMUXE_A 
+					| PORT_PMUX_PMUXO_A;
+	PORT_REGS->GROUP[0].PORT_PMUX[7] = PORT_PMUX_PMUXE_A 
 					| PORT_PMUX_PMUXO_A;
 	
 	EIC_REGS->EIC_INTENSET = 0xff;  // All 8 pins enabled
