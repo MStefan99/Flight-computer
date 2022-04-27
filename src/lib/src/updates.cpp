@@ -12,8 +12,8 @@ void updates::init() {
 	mpu6050::init();
 	
 	servo::init();
-	servo::enable(0);
 	servo::enable(1);
+	servo::enable(2);
 	
 	receiver::initSBUS();
 }
@@ -26,39 +26,33 @@ void updates::ms() {
 
 void updates::fast() {
 	mpu6050::update();
-	
-	if (receiver::getChannel(6) > 0) {
-		e.measure({
-			{mpu6050::getRotP()},
-			{mpu6050::getRotQ()},
-			{mpu6050::getRotR()}
-		},
-		{
-			{mpu6050::getAccX()},
-			{mpu6050::getAccY()},
-			{mpu6050::getAccZ()}
-		},
-		0.02);
 
-		int16_t roll = e.getRoll() / 3.14 * 16384;
-		int16_t pitch = e.getPitch() / 3.14 * 16384;
+	e.measure({
+		{mpu6050::getRotP()},
+		{mpu6050::getRotQ()},
+		{mpu6050::getRotR()}
+	},
+	{
+		{mpu6050::getAccX()},
+		{mpu6050::getAccY()},
+		{mpu6050::getAccZ()}
+	},
+	0.02);
 
-		servo::setChannel(0, rollPID.update(0, roll));
-		servo::setChannel(1, pitchPID.update(0, pitch));
-		
-	} else {	
-		servo::setChannel(0, receiver::getChannel(0));
+	int16_t roll = e.getRoll() / 3.14 * 16384;
+	int16_t pitch = e.getPitch() / 3.14 * 16384;
+
+	if (receiver::getChannel(6) < 0) {
 		servo::setChannel(1, receiver::getChannel(1));
+		servo::setChannel(2, receiver::getChannel(2));
+	} else {	
+		servo::setChannel(1, rollPID.update(0, roll));
+		servo::setChannel(2, pitchPID.update(0, pitch));	
 	}
-	
-	int16_t ch0 = receiver::getChannel(0);
-	int16_t ch1 = receiver::getChannel(1);
-	int16_t ch3 = receiver::getChannel(6);
 
 	pc::Command cmd {8, pc::SendAccData};
-	util::copy((uint16_t*)cmd.data, (uint16_t)ch0);
-	util::copy((uint16_t*)cmd.data + 1, (uint16_t)ch1);
-	util::copy((uint16_t*)cmd.data + 2, (uint16_t)ch3);
+	util::copy((uint16_t*)cmd.data, (uint16_t)roll);
+	util::copy((uint16_t*)cmd.data + 1, (uint16_t)pitch);
 	pc::sendCommand(cmd);
 }
 

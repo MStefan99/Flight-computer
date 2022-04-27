@@ -28,9 +28,12 @@ static void completeUARTTransfer();
 
 // Interrupt handlers
 extern "C" {
-
-
 	void DMA_Handler() {
+		//if ((SERCOM0_REGS->I2CM.SERCOM_INTFLAG & SERCOM_I2CM_INTFLAG_MB_Msk) 
+						//&& (DMAC_REGS->DMAC_INTPEND & DMAC_INTPEND_ID_Msk == DMA_CH_I2C_TX)) {
+			// Bug was causing DMAC to be active on WriteRead operation, for future reference
+		//}
+		
 		switch (DMAC_REGS->DMAC_INTPEND & DMAC_INTPEND_ID_Msk) {
 			case DMA_CH_I2C_TX:
 			case DMA_CH_I2C_RX:
@@ -45,24 +48,27 @@ extern "C" {
 			default:
 				break;
 		}
-		nextTransfer();
+		
 		DMAC_REGS->DMAC_CHID = DMAC_REGS->DMAC_INTPEND & DMAC_INTPEND_ID_Msk;
 		DMAC_REGS->DMAC_CHINTFLAG = DMAC_CHINTFLAG_Msk;
+		nextTransfer();
 	}
 
 
 	void I2C_Handler() {
-		dma::I2CTransfer transfer{pendingI2CTransfers.front()};
-
+		//if (pendingI2CTransfers.empty()) {
+			// Due to a bug an I2C transfer was removed before completion, for future reference
+		//}
+		
+		dma::I2CTransfer transfer {pendingI2CTransfers.front()};
+		
 		if (transfer.sercom->I2CM.SERCOM_INTFLAG & SERCOM_I2CM_INTFLAG_ERROR_Msk ||
 						(transfer.sercom->I2CM.SERCOM_STATUS & SERCOM_I2CM_STATUS_RXNACK_Msk)) {
+			transfer.sercom->I2CM.SERCOM_CTRLB = SERCOM_I2CM_CTRLB_CMD(3);
 			completeI2CTransfer();
 			nextTransfer();
-			DMAC_REGS->DMAC_CHID = transfer.type == dma::I2CTransferType::Read ? DMA_CH_I2C_RX : DMA_CH_I2C_TX;
-			transfer.sercom->I2CM.SERCOM_CTRLB = SERCOM_I2CM_CTRLB_CMD(3);
-			DMAC_REGS->DMAC_CHCTRLA = DMAC_CHCTRLA_ENABLE(0);
 		} else {
-			static bool regAddrWritten{false};
+			static bool regAddrWritten {false};
 
 			if (!regAddrWritten) {
 				transfer.sercom->I2CM.SERCOM_DATA = transfer.regAddr;
@@ -82,7 +88,6 @@ extern "C" {
 // Initialization
 
 void dma::init() {
-	// DMA setup
 	DMAC_REGS->DMAC_BASEADDR = (uint32_t) DESCRIPTOR_TABLE;
 	DMAC_REGS->DMAC_WRBADDR = (uint32_t) WRITE_BACK_DESCRIPTOR_TABLE;
 	DMAC_REGS->DMAC_CTRL = DMAC_CTRL_LVLEN0(1)
@@ -175,20 +180,19 @@ static void nextTransfer() {
 
 // I2C Transfers
 
-
 void dma::startTransfer(const I2CTransfer& transfer) {
 	pendingI2CTransfers.push_back(transfer);
-	nextI2CTransfer();
+	nextTransfer();
 }
 
 
 static void nextI2CTransfer() {
-	dma::I2CTransfer transfer {pendingI2CTransfers.front()};
-
 	if (transferOngoing) {
 		return; // SERCOM/DMA busy, cannot start another transfer
 	}
-
+	transferOngoing = true;
+	
+	dma::I2CTransfer transfer {pendingI2CTransfers.front()};
 	switch (transfer.type) {
 		case dma::I2CTransferType::Read:
 			I2CStreamIn(transfer);
@@ -197,12 +201,11 @@ static void nextI2CTransfer() {
 			I2CStreamOut(transfer);
 			break;
 		case dma::I2CTransferType::WriteRead:
+			DMAC_REGS->DMAC_CHCTRLA = DMAC_CHCTRLA_ENABLE(0);
 			transfer.sercom->I2CM.SERCOM_INTENSET = SERCOM_I2CM_INTENSET_MB(1);
 			transfer.sercom->I2CM.SERCOM_ADDR = SERCOM_I2CM_ADDR_ADDR(transfer.devAddr << 1u);
 			break;
 	}
-	
-	transferOngoing = true;
 }
 
 
@@ -233,7 +236,7 @@ static void I2CStreamIn(const dma::I2CTransfer& transfer) {
 
 
 static void completeI2CTransfer() {
-	dma::I2CTransfer transfer{pendingI2CTransfers.front()};
+	dma::I2CTransfer transfer {pendingI2CTransfers.front()};
 	if (transfer.type == dma::I2CTransferType::Write) {
 		byteAllocator.deallocate(transfer.buf);
 	}
@@ -244,27 +247,24 @@ static void completeI2CTransfer() {
 
 // UART transfers
 
-
 void dma::startTransfer(const dma::UARTTransfer& transfer) {
 	pendingUARTTransfers.push_back(transfer);
-	nextUARTTransfer();
+	nextTransfer();
 }
 
 
 static void nextUARTTransfer() {
-	dma::UARTTransfer transfer{pendingUARTTransfers.front()};
-
 	if (transferOngoing) {
 		return; // SERCOM/DMA busy, cannot start another transfer
 	}
+	transferOngoing = true;
 
+	dma::UARTTransfer transfer {pendingUARTTransfers.front()};
 	DMAC_REGS->DMAC_CHID = DMA_CH_PC_TX;
 	DESCRIPTOR_TABLE[DMA_CH_PC_TX].DMAC_BTCNT = transfer.len;
 	DESCRIPTOR_TABLE[DMA_CH_PC_TX].DMAC_SRCADDR = (uint32_t) (transfer.buf + transfer.len);
 	DESCRIPTOR_TABLE[DMA_CH_PC_TX].DMAC_DSTADDR = (uint32_t) & transfer.sercom->USART_INT.SERCOM_DATA;
-	DMAC_REGS->DMAC_CHCTRLA = DMAC_CHCTRLA_ENABLE(1);
-	
-	transferOngoing = true;
+	DMAC_REGS->DMAC_CHCTRLA = DMAC_CHCTRLA_ENABLE(1);	
 }
 
 

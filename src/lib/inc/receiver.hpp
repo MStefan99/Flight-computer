@@ -19,7 +19,7 @@ namespace receiver {
 	void initPWM();  // Not supported on L10
 	void initSBUS();
 
-	int16_t getChannel(uint8_t channel);
+	int16_t getChannel(uint8_t channel);  // Channels start from 1
 }
 
 #endif	/* RECEIVER_H */

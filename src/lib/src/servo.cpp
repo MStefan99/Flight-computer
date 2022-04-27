@@ -45,7 +45,8 @@ void servo::init() {
 }
 
 
-void servo::enable(const uint8_t channel) {
+void servo::enable(uint8_t channel) {
+	--channel;
 	tc_registers_t* timer {getTimer(channel)};
 
 	// TC config
@@ -69,14 +70,16 @@ void servo::enable(const uint8_t channel) {
 }
 
 
-void servo::disable(const uint8_t channel) {
-	uint8_t pin {getPin(channel)};
+void servo::disable(uint8_t channel) {
+	uint8_t pin {getPin(channel - 1)};
 	PORT_REGS->GROUP[0].PORT_OUTCLR = 0x1 << pin;
 	PORT_REGS->GROUP[0].PORT_PINCFG[pin] = PORT_PINCFG_PMUXEN(0); // Enable mux on pin
 }
 
 
-void servo::setChannel(const uint8_t channel, const int16_t angle) {
+void servo::setChannel(uint8_t channel, int16_t angle) {
 	// Range: [1ms * GCLK_TC; 2ms * GCLK_TC]
-	getTimer(channel)->COUNT16.TC_CCBUF[getTimerChannel(channel)] = MAP((int16_t)0x8000, (int16_t)0x7fff, 2667, 5333, angle);
+	--channel;
+	getTimer(channel)->COUNT16.TC_CCBUF[getTimerChannel(channel)] = 
+					MAP((int16_t)0x8000, (int16_t)0x7fff, 2667, 5333, angle);
 }
