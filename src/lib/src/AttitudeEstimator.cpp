@@ -4,10 +4,10 @@
 
 #include "lib/inc/AttitudeEstimator.hpp"
 
+#if USE_KALMAN
 
 #define processNoise 0.005f
 #define g 9.81f
-#define pi 3.1415f
 
 #define phi x[0][0]
 #define theta x[1][0]
@@ -70,8 +70,8 @@ AttitudeEstimator::AttitudeEstimator(float accUncertainty):
 void AttitudeEstimator::init(float roll, float pitch) {
 	_k.init(
 			{
-					{pi, 0},
-					{0, pi}
+					{PI, 0},
+					{0, PI}
 			},
 			{
 					{roll},
@@ -96,11 +96,11 @@ void AttitudeEstimator::update(float dt) {
 
 void AttitudeEstimator::measure(const Matrix& rot, const Matrix& acc, float dt) {
 	const Matrix& x = _k.getState();
-	trig(); // 2ms @ 8MHz
 
+	trig(); // 2ms @ 8MHz
 	_u = rot;
 	_k.extrapolateState(xe, F); // 3ms @ 8MHz
-  // TODO: recalculate trig()
+  trig()
 	_k.updateState(H, acc, out); // 10ms @ 8MHz
 }
 
@@ -117,4 +117,40 @@ float AttitudeEstimator::getPitch() const {
 
 Matrix AttitudeEstimator::getUncertainty() const {
 	return _k.getCovariance();
+}
+#endif
+
+#define ALPHA ( 0.3 )
+
+
+AttitudeEstimator::AttitudeEstimator(float accUncertainty) {
+	// Nothing to do
+}
+
+
+void AttitudeEstimator::init(float roll, float pitch) {
+	_roll = roll;
+	_pitch = pitch;
+}
+
+
+void AttitudeEstimator::measure(const Matrix& rot, const Matrix& acc, float dt) {
+	_pitch += rot[1][0] * dt;
+	_roll += rot[0][0] * dt;
+
+	float pitchAcc = atan2f(acc[0][0], acc[2][0]);
+	_pitch = std::fmod(_pitch * (1 - ALPHA) - pitchAcc * ALPHA, PI);
+
+	float rollAcc = atan2f(acc[1][0], acc[2][0]);
+	_roll = std::fmod(_roll * (1 - ALPHA) + rollAcc * ALPHA, PI);
+}
+
+
+float AttitudeEstimator::getRoll() const {
+	return _roll;
+}
+
+
+float AttitudeEstimator::getPitch() const {
+	return _pitch;
 }

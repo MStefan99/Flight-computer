@@ -29,11 +29,6 @@ static void completeUARTTransfer();
 // Interrupt handlers
 extern "C" {
 	void DMA_Handler() {
-		//if ((SERCOM0_REGS->I2CM.SERCOM_INTFLAG & SERCOM_I2CM_INTFLAG_MB_Msk) 
-						//&& (DMAC_REGS->DMAC_INTPEND & DMAC_INTPEND_ID_Msk == DMA_CH_I2C_TX)) {
-			// Bug was causing DMAC to be active on WriteRead operation, for future reference
-		//}
-		
 		switch (DMAC_REGS->DMAC_INTPEND & DMAC_INTPEND_ID_Msk) {
 			case DMA_CH_I2C_TX:
 			case DMA_CH_I2C_RX:
@@ -56,10 +51,6 @@ extern "C" {
 
 
 	void I2C_Handler() {
-		//if (pendingI2CTransfers.empty()) {
-			// Due to a bug an I2C transfer was removed before completion, for future reference
-		//}
-		
 		dma::I2CTransfer transfer {pendingI2CTransfers.front()};
 		
 		if (transfer.sercom->I2CM.SERCOM_INTFLAG & SERCOM_I2CM_INTFLAG_ERROR_Msk ||

@@ -39,8 +39,8 @@ void updates::fast() {
 	},
 	0.02);
 
-	int16_t roll = e.getRoll() / 3.14 * 16384;
-	int16_t pitch = e.getPitch() / 3.14 * 16384;
+	int16_t roll = e.getRoll() / PI * (int16_t)0x7fff;
+	int16_t pitch = e.getPitch() / PI * (int16_t)0x7fff;
 
 	if (receiver::getChannel(6) < 0) {
 		servo::setChannel(1, receiver::getChannel(1));
