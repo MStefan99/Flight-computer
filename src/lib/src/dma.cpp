@@ -5,7 +5,6 @@ static dmac_descriptor_registers_t DESCRIPTOR_TABLE[DMA_CH_COUNT];
 static dmac_descriptor_registers_t WRITE_BACK_DESCRIPTOR_TABLE[DMA_CH_COUNT];
 
 
-static bool transferOngoing {false};
 static tl::allocator<uint8_t> byteAllocator {};
 
 
@@ -175,18 +174,21 @@ static void nextTransfer() {
 // I2C Transfers
 
 void dma::startTransfer(const I2CTransfer& transfer) {
+	__disable_irq();
 	pendingI2CTransfers.push_back(transfer);
 	nextTransfer();
+	__enable_irq();
 }
 
 
 static void nextI2CTransfer() {
-	if (transferOngoing) {
+	dma::I2CTransfer transfer {pendingI2CTransfers.front()};
+	
+	if ((transfer.sercom->I2CM.SERCOM_STATUS & SERCOM_I2CM_STATUS_BUSSTATE_Msk)
+					!= SERCOM_I2CM_STATUS_BUSSTATE(1)) {
 		return; // SERCOM/DMA busy, cannot start another transfer
 	}
-	transferOngoing = true;
 	
-	dma::I2CTransfer transfer {pendingI2CTransfers.front()};
 	switch (transfer.type) {
 		case dma::I2CTransferType::Read:
 			I2CStreamIn(transfer);
@@ -234,25 +236,26 @@ static void completeI2CTransfer() {
 		byteAllocator.deallocate(transfer.buf);
 	}
 	pendingI2CTransfers.pop_front();
-	transferOngoing = false;
 }
 
 
 // UART transfers
 
 void dma::startTransfer(const dma::UARTTransfer& transfer) {
+	__disable_irq();
 	pendingUARTTransfers.push_back(transfer);
 	nextTransfer();
+	__enable_irq();
 }
 
 
 static void nextUARTTransfer() {
-	if (transferOngoing) {
+	dma::UARTTransfer transfer {pendingUARTTransfers.front()};
+	
+	if (transfer.sercom->USART_INT.SERCOM_STATUS & SERCOM_USART_INT_STATUS_CTS_Msk) {
 		return; // SERCOM/DMA busy, cannot start another transfer
 	}
-	transferOngoing = true;
 
-	dma::UARTTransfer transfer {pendingUARTTransfers.front()};
 	DMAC_REGS->DMAC_CHID = DMA_CH_PC_TX;
 	DESCRIPTOR_TABLE[DMA_CH_PC_TX].DMAC_BTCNT = transfer.len;
 	DESCRIPTOR_TABLE[DMA_CH_PC_TX].DMAC_SRCADDR = (uint32_t) (transfer.buf + transfer.len);
@@ -265,5 +268,4 @@ static void completeUARTTransfer() {
 	dma::UARTTransfer transfer {pendingUARTTransfers.front()};
 	byteAllocator.deallocate(transfer.buf);
 	pendingUARTTransfers.pop_front();
-	transferOngoing = false;
 }
