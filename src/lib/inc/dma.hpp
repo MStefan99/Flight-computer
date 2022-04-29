@@ -9,7 +9,8 @@
 #define	DMA_H
 
 #include "device.h"
-#include "lib/inc/tl/list.hpp"
+#include "tl/allocator.hpp"
+#include "RingBuffer.hpp"
 
 
 #define DMA_CH_COUNT 6

@@ -8,6 +8,7 @@
 #include <new>
 
 #include "config_tl.hpp"
+#include "device.h"
 
 
 #if !USE_NEW
@@ -70,13 +71,18 @@ namespace tl {
 
 	template <class T>
 	typename allocator<T>::pointer allocator<T>::allocate(size_type n) {
-		return static_cast<pointer>(std::malloc(sizeof(T) * n));
+		__disable_irq();
+		auto p = static_cast<pointer>(std::malloc(sizeof(T) * n));
+		__enable_irq();
+		return p;
 	}
 
 
 	template <class T>
 	void allocator<T>::deallocate(pointer p, unsigned int) {
+		__disable_irq();
 		std::free(p);
+		__enable_irq();
 	}
 
 

@@ -5,9 +5,10 @@
 #ifndef TRADER_MATRIX_H
 #define TRADER_MATRIX_H
 
-#include "tl/vector.hpp"
 #include <cstdint>
 #include <initializer_list>
+
+#include "tl/allocator.hpp"
 
 
 #ifdef MATRIX_IO
@@ -17,22 +18,25 @@
 #endif
 
 
-typedef float scalar;
-typedef uint16_t size;
-#define TL tl
-
-
 class Matrix {
 public:
-	Matrix() = default;
-	explicit Matrix(size w, size);
-	explicit Matrix(const TL::vector<scalar>& vector);
-	explicit Matrix(const TL::vector<TL::vector<scalar>>& vector);
-	Matrix(const std::initializer_list<std::initializer_list<scalar>>& list);
-	static Matrix identity(size order);
+	using size_type = unsigned int;
+	using scalar = float;
+	using allocator_type = tl::allocator<scalar>;
 
-	TL::vector<scalar>& operator[](size i);
-	const TL::vector<scalar>& operator[](size i) const;
+	Matrix() = default;
+	explicit Matrix(size_type w, size_type h);
+	Matrix(const std::initializer_list<std::initializer_list<scalar>>& list);
+
+	Matrix(const Matrix& matrix);
+	Matrix& operator=(const Matrix& matrix);
+
+	~Matrix();
+
+	static Matrix identity(size_type order);
+
+	scalar* operator[](size_type i);
+	const scalar* operator[](size_type i) const;
 
 	Matrix transpose() const;
 	Matrix invert() const;
@@ -50,20 +54,17 @@ public:
 	Matrix multiplyComponents(const Matrix& matrix) const;
 	Matrix concat(const Matrix& matrix) const;
 
-	explicit operator TL::vector<scalar>() const;
-	explicit operator TL::vector<TL::vector<scalar>>() const;
-
-	size getWidth() const;
-	size getHeight() const;
+	size_type getWidth() const;
+	size_type getHeight() const;
 
 	#ifdef MATRIX_IO
 	friend std::ostream& operator<<(std::ostream& out, const Matrix& matrix);
 	#endif
 
 protected:
-	TL::vector<TL::vector<scalar>> _values {};
-	size _w {0};
-	size _h {0};
+	size_type _h {0};
+	size_type _w {0};
+	scalar* _values {};
 };
 
 #endif //TRADER_MATRIX_H

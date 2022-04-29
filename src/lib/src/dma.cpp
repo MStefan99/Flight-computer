@@ -9,8 +9,8 @@ static bool transferOngoing {false};
 static tl::allocator<uint8_t> byteAllocator {};
 
 
-static tl::list<dma::I2CTransfer> pendingI2CTransfers{};
-static tl::list<dma::UARTTransfer> pendingUARTTransfers{};
+static RingBuffer<dma::I2CTransfer> pendingI2CTransfers{};
+static RingBuffer<dma::UARTTransfer> pendingUARTTransfers{};
 
 
 static void nextTransfer();
