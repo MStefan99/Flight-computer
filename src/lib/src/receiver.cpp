@@ -8,20 +8,22 @@ uint8_t SBUSBuffer[25] {};
 
 static uint16_t getValue(const uint8_t* data, uint8_t idx) {
 	uint16_t res = 0;
+
 	uint8_t startBit = idx * 11;
 	uint8_t endBit = startBit + 11;
 
 	while (startBit < endBit) {
-		uint8_t bitPos = startBit % 8;
-		uint8_t bitCount = MIN(8 - bitPos, endBit - startBit);
-		uint8_t shift = 11 - (endBit - startBit);
+		uint8_t bitsLeft = endBit - startBit;
+		uint8_t startPos = startBit % 8;
+		uint8_t endPos = bitsLeft > 8? 8 : bitsLeft;
+		uint8_t bitCount = endPos - startPos;
+		auto shift = static_cast<int8_t>(11 - bitsLeft - startPos);
 
-		res |= (data[startBit / 8] & ((0x1 << bitCount) - 1)) << shift;
+		res |= shift < 0? data[startBit / 8] >> -shift : data[startBit / 8] << shift;
 		startBit += bitCount;
 	}
 
-	return res;
-
+	return res & 0x7ff;
 }
 
 
