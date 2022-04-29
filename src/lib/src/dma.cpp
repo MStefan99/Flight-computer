@@ -29,23 +29,26 @@ static void completeUARTTransfer();
 // Interrupt handlers
 extern "C" {
 	void DMA_Handler() {
-		switch (DMAC_REGS->DMAC_INTPEND & DMAC_INTPEND_ID_Msk) {
-			case DMA_CH_I2C_TX:
-			case DMA_CH_I2C_RX:
-				completeI2CTransfer();
-				break;
-			case DMA_CH_PC_TX:
-				completeUARTTransfer();
-				break;
-			case DMA_CH_SBUS_RX:
-				DMAC_REGS->DMAC_CHID = DMA_CH_SBUS_RX;
-				DMAC_REGS->DMAC_CHCTRLA = DMAC_CHCTRLA_ENABLE(1);
-			default:
-				break;
+		while (DMAC_REGS->DMAC_INTSTATUS) {
+			DMAC_REGS->DMAC_CHID = DMAC_REGS->DMAC_INTPEND & DMAC_INTPEND_ID_Msk;
+		
+			switch (DMAC_REGS->DMAC_CHID) {
+				case DMA_CH_I2C_TX:
+				case DMA_CH_I2C_RX:
+					completeI2CTransfer();
+					break;
+				case DMA_CH_PC_TX:
+					completeUARTTransfer();
+					break;
+				case DMA_CH_SBUS_RX:
+					DMAC_REGS->DMAC_CHCTRLA = DMAC_CHCTRLA_ENABLE(1);
+				default:
+					break;
+			}
+
+			DMAC_REGS->DMAC_CHINTFLAG = DMAC_CHINTFLAG_Msk;
 		}
 		
-		DMAC_REGS->DMAC_CHID = DMAC_REGS->DMAC_INTPEND & DMAC_INTPEND_ID_Msk;
-		DMAC_REGS->DMAC_CHINTFLAG = DMAC_CHINTFLAG_Msk;
 		nextTransfer();
 	}
 
@@ -192,7 +195,6 @@ static void nextI2CTransfer() {
 			I2CStreamOut(transfer);
 			break;
 		case dma::I2CTransferType::WriteRead:
-			DMAC_REGS->DMAC_CHCTRLA = DMAC_CHCTRLA_ENABLE(0);
 			transfer.sercom->I2CM.SERCOM_INTENSET = SERCOM_I2CM_INTENSET_MB(1);
 			transfer.sercom->I2CM.SERCOM_ADDR = SERCOM_I2CM_ADDR_ADDR(transfer.devAddr << 1u);
 			break;
