@@ -21,11 +21,30 @@
 #define EULER 2.718281828459045235360287471352
 
 
-#define MAP(x1, y1, x2, y2, value) ((value - x1) * (y2 - x2) / (y1 - x1) + x2)
+#define MIN_INT8   static_cast<uint8_t>(0x80)
+#define MAX_INT8   static_cast<uint8_t>(0x7f)
+#define MIN_UINT8  static_cast<uint8_t>(0x00)
+#define MAX_UINT8  static_cast<uint8_t>(0xff)
+#define MIN_INT16  static_cast<uint16_t>(0x8000)
+#define MAX_INT16  static_cast<uint16_t>(0x7fff)
+#define MIN_UINT16 static_cast<uint16_t>(0x0000)
+#define MAX_UINT16 static_cast<uint16_t>(0xffff)
+#define MIN_INT32  static_cast<uint32_t>(0x80000000)
+#define MAX_INT32  static_cast<uint32_t>(0x7fffffff)
+#define MIN_UINT32 static_cast<uint32_t>(0x00000000)
+#define MAX_UINT32 static_cast<uint32_t>(0xffffffff)
+#define MIN_INT64  static_cast<uint64_t>(0x8000000000000000)
+#define MAX_INT64  static_cast<uint64_t>(0x7fffffffffffffff)
+#define MIN_UINT64 static_cast<uint64_t>(0x0000000000000000)
+#define MAX_UINT64 static_cast<uint64_t>(0xffffffffffffffff)
+
+
 #define AVG(a, b) ((a + b) / 2)
 #define ABS(a) ((a > 0)? (a) : -(a))
 #define MIN(a, b) ((a < b)? (a) : (b))
 #define MAX(a, b) ((a > b)? (a) : (b))
+#define CLAMP(min, val, max) ((val < min)? (min) : ((val > max)? max : val))
+#define MAP(minSrc, maxSrc, minTgt, maxTgt, val) ((val - minSrc) * (maxTgt - minTgt) / (maxSrc - minSrc) + minTgt)
 #define SWAP(a, b) {\
   auto t {a};  \
   a = b;  \

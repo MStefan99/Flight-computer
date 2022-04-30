@@ -30,6 +30,7 @@ extern "C" {
 	void DMA_Handler() {
 		while (DMAC_REGS->DMAC_INTSTATUS) {
 			DMAC_REGS->DMAC_CHID = DMAC_REGS->DMAC_INTPEND & DMAC_INTPEND_ID_Msk;
+			DMAC_REGS->DMAC_CHINTFLAG = DMAC_CHINTFLAG_Msk;
 		
 			switch (DMAC_REGS->DMAC_CHID) {
 				case DMA_CH_I2C_TX:
@@ -44,8 +45,6 @@ extern "C" {
 				default:
 					break;
 			}
-
-			DMAC_REGS->DMAC_CHINTFLAG = DMAC_CHINTFLAG_Msk;
 		}
 		
 		nextTransfer();
@@ -176,8 +175,8 @@ static void nextTransfer() {
 void dma::startTransfer(const I2CTransfer& transfer) {
 	__disable_irq();
 	pendingI2CTransfers.push_back(transfer);
-	nextTransfer();
 	__enable_irq();
+	nextTransfer();
 }
 
 
@@ -244,8 +243,8 @@ static void completeI2CTransfer() {
 void dma::startTransfer(const dma::UARTTransfer& transfer) {
 	__disable_irq();
 	pendingUARTTransfers.push_back(transfer);
-	nextTransfer();
 	__enable_irq();
+	nextTransfer();
 }
 
 

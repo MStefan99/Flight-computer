@@ -8,41 +8,29 @@
 #ifndef PID_HPP
 #define	PID_HPP
 
+#include "util.hpp"
 
-template <class T>
+
 struct PID {
 	PID() = default;
-	PID(T p, T i, T d);
+	PID(float kp, float ki, float kd, float iLim, float outLim);
+	
+	void setParameters(float kp, float ki, float kd, float iLim, float outLim);
 
-	T update(T setpoint, T current);
+	float update(float sp, float val);
 
 
 protected:
-	float _p {};
-	float _i {};
-	float _d {};
+	float _kp {};
+	float _ki {};
+	float _kd {};
+	
+	float _iLim {};
+	float _outLim {};
 
-	T _prev {};
-	T _sum {};
+	float _prev {};
+	float _sum {};
 };
 
 
-template <class T>
-PID<T>::PID(T p, T i, T d):
-	_p {p}, _i{i}, _d{d} {
-	// Nothing to do
-}
-
-
-template <class T>
-T PID<T>::update(T setpoint, T current) {
-	_sum += setpoint - current;
-	T val = _p * (setpoint - current) + _i * _sum + _d * (current - _prev);
-	_prev = current;
-	
-	return val;
-}
-
-
 #endif	/* PID_HPP */
-

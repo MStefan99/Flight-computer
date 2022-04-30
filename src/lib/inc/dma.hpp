@@ -24,9 +24,6 @@
 
 
 namespace dma {
-	// Interrupts are cleared automatically for the following handlers
-	extern void SBUS_Handler();
-
 	enum I2CTransferType : uint8_t {
 		Read,
 		Write,
@@ -57,7 +54,6 @@ namespace dma {
 	void initSBUS(uint8_t* rxBuf, uint16_t len);
 
 
-	// The following functions are for internal use only, don't call them!
 	void startTransfer(const I2CTransfer& transfer);
 	void startTransfer(const UARTTransfer& transfer);
 }

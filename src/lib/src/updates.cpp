@@ -2,8 +2,8 @@
 
 
 static AttitudeEstimator e {0.5};
-static PID<float> rollPID {3, 0, 10};
-static PID<float> pitchPID {3, 0, 10};
+static PID rollPID {3, 1, 5, MAX_INT16 / 4, MAX_INT16};
+static PID pitchPID {3, 1, 5, MAX_INT16 / 4, MAX_INT16};
 
 #define ROLL_LIMIT ( 45 * DEG_TO_RAD )
 #define PITCH_LIMIT ( 45 * DEG_TO_RAD )
@@ -14,6 +14,9 @@ void updates::init() {
 
 	mpu6050::init();
 	
+	servo::init();
+	servo::enable(1);
+	servo::enable(2);
 	
 	receiver::initSBUS();
 }
@@ -47,9 +50,12 @@ void updates::fast() {
 		},
 		0.02);
 		
-		outRoll = rollPID.update(0, e.getRoll() / PI * (int16_t)0x7fff);
-		outPitch = pitchPID.update(0, e.getPitch() / PI * (int16_t)0x7fff);
+		outRoll = rollPID.update(inRoll / 4, e.getRoll() / PI * MAX_INT16);
+		outPitch = pitchPID.update(inPitch / 4, e.getPitch() / PI * MAX_INT16);
 	}
+	
+	servo::setChannel(1, outRoll);
+	servo::setChannel(2, outPitch);
 
 	pc::Command cmd {8, pc::SendAccData};
 	util::copy((uint16_t*)cmd.data, (uint16_t)outRoll);
