@@ -58,5 +58,6 @@ void receiver::initSBUS() {
 
 int16_t receiver::getChannel(uint8_t channel) {
 	// TODO: clamp values
-	return MAP(160, 1850, (int16_t)0x8000, (int16_t)0x7fff, getValue(SBUSBuffer + 1, channel - 1));
+	int16_t value = getValue(SBUSBuffer + 1, channel - 1);
+	return value? MAP(160, 1850, (int16_t)0x8000, (int16_t)0x7fff, value) : 0;
 }

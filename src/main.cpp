@@ -20,7 +20,7 @@ int main() {
 	dma::init();
 	pc::init();
 	i2c::init();
-	
+
 	updates::init();
 
 	while (1) {
@@ -28,12 +28,14 @@ int main() {
 
 		updates::ms();
 
-		if (!(util::getTickCount() % 20)) {
+		if (util::getTickCount() % 20 == 0) {
 			updates::fast();
-		}
 
-		if (!(util::getTickCount() % 1000)) {
-			updates::slow();
+			if (util::getTickCount() % 1000 == 0) {
+				updates::slow();
+
+				// TODO: Doesn't work, figure out why
+			}
 		}
 	}
 
