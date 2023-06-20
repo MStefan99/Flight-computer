@@ -77,8 +77,13 @@ void PM_IdleModeEnter( void );
 
 void PM_StandbyModeEnter( void );
 
+void PM_BackupModeEnter( void );
+
 void PM_OffModeEnter( void );
 
+void PM_IO_RetentionSet( void );
+
+void PM_IO_RetentionClear( void );
 typedef enum
 {
     PLCFG_PLSEL0 = PM_PLCFG_PLSEL_PL0,

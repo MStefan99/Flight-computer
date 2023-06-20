@@ -1,7 +1,7 @@
 #include "lib/inc/updates.hpp"
 
 
-static AttitudeEstimator e {0.5};
+static AttitudeEstimator<float, uint16_t> e {0.5};
 static PID rollPID {3, 1, 5, MAX_INT16 / 4, MAX_INT16};
 static PID pitchPID {3, 1, 5, MAX_INT16 / 4, MAX_INT16};
 
@@ -19,7 +19,7 @@ void updates::init() {
 	servo::enable(2);
 	servo::enable(3);
 	
-	receiver::initSBUS();
+	sbus::init();
 }
 
 
@@ -31,11 +31,11 @@ void updates::ms() {
 void updates::fast() {
 	mpu6050::update();
 	
-	int16_t inRoll {receiver::getChannel(1)}, inPitch {receiver::getChannel(2)};
+	int16_t inRoll {sbus::getChannel(1)}, inPitch {sbus::getChannel(2)};
 	int16_t outRoll, outPitch;
 
 
-	if (receiver::getChannel(6) < 0) {
+	if (sbus::getChannel(6) < 0) {
 		outRoll = inRoll;
 		outPitch = inPitch;
 	} else {	

@@ -1,5 +1,5 @@
-#include "usb.h"
-#include "servo.hpp"
+#include "lib/inc/usb.hpp"
+#include "lib/inc/servo.hpp"
 
 using namespace usb;
 

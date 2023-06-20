@@ -1,4 +1,4 @@
-#include "usb.h"
+#include "lib/inc/usb.hpp"
 
 
 usb::usb_descriptor_device usb::DESCRIPTOR_DEVICE = {

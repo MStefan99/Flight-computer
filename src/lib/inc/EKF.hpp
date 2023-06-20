@@ -56,10 +56,10 @@ void EKF<scalar, size_type>::extrapolateState(const Matrix<scalar, size_type>& x
 
 template <class scalar, class size_type>
 void EKF<scalar, size_type>::updateState(const Matrix<scalar, size_type>& H, const Matrix<scalar, size_type>& z, const Matrix<scalar, size_type>& out) {
-	Matrix K {_p * H.transpose() * (H * _p * H.transpose() + _r).invert()};
+	Matrix<scalar, size_type> K {_p * H.transpose() * (H * _p * H.transpose() + _r).invert()};
 	_x = _x + K * (z - out);
 
-	Matrix temp {Matrix<scalar, size_type>::identity(_x.getHeight()) - K * H};
+	Matrix<scalar, size_type> temp {Matrix<scalar, size_type>::identity(_x.getHeight()) - K * H};
 	_p = temp * _p;
 }
 

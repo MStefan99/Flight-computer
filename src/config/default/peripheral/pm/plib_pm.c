@@ -58,7 +58,7 @@
 void PM_Initialize( void )
 {
     /* Configure PM */
-    PM_REGS->PM_STDBYCFG = (uint16_t)(PM_STDBYCFG_VREGSMOD(0UL));
+    PM_REGS->PM_STDBYCFG = (uint16_t)(PM_STDBYCFG_BBIASLP(0)| PM_STDBYCFG_BBIASHS(0UL)| PM_STDBYCFG_LINKPD(0UL)| PM_STDBYCFG_VREGSMOD(0UL)| PM_STDBYCFG_PDCFG(0UL));
 
     /* Clear INTFLAG.PLRDY */
     PM_REGS->PM_INTFLAG |= (uint8_t)PM_INTENCLR_PLRDY_Msk;
@@ -102,6 +102,19 @@ void PM_StandbyModeEnter( void )
     __WFI();
 }
 
+void PM_BackupModeEnter( void )
+{
+    /* Configure Backup Sleep */
+    PM_REGS->PM_SLEEPCFG = (uint8_t)PM_SLEEPCFG_SLEEPMODE_BACKUP_Val;
+    
+    while ((PM_REGS->PM_SLEEPCFG & PM_SLEEPCFG_SLEEPMODE_BACKUP_Val) == 0U)
+    {
+        /* Ensure that SLEEPMODE bits are configured with the given value */
+    }
+
+    /* Wait for interrupt instruction execution */
+    __WFI();
+}
 
 void PM_OffModeEnter( void )
 {
@@ -115,6 +128,21 @@ void PM_OffModeEnter( void )
 
     /* Wait for interrupt instruction execution */
     __WFI();
+}
+
+/* ********Important Note********
+ * When IORET is enabled, SWD access to the device will not be
+ * available after waking up from Backup sleep until
+ * the bit is cleared by the application.
+ */
+void PM_IO_RetentionSet( void )
+{
+    PM_REGS->PM_CTRLA |= (uint8_t)PM_CTRLA_IORET_Msk;
+}
+
+void PM_IO_RetentionClear( void )
+{
+    PM_REGS->PM_CTRLA &= (uint8_t)(~PM_CTRLA_IORET_Msk);
 }
 
 bool PM_ConfigurePerformanceLevel(PLCFG_PLSEL plsel)

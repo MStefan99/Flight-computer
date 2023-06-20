@@ -2,7 +2,7 @@
 // Created by Mikhail on 12.6.23.
 //
 
-#include "FixMath.hpp"
+#include "lib/inc/FixMath.hpp"
 
 
 fixed::operator float() const {

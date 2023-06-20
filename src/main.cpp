@@ -3,7 +3,7 @@
 
 #include "lib/inc/util.hpp"
 #include "lib/inc/updates.hpp"
-#include "lib/inc/pc.hpp"
+#include "lib/inc/usb.hpp"
 #include "lib/inc/i2c.hpp"
 #include "lib/inc/dma.hpp"
 
@@ -15,29 +15,29 @@
  */
 
 int main() {
-	util::init();
+    util::init();
 
-	dma::init();
-	pc::init();
-	i2c::init();
+    dma::init();
+    sbus::init();
+    i2c::init();
 
-	updates::init();
+    updates::init();
 
-	while (1) {
-		util::sleep(1);
+    while (1) {
+        util::sleep(1);
 
-		updates::ms();
+        updates::ms();
 
-		if (util::getTickCount() % 20 == 0) {
-			updates::fast();
+        if (util::getTickCount() % 20 == 0) {
+            updates::fast();
 
-			if (util::getTickCount() % 1000 == 0) {
-				updates::slow();
+            if (util::getTickCount() % 1000 == 0) {
+                updates::slow();
 
-				// TODO: Doesn't work, figure out why
-			}
-		}
-	}
+                // TODO: Doesn't work, figure out why
+            }
+        }
+    }
 
-	return 1;
+    return 1;
 }

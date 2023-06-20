@@ -67,11 +67,6 @@ void __attribute__((noreturn)) NonMaskableInt_Handler(void)
 
 void __attribute__((noreturn)) HardFault_Handler(void)
 {
-	PORT_REGS->GROUP[0].PORT_DIRSET = PORT_REGS->GROUP[0].PORT_OUTSET = 0x1 << 27u;
-	
-	// Triggers software reset
-	uint32_t AIRCR = SCB->AIRCR & 0xffffu;
-	SCB->AIRCR = AIRCR | (0x05FA << 16u) | (0x1 << 2);
 #if defined(__DEBUG) || defined(__DEBUG_D) && defined(__XC32)
    __builtin_software_breakpoint();
 #endif
@@ -80,45 +75,6 @@ void __attribute__((noreturn)) HardFault_Handler(void)
    }
 }
 
-void __attribute__((noreturn)) DebugMonitor_Handler(void)
-{
-#if defined(__DEBUG) || defined(__DEBUG_D) && defined(__XC32)
-   __builtin_software_breakpoint();
-#endif
-   while (true)
-   {
-   }
-}
-
-void __attribute__((noreturn)) MemoryManagement_Handler(void)
-{
-#if defined(__DEBUG) || defined(__DEBUG_D) && defined(__XC32)
-   __builtin_software_breakpoint();
-#endif
-   while (true)
-   {
-   }
-}
-
-void __attribute__((noreturn)) BusFault_Handler(void)
-{
-#if defined(__DEBUG) || defined(__DEBUG_D) && defined(__XC32)
-   __builtin_software_breakpoint();
-#endif
-   while (true)
-   {
-   }
-}
-
-void __attribute__((noreturn)) UsageFault_Handler(void)
-{
-#if defined(__DEBUG) || defined(__DEBUG_D) && defined(__XC32)
-   __builtin_software_breakpoint();
-#endif
-   while (true)
-   {
-   }
-}
 /*******************************************************************************
  End of File
  */

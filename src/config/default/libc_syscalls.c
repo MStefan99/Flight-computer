@@ -40,14 +40,15 @@ extern void _exit(int status);
 
 void _exit(int status)
 {
-	PORT_REGS->GROUP[0].PORT_DIRSET = PORT_REGS->GROUP[0].PORT_OUTSET = 0x1 << 27u;
     /* Software breakpoint */
 #ifdef __DEBUG
     __BKPT(0);
 #endif
 
     /* halt CPU */
-    while (true) __WFI();
+    while (true)
+    {
+    }
 }
 
 #ifdef __cplusplus

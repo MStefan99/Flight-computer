@@ -17,8 +17,8 @@
 
 #define DMA_CH_I2C_TX 0
 #define DMA_CH_I2C_RX 1
-#define DMA_CH_PC_TX 2
-#define DMA_CH_PC_RX 3
+#define DMA_CH_UART_TX 2
+#define DMA_CH_UART_RX 3
 #define DMA_CH_SBUS_TX 4
 #define DMA_CH_SBUS_RX 5
 
@@ -50,7 +50,7 @@ namespace dma {
 
 	void init();
 	void initI2C();
-	void initPC();
+	void initUART();
 	void initSBUS(uint8_t* rxBuf, uint16_t len);
 
 

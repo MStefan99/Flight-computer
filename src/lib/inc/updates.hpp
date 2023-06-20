@@ -10,9 +10,9 @@
 
 #include "device.h"
 
-#include "pc.hpp"
+#include "usb.hpp"
 #include "servo.hpp"
-#include "receiver.hpp"
+#include "sbus.hpp"
 #include "util.hpp"
 
 #include "PID.hpp"
