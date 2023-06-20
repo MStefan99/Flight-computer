@@ -17,6 +17,7 @@ void updates::init() {
 	servo::init();
 	servo::enable(1);
 	servo::enable(2);
+	servo::enable(3);
 	
 	receiver::initSBUS();
 }
@@ -55,12 +56,8 @@ void updates::fast() {
 	}
 	
 	servo::setChannel(1, outRoll);
-	servo::setChannel(2, outPitch);
-
-	pc::Command cmd {8, pc::SendAccData};
-	util::copy((uint16_t*)cmd.data, (uint16_t)outRoll);
-	util::copy((uint16_t*)cmd.data + 1, (uint16_t)outPitch);
-	pc::sendCommand(cmd);
+	servo::setChannel(2, -outRoll);
+	servo::setChannel(3, outPitch);
 }
 
 

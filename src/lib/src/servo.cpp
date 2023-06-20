@@ -1,19 +1,13 @@
-#include "lib/inc/servo.hpp"
+#include "lib/servo.hpp"
 
 
-static tc_registers_t* getTimer(uint8_t channel);
+static tcc_registers_t* getTimer(uint8_t channel);
 static uint8_t getTimerChannel(uint8_t channel);
 static uint8_t getPin(uint8_t channel);
 
 
-static tc_registers_t* getTimer(uint8_t channel) {
-	if (channel < 2) {
-		return TC2_REGS;
-	} else if (channel < 4) {
-		return TC0_REGS;
-	} else {
-		return TC1_REGS;
-	}
+static tcc_registers_t* getTimer(uint8_t channel) {
+	return TCC2_REGS;
 }
 
 
@@ -23,11 +17,7 @@ static uint8_t getTimerChannel(uint8_t channel) {
 
 
 static uint8_t getPin(uint8_t channel) {
-	uint8_t pin = channel;
-	if (channel > 1) {
-		pin += 2;
-	}
-	return pin;
+	return channel + 16;
 }
 
 
@@ -37,25 +27,24 @@ void servo::init() {
 					| GCLK_GENCTRL_OE(1)
 					| GCLK_GENCTRL_SRC_OSC16M // Set OSC16M as a source
 					| GCLK_GENCTRL_DIVSEL_DIV1 // Set division mode (x)
-					| GCLK_GENCTRL_DIV(3); // Divide by 3
-	GCLK_REGS->GCLK_PCHCTRL[14] = GCLK_PCHCTRL_CHEN(1) // Enable TC[0:1] clock
+					| GCLK_GENCTRL_DIV(8); // Divide by 8 (osc running at 8 MHz)
+	GCLK_REGS->GCLK_PCHCTRL[25] = GCLK_PCHCTRL_CHEN(1) // Enable TCC[0:1] clock
 					| GCLK_PCHCTRL_GEN_GCLK1; //Set GCLK1 as a clock source
-	GCLK_REGS->GCLK_PCHCTRL[15] = GCLK_PCHCTRL_CHEN(1) // Enable TC2 clock
+	GCLK_REGS->GCLK_PCHCTRL[26] = GCLK_PCHCTRL_CHEN(1) // Enable TCC2 clock
 					| GCLK_PCHCTRL_GEN_GCLK1; //Set GCLK1 as a clock source
 }
 
 
 void servo::enable(uint8_t channel) {
-	--channel;
-	tc_registers_t* timer {getTimer(channel)};
+	tcc_registers_t* timer {getTimer(channel)};
 
-	// TC config
-	timer->COUNT16.TC_CTRLA = TC_CTRLA_MODE_COUNT16; // 16-bit mode
-	timer->COUNT16.TC_DBGCTRL = TC_DBGCTRL_DBGRUN(1); // Run while debugging
-	timer->COUNT16.TC_WAVE = TC_WAVE_WAVEGEN_NPWM; // PWM generation
-	timer->COUNT16.TC_PER = 53333; // 20ms * GCLK_TC
-	timer->COUNT16.TC_CC[getTimerChannel(channel)] = 4000; // 1.5ms * GCLK_TC
-	timer->COUNT16.TC_CTRLA |= TC_CTRLA_ENABLE(1); // Enable timer
+	// TCC config
+	timer->TCC_CTRLA = TC_CTRLA_MODE_COUNT16; // 16-bit mode
+	timer->TCC_DBGCTRL = TC_DBGCTRL_DBGRUN(1); // Run while debugging
+	timer->TCC_WAVE = TC_WAVE_WAVEGEN_NPWM; // PWM generation
+	timer->TCC_PER = 20000; // 20ms * GCLK_TCC
+	timer->TCC_CC[getTimerChannel(channel)] = 1500; // 1.5ms * GCLK_TCC
+	timer->TCC_CTRLA |= TC_CTRLA_ENABLE(1); // Enable timer
 
 	// PORT config
 	uint8_t pin {getPin(channel)};
@@ -71,15 +60,13 @@ void servo::enable(uint8_t channel) {
 
 
 void servo::disable(uint8_t channel) {
-	uint8_t pin {getPin(channel - 1)};
+	uint8_t pin {getPin(channel)};
 	PORT_REGS->GROUP[0].PORT_OUTCLR = 0x1 << pin;
 	PORT_REGS->GROUP[0].PORT_PINCFG[pin] = PORT_PINCFG_PMUXEN(0); // Enable mux on pin
 }
 
 
 void servo::setChannel(uint8_t channel, int16_t angle) {
-	// Range: [1ms * GCLK_TC; 2ms * GCLK_TC]
-	--channel;
-	getTimer(channel)->COUNT16.TC_CCBUF[getTimerChannel(channel)] = 
-					MAP((int16_t)0x8000, (int16_t)0x7fff, 2667, 5333, angle);
+	// Range: [1ms * GCLK_TC; 2ms * GCLK_TCC]
+	getTimer(channel)->TCC_CCBUF[getTimerChannel(channel)] = angle / 2 + 1500;
 }
