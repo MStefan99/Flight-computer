@@ -12,31 +12,27 @@
 #include "device.h"
 
 
-#define TWO_PI 6.283185307179586476925286766559
-#define PI 3.1415926535897932384626433832795
-#define HALF_PI 1.5707963267948966192313216916398
-#define QUARTER_PI 0.78539816339744830961566084581988
-#define DEG_TO_RAD 0.017453292519943295769236907684886
-#define RAD_TO_DEG 57.295779513082320876798154814105
-#define EULER 2.718281828459045235360287471352
+constexpr float TWO_PI {6.283185307179586476925286766559};
+constexpr float PI {3.1415926535897932384626433832795};
+constexpr float HALF_PI {1.5707963267948966192313216916398};
+constexpr float QUARTER_PI {0.78539816339744830961566084581988};
+constexpr float DEG_TO_RAD {0.017453292519943295769236907684886};
+constexpr float RAD_TO_DEG {57.295779513082320876798154814105};
+constexpr float EULER {2.718281828459045235360287471352};
 
 
-#define MIN_INT8   static_cast<uint8_t>(0x80)
-#define MAX_INT8   static_cast<uint8_t>(0x7f)
-#define MIN_UINT8  static_cast<uint8_t>(0x00)
-#define MAX_UINT8  static_cast<uint8_t>(0xff)
-#define MIN_INT16  static_cast<uint16_t>(0x8000)
-#define MAX_INT16  static_cast<uint16_t>(0x7fff)
-#define MIN_UINT16 static_cast<uint16_t>(0x0000)
-#define MAX_UINT16 static_cast<uint16_t>(0xffff)
-#define MIN_INT32  static_cast<uint32_t>(0x80000000)
-#define MAX_INT32  static_cast<uint32_t>(0x7fffffff)
-#define MIN_UINT32 static_cast<uint32_t>(0x00000000)
-#define MAX_UINT32 static_cast<uint32_t>(0xffffffff)
-#define MIN_INT64  static_cast<uint64_t>(0x8000000000000000)
-#define MAX_INT64  static_cast<uint64_t>(0x7fffffffffffffff)
-#define MIN_UINT64 static_cast<uint64_t>(0x0000000000000000)
-#define MAX_UINT64 static_cast<uint64_t>(0xffffffffffffffff)
+constexpr uint8_t  MIN_INT8   {0x80};
+constexpr uint8_t  MAX_INT8   {0x7f};
+constexpr uint8_t  MIN_UINT8  {0x00};
+constexpr uint8_t  MAX_UINT8  {0xff};
+constexpr uint16_t MIN_INT16  {0x8000};
+constexpr uint16_t MAX_INT16  {0x7fff};
+constexpr uint16_t MIN_UINT16 {0x0000};
+constexpr uint16_t MAX_UINT16 {0xffff};
+constexpr uint32_t MIN_INT32  {0x80000000};
+constexpr uint32_t MAX_INT32  {0x7fffffff};
+constexpr uint32_t MIN_UINT32 {0x00000000};
+constexpr uint32_t MAX_UINT32 {0xffffffff};
 
 
 #define AVG(a, b) ((a + b) / 2)

@@ -16,22 +16,8 @@
 
 
 namespace uart {
-
-	enum CommandType : uint8_t {
-		NUL = 0,
-		SendAccData = 1,
-		SendRotData = 2
-	};
-
-	struct Command {
-		uint8_t len;
-		CommandType type;
-		uint8_t data[6];
-	};
-
-
-	void init();
-	void send(uint8_t* data, uint8_t size = 1);
+    void init();
+	void send(uint8_t* data, uint8_t size, void (cb)(bool) = nullptr);
 
 	uint8_t dataReceived();
 	uint8_t* getData();

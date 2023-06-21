@@ -18,8 +18,9 @@ int main() {
     util::init();
 
     dma::init();
-    sbus::init();
+//    sbus::init();
     i2c::init();
+    usb::init();
 
     updates::init();
 

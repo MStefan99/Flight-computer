@@ -72,11 +72,18 @@ template<class scalar, class size_type>
 Matrix<scalar, size_type>::Matrix(size_type w, size_type h):
 		_h {h}, _w {w} {
 	_values = allocator_type().allocate(_h * _w);
+
+	for (size_type i {0}; i < _h * _w; ++i) {
+		_values[i] = scalar(0);
+	}
 }
 
 template<class scalar, class size_type>
 Matrix<scalar, size_type>::Matrix(size_type w, size_type h, scalar* values):
 		_h {h}, _w {w}, _values(values) {
+	for (size_type i {0}; i < _h * _w; ++i) {
+		_values[i] = scalar(0);
+	}
 }
 
 
@@ -136,7 +143,7 @@ Matrix<scalar, size_type> Matrix<scalar, size_type>::identity(size_type order) {
 	Matrix result {order, order};
 
 	for (size_type i {0}; i < order; ++i) {
-		result[i][i] = 1;
+		result[i][i] = scalar(1);
 	}
 
 	return result;
@@ -195,7 +202,7 @@ Matrix<scalar, size_type> Matrix<scalar, size_type>::invert() const {
 
 	// Gaining identity matrix
 	for (size_type r {0}; r < _w; ++r) {
-		scalar factor = 1 / temp[r][r];
+		scalar factor = scalar(1) / temp[r][r];
 
 		for (size_type i {0}; i < _w; ++i) {
 			augmented[r][i] *= factor;
@@ -369,9 +376,9 @@ std::ostream& operator<<(std::ostream& out, const Matrix<scalar, size_type>& mat
 	for (size_type j {0}; j < matrix._h; ++j) {
 		for (size_type i {0}; i < matrix._w; ++i) {
 			if (i) {
-				out << ',';
+				out << ", ";
 			}
-			out << matrix[j][i];
+			out << static_cast<double>(matrix[j][i]);
 		}
 		out << std::endl;
 	}

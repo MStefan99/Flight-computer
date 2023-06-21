@@ -10,7 +10,7 @@
 
 #include "device.h"
 #include "tl/allocator.hpp"
-#include "RingBuffer.hpp"
+#include "tl/list.hpp"
 
 
 #define DMA_CH_COUNT 6
@@ -37,6 +37,7 @@ namespace dma {
 		uint8_t len;
 		I2CTransferType type;
 		sercom_registers_t* sercom;
+        void (*cb)(bool);
 	}
 	I2CTransfer;
 
@@ -44,6 +45,7 @@ namespace dma {
 		uint8_t* buf;
 		uint8_t len;
 		sercom_registers_t* sercom;
+        void (*cb)(bool);
 	}
 	UARTTransfer;
 

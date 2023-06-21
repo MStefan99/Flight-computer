@@ -8,8 +8,8 @@ static dmac_descriptor_registers_t __attribute__((section (".lpram"))) WRITE_BAC
 static tl::allocator<uint8_t> byteAllocator {};
 
 
-static RingBuffer<dma::I2CTransfer> pendingI2CTransfers{};
-static RingBuffer<dma::UARTTransfer> pendingUARTTransfers{};
+static tl::list<dma::I2CTransfer> pendingI2CTransfers{};
+static tl::list<dma::UARTTransfer> pendingUARTTransfers{};
 
 
 static void nextTransfer();
@@ -21,8 +21,8 @@ static void I2CStreamOut(const dma::I2CTransfer& transfer);
 static void I2CStreamIn(const dma::I2CTransfer& transfer);
 
 
-static void completeI2CTransfer();
-static void completeUARTTransfer();
+static void completeI2CTransfer(bool success);
+static void completeUARTTransfer(bool success);
 
 
 // Interrupt handlers
@@ -35,10 +35,10 @@ extern "C" {
 			switch (DMAC_REGS->DMAC_CHID) {
 				case DMA_CH_I2C_TX:
 				case DMA_CH_I2C_RX:
-					completeI2CTransfer();
+					completeI2CTransfer(true);
 					break;
 				case DMA_CH_UART_TX:
-					completeUARTTransfer();
+					completeUARTTransfer(true);
 					break;
 				case DMA_CH_SBUS_RX:
 					DMAC_REGS->DMAC_CHCTRLA = DMAC_CHCTRLA_ENABLE(1);
@@ -57,7 +57,7 @@ extern "C" {
 		if (transfer.sercom->I2CM.SERCOM_INTFLAG & SERCOM_I2CM_INTFLAG_ERROR_Msk ||
 						(transfer.sercom->I2CM.SERCOM_STATUS & SERCOM_I2CM_STATUS_RXNACK_Msk)) {
 			transfer.sercom->I2CM.SERCOM_CTRLB = SERCOM_I2CM_CTRLB_CMD(3);
-			completeI2CTransfer();
+			completeI2CTransfer(false);
 			nextTransfer();
 		} else {
 			static bool regAddrWritten {false};
@@ -171,6 +171,9 @@ static void nextTransfer() {
 void dma::startTransfer(const I2CTransfer& transfer) {
 	__disable_irq();
 	pendingI2CTransfers.push_back(transfer);
+    if (pendingI2CTransfers.size() > 5) {
+        pendingI2CTransfers.pop_front();
+    }
 	__enable_irq();
 	nextTransfer();
 }
@@ -225,11 +228,14 @@ static void I2CStreamIn(const dma::I2CTransfer& transfer) {
 }
 
 
-static void completeI2CTransfer() {
+static void completeI2CTransfer(bool success) {
 	dma::I2CTransfer transfer {pendingI2CTransfers.front()};
 	if (transfer.type == dma::I2CTransferType::Write) {
 		byteAllocator.deallocate(transfer.buf);
 	}
+    if (transfer.cb) {
+        transfer.cb(success);
+    }
 	pendingI2CTransfers.pop_front();
 }
 
@@ -239,6 +245,9 @@ static void completeI2CTransfer() {
 void dma::startTransfer(const dma::UARTTransfer& transfer) {
 	__disable_irq();
 	pendingUARTTransfers.push_back(transfer);
+    if (pendingUARTTransfers.size() > 5) {
+        pendingUARTTransfers.pop_front();
+    }
 	__enable_irq();
 	nextTransfer();
 }
@@ -259,8 +268,11 @@ static void nextUARTTransfer() {
 }
 
 
-static void completeUARTTransfer() {
+static void completeUARTTransfer(bool success) {
 	dma::UARTTransfer transfer {pendingUARTTransfers.front()};
 	byteAllocator.deallocate(transfer.buf);
+    if (transfer.cb) {
+        transfer.cb(success);
+    }
 	pendingUARTTransfers.pop_front();
 }

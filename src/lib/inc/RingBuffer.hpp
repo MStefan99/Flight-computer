@@ -10,7 +10,7 @@
 #include "tl/allocator.hpp"
 
 
-template <class T, class Alloc = tl::allocator<T>>
+template<class T, class Alloc = tl::allocator<T>>
 class RingBuffer {
 public:
 	using value_type = T;
@@ -24,8 +24,8 @@ public:
 	using difference_type = typename allocator_type::difference_type;
 	using size_type = typename allocator_type::size_type;
 
-	RingBuffer() = default;
-	RingBuffer(const RingBuffer& buffer) = default;
+	explicit RingBuffer(size_type capacity = 0);
+	RingBuffer(const RingBuffer& buffer, size_type capacity = 0);
 	~RingBuffer();
 
 	void push_front(const_reference value);
@@ -62,7 +62,20 @@ protected:
 };
 
 
-template <class T, class Alloc>
+template<class T, class Alloc>
+RingBuffer<T, Alloc>::RingBuffer(size_type capacity): _capacity {capacity} {
+	// Nothing to do
+}
+
+
+template<class T, class Alloc>
+RingBuffer<T, Alloc>::RingBuffer(const RingBuffer& buffer, size_type capacity): _elements {buffer._elements},
+		_capacity {capacity} {
+	// Nothing to do
+}
+
+
+template<class T, class Alloc>
 RingBuffer<T, Alloc>::~RingBuffer() {
 	for (size_type i {0}; i < _capacity; ++i) {
 		allocator_type().destroy(_elements + i);
@@ -71,10 +84,10 @@ RingBuffer<T, Alloc>::~RingBuffer() {
 }
 
 
-template <class T, class Alloc>
+template<class T, class Alloc>
 void RingBuffer<T, Alloc>::push_back(const_reference value) {
 	if (_size == _capacity) {
-		resize(_size + 1);
+		pop_front();
 	}
 
 	if (_size) {
@@ -85,10 +98,10 @@ void RingBuffer<T, Alloc>::push_back(const_reference value) {
 }
 
 
-template <class T, class Alloc>
+template<class T, class Alloc>
 void RingBuffer<T, Alloc>::push_front(const_reference value) {
 	if (_size == _capacity) {
-		resize(_size + 1);
+		pop_back();
 	}
 
 	if (_size) {
@@ -99,7 +112,7 @@ void RingBuffer<T, Alloc>::push_front(const_reference value) {
 }
 
 
-template <class T, class Alloc>
+template<class T, class Alloc>
 void RingBuffer<T, Alloc>::pop_back(size_type amount) {
 	if (!_size) {
 		return;
@@ -114,7 +127,7 @@ void RingBuffer<T, Alloc>::pop_back(size_type amount) {
 }
 
 
-template <class T, class Alloc>
+template<class T, class Alloc>
 void RingBuffer<T, Alloc>::pop_front(size_type amount) {
 	if (!_size) {
 		return;
@@ -129,50 +142,50 @@ void RingBuffer<T, Alloc>::pop_front(size_type amount) {
 }
 
 
-template <class T, class Alloc>
+template<class T, class Alloc>
 typename RingBuffer<T, Alloc>::reference RingBuffer<T, Alloc>::back() {
 	return _elements[_back];
 }
 
 
-template <class T, class Alloc>
+template<class T, class Alloc>
 typename RingBuffer<T, Alloc>::reference RingBuffer<T, Alloc>::front() {
 	return _elements[_front];
 }
 
 
-template <class T, class Alloc>
+template<class T, class Alloc>
 typename RingBuffer<T, Alloc>::size_type RingBuffer<T, Alloc>::size() const {
 	return _size;
 }
 
 
-template <class T, class Alloc>
+template<class T, class Alloc>
 typename RingBuffer<T, Alloc>::size_type RingBuffer<T, Alloc>::capacity() const {
 	return _capacity;
 }
 
 
-template <class T, class Alloc>
+template<class T, class Alloc>
 bool RingBuffer<T, Alloc>::empty() const {
 	return !_size;
 }
 
 
-template <class T, class Alloc>
+template<class T, class Alloc>
 bool RingBuffer<T, Alloc>::full() const {
 	return _size == _capacity;
 }
 
 
-template <class T, class Alloc>
+template<class T, class Alloc>
 void RingBuffer<T, Alloc>::resize(size_type capacity) {
 	pointer newElements = allocator_type().allocate(capacity);
 	for (size_type i {0}; i < capacity; ++i) {
 		allocator_type().construct(newElements + i);
 	}
 
-	size_type newSize = capacity < _size? capacity : _size;
+	size_type newSize = capacity < _size ? capacity : _size;
 	for (size_type i {0}, front {_front}; i < newSize; front = (front + 1) % _capacity, ++i) {
 		newElements[i] = _elements[front];
 	}
@@ -184,38 +197,38 @@ void RingBuffer<T, Alloc>::resize(size_type capacity) {
 
 	_elements = newElements;
 	_front = 0;
-	_back = newSize? newSize - 1 : 0;
+	_back = newSize ? newSize - 1 : 0;
 	_size = newSize;
 	_capacity = capacity;
 }
 
 
-template <class T, class Alloc>
+template<class T, class Alloc>
 void RingBuffer<T, Alloc>::clear() {
 	_front = _back = _size = 0;
 }
 
 
-template <class T, class Alloc>
+template<class T, class Alloc>
 typename RingBuffer<T, Alloc>::pointer RingBuffer<T, Alloc>::data() {
 	return _elements + _front;
 }
 
 
-template <class T, class Alloc>
+template<class T, class Alloc>
 typename RingBuffer<T, Alloc>::const_pointer RingBuffer<T, Alloc>::data() const {
 	return _elements;
 }
 
 
-template <class T, class Alloc>
+template<class T, class Alloc>
 typename RingBuffer<T, Alloc>::size_type RingBuffer<T, Alloc>::contiguous() const {
 	size_type dist = _capacity - _front;
-	return _size < dist? _size : dist;
+	return _size < dist ? _size : dist;
 }
 
 
-template <class T, class Alloc>
+template<class T, class Alloc>
 typename RingBuffer<T, Alloc>::reference RingBuffer<T, Alloc>::operator[](size_type index) {
 	return _elements[(_front + index) % _capacity];
 }

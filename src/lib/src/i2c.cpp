@@ -35,7 +35,7 @@ void i2c::init() { // GCLK config
 }
 
 
-void i2c::write(uint8_t devAddr, uint8_t* buf, uint8_t size) {
+void i2c::write(uint8_t devAddr, uint8_t* buf, uint8_t size, void (*cb)(bool)) {
 	uint8_t* txBuf = byteAllocator.allocate(size);
 	util::copy(txBuf, buf, size);
 
@@ -44,23 +44,25 @@ void i2c::write(uint8_t devAddr, uint8_t* buf, uint8_t size) {
 		.buf = txBuf,
 		.len = size,
 		.type = dma::I2CTransferType::Write,
-		.sercom = SERCOM_REGS
+		.sercom = SERCOM_REGS,
+        .cb = cb
 	});
 }
 
 
-void i2c::read(uint8_t devAddr, uint8_t* buf, uint8_t size) {
+void i2c::read(uint8_t devAddr, uint8_t* buf, uint8_t size, void (*cb)(bool)) {
 	dma::startTransfer(dma::I2CTransfer{
 		.devAddr = devAddr,
 		.buf = buf,
 		.len = size,
 		.type = dma::I2CTransferType::Read,
-		.sercom = SERCOM_REGS
+		.sercom = SERCOM_REGS,
+        .cb = cb
 	});
 }
 
 
-void i2c::writeRegister(uint8_t devAddr, uint8_t regAddr, uint8_t* buf, uint8_t size) {
+void i2c::writeRegister(uint8_t devAddr, uint8_t regAddr, uint8_t* buf, uint8_t size, void (*cb)(bool)) {
 	uint8_t* txBuf = byteAllocator.allocate(size + 1);
 	txBuf[0] = regAddr;
 	util::copy(txBuf + 1, buf, size);
@@ -71,18 +73,20 @@ void i2c::writeRegister(uint8_t devAddr, uint8_t regAddr, uint8_t* buf, uint8_t 
 		.buf = txBuf,
 		.len = (uint8_t) (size + 1),
 		.type = dma::I2CTransferType::Write,
-		.sercom = SERCOM_REGS
+		.sercom = SERCOM_REGS,
+        .cb = cb
 	});
 }
 
 
-void i2c::readRegister(uint8_t devAddr, uint8_t regAddr, uint8_t* buf, uint8_t size) {
+void i2c::readRegister(uint8_t devAddr, uint8_t regAddr, uint8_t* buf, uint8_t size, void (*cb)(bool)) {
 	dma::startTransfer(dma::I2CTransfer{
 		.devAddr = devAddr,
 		.regAddr = regAddr,
 		.buf = buf,
 		.len = size,
 		.type = dma::I2CTransferType::WriteRead,
-		.sercom = SERCOM_REGS
+		.sercom = SERCOM_REGS,
+        .cb = cb
 	});
 }

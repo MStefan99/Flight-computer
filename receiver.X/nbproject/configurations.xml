@@ -50,14 +50,9 @@
         <itemPath>../src/lib/inc/servo.hpp</itemPath>
         <itemPath>../src/lib/inc/lsm303.hpp</itemPath>
         <itemPath>../src/lib/inc/dma.hpp</itemPath>
-        <itemPath>../src/lib/inc/RingBuffer.hpp</itemPath>
         <itemPath>../src/lib/inc/i2c.hpp</itemPath>
-        <itemPath>../src/lib/inc/Kalman.hpp</itemPath>
-        <itemPath>../src/lib/inc/EKF.hpp</itemPath>
-        <itemPath>../src/lib/inc/Matrix.hpp</itemPath>
         <itemPath>../src/lib/inc/AttitudeEstimator.hpp</itemPath>
         <itemPath>../src/lib/inc/lps22.hpp</itemPath>
-        <itemPath>../src/lib/inc/FixMath.hpp</itemPath>
         <itemPath>../src/lib/inc/mpu6050.hpp</itemPath>
         <itemPath>../src/lib/inc/PID.hpp</itemPath>
         <itemPath>../src/lib/inc/uart.hpp</itemPath>
@@ -65,6 +60,7 @@
         <itemPath>../src/lib/inc/usb.hpp</itemPath>
         <itemPath>../src/lib/inc/updates.hpp</itemPath>
         <itemPath>../src/lib/inc/sbus.hpp</itemPath>
+        <itemPath>../src/lib/inc/Matrix.hpp</itemPath>
       </logicalFolder>
       <logicalFolder name="f2" displayName="packs" projectFiles="true">
         <logicalFolder name="f1" displayName="ATSAML21E16B_DFP" projectFiles="true">
@@ -212,7 +208,6 @@
       </logicalFolder>
       <logicalFolder name="f2" displayName="lib" projectFiles="true">
         <itemPath>../src/lib/src/dma.cpp</itemPath>
-        <itemPath>../src/lib/src/FixMath.cpp</itemPath>
         <itemPath>../src/lib/src/i2c.cpp</itemPath>
         <itemPath>../src/lib/src/lps22.cpp</itemPath>
         <itemPath>../src/lib/src/lsm303.cpp</itemPath>
@@ -225,6 +220,7 @@
         <itemPath>../src/lib/src/usb_descriptors.cpp</itemPath>
         <itemPath>../src/lib/src/util.cpp</itemPath>
         <itemPath>../src/lib/src/sbus.cpp</itemPath>
+        <itemPath>../src/lib/src/AttitudeEstimator.cpp</itemPath>
       </logicalFolder>
       <itemPath>../src/main.cpp</itemPath>
     </logicalFolder>
@@ -333,7 +329,7 @@
         <property key="generate-micro-compressed-code" value="false"/>
         <property key="isolate-each-function" value="true"/>
         <property key="make-warnings-into-errors" value="false"/>
-        <property key="optimization-level" value="-O1"/>
+        <property key="optimization-level" value=""/>
         <property key="place-data-into-section" value="true"/>
         <property key="post-instruction-scheduling" value="default"/>
         <property key="pre-instruction-scheduling" value="default"/>
@@ -431,7 +427,7 @@
         <property key="generate-micro-compressed-code" value="false"/>
         <property key="isolate-each-function" value="true"/>
         <property key="make-warnings-into-errors" value="false"/>
-        <property key="optimization-level" value="-O1"/>
+        <property key="optimization-level" value=""/>
         <property key="place-data-into-section" value="false"/>
         <property key="post-instruction-scheduling" value="default"/>
         <property key="pre-instruction-scheduling" value="default"/>
@@ -1489,6 +1485,8 @@
         <property key="memories.programmemory" value="true"/>
         <property key="memories.programmemory.ranges" value="0-ffff"/>
         <property key="poweroptions.powerenable" value="false"/>
+        <property key="programmerToGoFilePath"
+                  value="D:/Code/Firmware/flight_computer/computer/receiver.X/debug/default/receiver_ptg"/>
         <property key="programmerToGoImageName" value="receiver_ptg"/>
         <property key="programoptions.donoteraseauxmem" value="false"/>
         <property key="programoptions.eraseb4program" value="true"/>

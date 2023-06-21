@@ -52,14 +52,15 @@ void uart::init() {
 }
 
 
-void uart::send(uint8_t* data, uint8_t size) {
+void uart::send(uint8_t* data, uint8_t size, void (*cb)(bool)) {
 	uint8_t* txBuf = byteAllocator.allocate(size);
 	util::copy(txBuf, data, size);
 
 	dma::startTransfer(dma::UARTTransfer{
 		.buf = txBuf,
 		.len = size,
-		.sercom = SERCOM_REGS
+		.sercom = SERCOM_REGS,
+        .cb = cb
 	});
 }
 
