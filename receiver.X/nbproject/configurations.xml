@@ -265,8 +265,8 @@
         <platform>3</platform>
       </toolsSet>
       <packs>
-        <pack name="CMSIS" vendor="ARM" version="5.4.0"/>
         <pack name="SAML21_DFP" vendor="Microchip" version="3.6.105"/>
+        <pack name="CMSIS" vendor="ARM" version="5.4.0"/>
       </packs>
       <ScriptingSettings>
       </ScriptingSettings>
@@ -418,7 +418,7 @@
         <property key="additional-warnings" value="false"/>
         <property key="addresss-attribute-use" value="false"/>
         <property key="check-new" value="false"/>
-        <property key="eh-specs" value="true"/>
+        <property key="eh-specs" value="false"/>
         <property key="enable-app-io" value="false"/>
         <property key="enable-omit-frame-pointer" value="false"/>
         <property key="enable-symbols" value="true"/>
@@ -1489,8 +1489,6 @@
         <property key="memories.programmemory" value="true"/>
         <property key="memories.programmemory.ranges" value="0-ffff"/>
         <property key="poweroptions.powerenable" value="false"/>
-        <property key="programmerToGoFilePath"
-                  value="D:/Code/Firmware/flight_computer/v2/receiver.X/debug/default/receiver_ptg"/>
         <property key="programmerToGoImageName" value="receiver_ptg"/>
         <property key="programoptions.donoteraseauxmem" value="false"/>
         <property key="programoptions.eraseb4program" value="true"/>

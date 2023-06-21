@@ -164,6 +164,14 @@ static void enableEndpoints(uint8_t configurationNumber) {
 void usb::init() {
     uint32_t calibration = *((uint32_t*)0x00806020);
 
+	NVIC_SetPriority(USB_IRQn, 3);
+	NVIC_EnableIRQ(USB_IRQn);
+    
+    PORT_REGS->GROUP[0].PORT_PINCFG[24] = PORT_PINCFG_PMUXEN(1); // Enable mux on pin 24
+    PORT_REGS->GROUP[0].PORT_PINCFG[25] = PORT_PINCFG_PMUXEN(1); // Enable mux on pin 25
+    PORT_REGS->GROUP[0].PORT_PMUX[12] = PORT_PMUX_PMUXE_G // Mux pin 24 to USB
+            | PORT_PMUX_PMUXO_G; // Mux pin 25 to USB
+
     USB_REGS->DEVICE.USB_PADCAL = USB_PADCAL_TRANSN(calibration >> 13u & 0x1f)
             | USB_PADCAL_TRANSP(calibration >> 18u & 0x1f)
             | USB_PADCAL_TRIM(calibration >> 23u & 0x7); // USB pad calibration
@@ -176,7 +184,7 @@ void usb::init() {
     USB_REGS->DEVICE.USB_INTENSET = USB_DEVICE_INTENSET_EORST(1); // Enable end-of-reset interrupt
 }
 
-void usb::write(const uint8_t* data, uint8_t len) {
+void usb::write(uint8_t* data, uint8_t len) {
     EPDESCTBL[1].DEVICE_DESC_BANK[1].USB_ADDR = (uint32_t)data;
     EPDESCTBL[1].DEVICE_DESC_BANK[1].USB_PCKSIZE = USB_DEVICE_PCKSIZE_BYTE_COUNT(len) | USB_DEVICE_PCKSIZE_SIZE(0x3) | USB_DEVICE_PCKSIZE_AUTO_ZLP(1);
     USB_REGS->DEVICE.DEVICE_ENDPOINT[1].USB_EPSTATUSSET = USB_DEVICE_EPSTATUS_BK1RDY(1);

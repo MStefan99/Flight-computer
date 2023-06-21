@@ -29,12 +29,12 @@ static uint16_t getValue(const uint8_t* data, uint8_t idx) {
 
 
 void sbus::init() {
-	GCLK_REGS->GCLK_PCHCTRL[12] = GCLK_PCHCTRL_CHEN(1) | // Enable SERCOM1 clock
+	GCLK_REGS->GCLK_PCHCTRL[19] = GCLK_PCHCTRL_CHEN(1) | // Enable SERCOM1 clock
 					GCLK_PCHCTRL_GEN_GCLK0; //Set GCLK0 as a clock source
 
 	// PORT config
-	PORT_REGS->GROUP[0].PORT_PINCFG[9] = PORT_PINCFG_PMUXEN(1); // Enable mux on pin 9
-	PORT_REGS->GROUP[0].PORT_PMUX[4] = PORT_PMUX_PMUXO_C; // Mux pin 9 to SERCOM1
+	PORT_REGS->GROUP[0].PORT_PINCFG[17] = PORT_PINCFG_PMUXEN(1); // Enable mux on pin 17
+	PORT_REGS->GROUP[0].PORT_PMUX[8] = PORT_PMUX_PMUXO_C; // Mux pin 17 to SERCOM1
 
 	// DMA config
 	dma::initSBUS(SBUSBuffer, 25);
