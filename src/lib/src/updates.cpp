@@ -17,17 +17,14 @@ void updates::ms() {
     // Nothing to do here yet
 }
 
-float att[2];
-
 void updates::fast() {
     mpu6050::update();
-    
     e.update(mpu6050::getRot(), mpu6050::getAcc(), 0.02f);
     
-    att[0] = e.getRoll();
-    att[1] = e.getPitch();
+    data::inputs[0][0] = e.getRoll() * RAD_TO_DEG;
+    data::inputs[0][1] = e.getPitch() * RAD_TO_DEG;
     
-    usb::write((uint8_t*)att, 8);
+    data::outputs = data::inputs * data::mux + data::trims;
 }
 
 void updates::slow() {

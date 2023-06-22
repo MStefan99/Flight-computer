@@ -63,12 +63,11 @@ namespace data {
     extern usb_data_trims_descriptor TRIMS_DESCRIPTOR;
     extern usb_data_outputs_descriptor OUTPUTS_DESCRIPTOR;
     
-    uint8_t& activeSensors {SETTINGS_DESCRIPTOR.bmActiveSensors};
-    
-    Matrix<int16_t> inputs {inputChannelNumber, 1, INPUTS_DESCRIPTOR.wInputs};
-    Matrix<int16_t> mux {outputChannelNumber, inputChannelNumber, MUX_DESCRIPTOR.wMux};
-    Matrix<int16_t> trims {1, outputChannelNumber, TRIMS_DESCRIPTOR.wTrims};
-    Matrix<int16_t> outputs {1, outputChannelNumber, OUTPUTS_DESCRIPTOR.wOutputs};
+    extern uint8_t& activeSensors;
+    extern Matrix<int16_t> inputs;
+    extern Matrix<int16_t> mux;
+    extern Matrix<int16_t> trims;
+    extern Matrix<int16_t> outputs;
 }
 
 #endif	/* DATA_HPP */

@@ -10,10 +10,11 @@
 
 #include "device.h"
 
-#include "usb.hpp"
+#include "util.hpp"
+#include "data.hpp"
 #include "servo.hpp"
 #include "sbus.hpp"
-#include "util.hpp"
+#include "usb.hpp"
 
 #include "PID.hpp"
 #include "AttitudeEstimator.hpp"

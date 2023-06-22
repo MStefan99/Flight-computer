@@ -33,3 +33,9 @@ data::usb_data_outputs_descriptor data::OUTPUTS_DESCRIPTOR = {
     .wOutputs = {}
 };
 
+uint8_t& data::activeSensors {data::SETTINGS_DESCRIPTOR.bmActiveSensors};
+
+Matrix<int16_t> data::inputs {data::inputChannelNumber, 1, data::INPUTS_DESCRIPTOR.wInputs};
+Matrix<int16_t> data::mux {data::outputChannelNumber, inputChannelNumber, MUX_DESCRIPTOR.wMux};
+Matrix<int16_t> data::trims {1, data::outputChannelNumber, TRIMS_DESCRIPTOR.wTrims};
+Matrix<int16_t> data::outputs {1, data::outputChannelNumber, OUTPUTS_DESCRIPTOR.wOutputs};
