@@ -10,6 +10,8 @@
 
 #include "device.h"
 
+#include "util.hpp"
+
 
 namespace servo {
 	void init();
