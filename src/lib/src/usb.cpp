@@ -22,7 +22,7 @@ static void endpoint1Handler();
 #define WVALUE_IDX(wValue) (wValue & 0xff)
 #define WVALUE_ADD(wValue) (wValue & 0x7f)
 
-typedef struct {
+typedef struct __attribute__((packed)) {
     uint8_t bmRequestType;
     uint8_t bRequest;
     uint16_t wValue;
@@ -30,11 +30,16 @@ typedef struct {
     uint16_t wLength;
 } usb_device_endpoint0_request;
 
+typedef struct __attribute__((packed)) {
+    uint8_t bRequest;
+    uint16_t wLength;
+    uint8_t bData[128];
+} usb_device_endpoint1_request;
 
 usb_descriptor_device_registers_t usb::EPDESCTBL[2];
-usb_device_endpoint0_request EP0REQ;
 
-static uint8_t outBuf1[8];
+static usb_device_endpoint0_request EP0REQ;
+static usb_device_endpoint1_request EP1REQ;
 
 
 extern "C" {
@@ -59,7 +64,7 @@ static void controlHandler() {
         EPDESCTBL[0].DEVICE_DESC_BANK[0].USB_ADDR = (uint32_t) & EP0REQ;
     }
 
-    if (USB_REGS->DEVICE.DEVICE_ENDPOINT[0].USB_EPINTFLAG & USB_DEVICE_EPINTFLAG_RXSTP_Msk) { // Process SETUP
+    if (USB_REGS->DEVICE.DEVICE_ENDPOINT[0].USB_EPINTFLAG & USB_DEVICE_EPINTFLAG_RXSTP_Msk) { // Process SETUP transfers
         USB_REGS->DEVICE.DEVICE_ENDPOINT[0].USB_EPINTFLAG = USB_DEVICE_EPINTFLAG_RXSTP(1); // Clear pending interrupt
         uint8_t type = BMREQUESTTYPE_TYPE(EP0REQ.bmRequestType);
         switch (type) {
@@ -74,12 +79,12 @@ static void controlHandler() {
         USB_REGS->DEVICE.DEVICE_ENDPOINT[0].USB_EPSTATUSCLR = USB_DEVICE_EPSTATUS_BK0RDY(1);
     }
 
-    if (USB_REGS->DEVICE.DEVICE_ENDPOINT[0].USB_EPINTFLAG & USB_DEVICE_EPINTFLAG_TRCPT0_Msk) {
+    if (USB_REGS->DEVICE.DEVICE_ENDPOINT[0].USB_EPINTFLAG & USB_DEVICE_EPINTFLAG_TRCPT0_Msk) { // Process OUT transfers
         USB_REGS->DEVICE.DEVICE_ENDPOINT[0].USB_EPINTFLAG = USB_DEVICE_EPINTFLAG_TRCPT0(1); // Clear pending interrupt
         USB_REGS->DEVICE.DEVICE_ENDPOINT[0].USB_EPSTATUSSET = USB_DEVICE_EPSTATUS_BK1RDY(1);
     }
 
-    if (USB_REGS->DEVICE.DEVICE_ENDPOINT[0].USB_EPINTFLAG & USB_DEVICE_EPINTFLAG_TRCPT1_Msk) {
+    if (USB_REGS->DEVICE.DEVICE_ENDPOINT[0].USB_EPINTFLAG & USB_DEVICE_EPINTFLAG_TRCPT1_Msk) { // Process IN transfers
         USB_REGS->DEVICE.DEVICE_ENDPOINT[0].USB_EPINTFLAG = USB_DEVICE_EPINTFLAG_TRCPT1(1); // Clear pending interrupt
         if (USB_REGS->DEVICE.USB_DADD && !(USB_REGS->DEVICE.USB_DADD & USB_DEVICE_DADD_ADDEN_Msk)) {
             USB_REGS->DEVICE.USB_DADD |= USB_DEVICE_DADD_ADDEN(1);
@@ -151,22 +156,29 @@ static void vendorRequestHandler() {
 }
 
 void endpoint1Handler() {
-    servo::setChannel(1, (int16_t)(outBuf1[0] | (outBuf1[1] << 8u)));
+    int a;
+    if (EP1REQ.bRequest & 0x01 == static_cast<uint8_t>(data::DATA_REQUEST::READ)) {
+        switch (EP1REQ.bRequest >> 1u) {
+            case static_cast<uint8_t>(data::DATA_DESCRIPTOR_TYPE::SETTINGS):
+                usb::write(reinterpret_cast<uint8_t*>(&data::SETTINGS_DESCRIPTOR), sizeof (data::SETTINGS_DESCRIPTOR));
+                break;
+        }
+    }
 }
 
 static void enableEndpoints(uint8_t configurationNumber) {
     USB_REGS->DEVICE.DEVICE_ENDPOINT[1].USB_EPCFG = USB_DEVICE_EPCFG_EPTYPE0(0x4) // Configure endpoint 1 bank 0 as interrupt out
             | USB_DEVICE_EPCFG_EPTYPE1(0x4); // Configure endpoint 1 bank 1 as interrupt in
-    EPDESCTBL[1].DEVICE_DESC_BANK[0].USB_ADDR = (uint32_t) & outBuf1;
+    EPDESCTBL[1].DEVICE_DESC_BANK[0].USB_ADDR = (uint32_t) & EP1REQ;
     USB_REGS->DEVICE.DEVICE_ENDPOINT[1].USB_EPINTENSET = USB_DEVICE_EPINTENSET_TRCPT0(1); // Enable OUT endpoint interrupt
 }
 
 void usb::init() {
     uint32_t calibration = *((uint32_t*)0x00806020);
 
-	NVIC_SetPriority(USB_IRQn, 3);
-	NVIC_EnableIRQ(USB_IRQn);
-    
+    NVIC_SetPriority(USB_IRQn, 3);
+    NVIC_EnableIRQ(USB_IRQn);
+
     PORT_REGS->GROUP[0].PORT_PINCFG[24] = PORT_PINCFG_PMUXEN(1); // Enable mux on pin 24
     PORT_REGS->GROUP[0].PORT_PINCFG[25] = PORT_PINCFG_PMUXEN(1); // Enable mux on pin 25
     PORT_REGS->GROUP[0].PORT_PMUX[12] = PORT_PMUX_PMUXE_G // Mux pin 24 to USB
@@ -191,6 +203,6 @@ void usb::write(uint8_t* data, uint8_t len) {
 }
 
 void usb::read(uint8_t* data, uint8_t len) {
-    memcpy(data, outBuf1, MIN(len, sizeof (outBuf1)));
+//    memcpy(data, outBuf1, MIN(len, sizeof (outBuf1)));
     USB_REGS->DEVICE.DEVICE_ENDPOINT[1].USB_EPSTATUSCLR = USB_DEVICE_EPSTATUS_BK0RDY(1);
 }

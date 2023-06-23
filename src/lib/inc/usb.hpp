@@ -11,6 +11,7 @@
 #include <cstring>
 #include "device.h"
 
+#include "data.hpp"
 
 namespace usb {
 
@@ -69,7 +70,7 @@ namespace usb {
         DEVICE_CAPABILITY = 0x10
     };
 
-    typedef struct {
+    typedef struct __attribute__((packed)) {
         uint8_t bLength; // 18
         uint8_t bDescriptorType; // 0x01
         uint16_t bcdUSB; // 0x0210
@@ -159,7 +160,7 @@ namespace usb {
         uint8_t wSubCompatibleID[8];
     }
     usb_descriptor_compatible_id;
-    
+
     typedef struct __attribute__((packed)) {
         uint16_t wLength;
         uint16_t wDescriptorType; // 0x04

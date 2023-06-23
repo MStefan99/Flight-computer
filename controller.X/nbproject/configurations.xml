@@ -257,14 +257,14 @@
         <targetDevice>ATSAML21E16B</targetDevice>
         <targetHeader></targetHeader>
         <targetPluginBoard></targetPluginBoard>
-        <platformTool>noID</platformTool>
+        <platformTool>pk4hybrid</platformTool>
         <languageToolchain>XC32</languageToolchain>
         <languageToolchainVersion>4.21</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <packs>
-        <pack name="SAML21_DFP" vendor="Microchip" version="3.6.105"/>
         <pack name="CMSIS" vendor="ARM" version="5.4.0"/>
+        <pack name="SAML21_DFP" vendor="Microchip" version="3.6.105"/>
       </packs>
       <ScriptingSettings>
       </ScriptingSettings>

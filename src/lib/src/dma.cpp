@@ -57,6 +57,10 @@ extern "C" {
 		if (transfer.sercom->I2CM.SERCOM_INTFLAG & SERCOM_I2CM_INTFLAG_ERROR_Msk ||
 						(transfer.sercom->I2CM.SERCOM_STATUS & SERCOM_I2CM_STATUS_RXNACK_Msk)) {
 			transfer.sercom->I2CM.SERCOM_CTRLB = SERCOM_I2CM_CTRLB_CMD(3);
+            DMAC_REGS->DMAC_CHID = DMA_CH_I2C_TX;
+            DMAC_REGS->DMAC_CHCTRLA = DMAC_CHCTRLA_ENABLE(0);
+            DMAC_REGS->DMAC_CHID = DMA_CH_I2C_RX;
+            DMAC_REGS->DMAC_CHCTRLA = DMAC_CHCTRLA_ENABLE(0);
 			completeI2CTransfer(false);
 			nextTransfer();
 		} else {
@@ -155,10 +159,7 @@ void dma::initSBUS(uint8_t* rxBuffer, uint16_t len) {
 
 
 static void nextTransfer() {
-	// I2C gets priority but doesn't lock UART
-	if (pendingUARTTransfers.size() > 5) {
-		nextUARTTransfer();
-	} else if (pendingI2CTransfers.size()) {
+	if (pendingI2CTransfers.size()) {
 		nextI2CTransfer();
 	} else if (pendingUARTTransfers.size()) {
 		nextUARTTransfer();
@@ -184,7 +185,7 @@ static void nextI2CTransfer() {
 	
 	if ((transfer.sercom->I2CM.SERCOM_STATUS & SERCOM_I2CM_STATUS_BUSSTATE_Msk)
 					!= SERCOM_I2CM_STATUS_BUSSTATE(1)) {
-		return; // SERCOM/DMA busy, cannot start another transfer
+		return; // SERCOM busy, cannot start another transfer
 	}
 	
 	switch (transfer.type) {
@@ -229,7 +230,10 @@ static void I2CStreamIn(const dma::I2CTransfer& transfer) {
 
 
 static void completeI2CTransfer(bool success) {
-	dma::I2CTransfer transfer {pendingI2CTransfers.front()};
+    if (pendingI2CTransfers.empty()) {
+        return;
+    }
+    dma::I2CTransfer transfer {pendingI2CTransfers.front()};
 	if (transfer.type == dma::I2CTransferType::Write) {
 		byteAllocator.deallocate(transfer.buf);
 	}
@@ -257,7 +261,7 @@ static void nextUARTTransfer() {
 	dma::UARTTransfer transfer {pendingUARTTransfers.front()};
 	
 	if (transfer.sercom->USART_INT.SERCOM_STATUS & SERCOM_USART_INT_STATUS_CTS_Msk) {
-		return; // SERCOM/DMA busy, cannot start another transfer
+		return; // SERCOM busy, cannot start another transfer
 	}
 
 	DMAC_REGS->DMAC_CHID = DMA_CH_UART_TX;

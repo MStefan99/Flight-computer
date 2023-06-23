@@ -19,12 +19,18 @@ void updates::ms() {
 
 void updates::fast() {
     mpu6050::update();
-    e.update(mpu6050::getRot(), mpu6050::getAcc(), 0.02f);
+    
+    usb::write(reinterpret_cast<uint8_t*>(&data::STATUS_DESCRIPTOR), 14);
+    
+//    util::copy(data::STATUS_DESCRIPTOR.wAcc, mpu6050::getRawAcc(), 3);
+//    util::copy(data::STATUS_DESCRIPTOR.wRot, mpu6050::getRawRot(), 3);
+    
+//    e.update(mpu6050::getRot(), mpu6050::getAcc(), 0.02f);
     
     data::inputs[0][0] = e.getRoll() * RAD_TO_DEG;
     data::inputs[0][1] = e.getPitch() * RAD_TO_DEG;
     
-    data::outputs = data::inputs * data::mux + data::trims;
+//    data::outputs = data::inputs * data::mux + data::trims;
 }
 
 void updates::slow() {
