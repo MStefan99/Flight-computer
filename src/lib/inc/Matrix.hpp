@@ -51,6 +51,7 @@ public:
 	Matrix operator-(const Matrix& matrix) const;
 	Matrix operator*(const Matrix& matrix) const;
 
+    Matrix multiplyChannels(const Matrix& matrix) const;
 	Matrix multiplyComponents(const Matrix& matrix) const;
 	Matrix concat(const Matrix& matrix) const;
 
@@ -311,6 +312,28 @@ Matrix<scalar, size_type> Matrix<scalar, size_type>::operator-(const Matrix& mat
 	for (size_type j {0}; j < _h; ++j) {
 		for (size_type i {0}; i < _w; ++i) {
 			result[j][i] = this->operator[](j)[i] - matrix[j][i];
+		}
+	}
+	return result;
+}
+
+
+template<class scalar, class size_type>
+Matrix<scalar, size_type> Matrix<scalar, size_type>::multiplyChannels(const Matrix& matrix) const {
+	if (matrix._w == 1 && matrix._h == 1) {
+		return operator*(matrix[0][0]);
+	} else if (_w != matrix._h) {
+		return *this;
+	}
+
+	Matrix result {matrix._w, _h};
+	for (size_type j {0}; j < matrix._w; ++j) {
+		for (size_type i {0}; i < _h; ++i) {
+			scalar sum {0};
+			for (size_type k {0}; k < _w; ++k) {
+				sum += (this->operator[](i)[k] * matrix[k][j]) >> 10u;
+			}
+			result[i][j] = sum;
 		}
 	}
 	return result;

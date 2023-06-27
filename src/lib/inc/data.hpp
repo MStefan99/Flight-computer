@@ -24,23 +24,26 @@ namespace data {
     };
 
     enum class DATA_DESCRIPTOR_TYPE : uint8_t {
-        SETTINGS = 0x00,
-        INPUTS = 0x01,
-        MUX = 0x02,
-        TRIMS = 0x03,
-        OUTPUTS = 0x04
+        STATUS = 0x00,
+        SETTINGS = 0x01,
+        INPUTS = 0x02,
+        MUX = 0x03,
+        TRIMS = 0x04,
+        OUTPUTS = 0x05
     };
 
     typedef struct __attribute__((packed)) {
         uint8_t bLength;
+        uint8_t bDescriptorType; // 0x00
         int8_t bTemp;
+        uint8_t bReserved;
         int16_t wAcc[3];
         int16_t wRot[3];
     } usb_data_status_descriptor;
 
     typedef struct __attribute__((packed)) {
         uint8_t bLength;
-        uint8_t bDescriptorType; // 0x0
+        uint8_t bDescriptorType; // 0x01
         uint8_t bInputChannels;
         uint8_t bOutputChannels;
         uint8_t bmActiveSensors;
@@ -48,25 +51,25 @@ namespace data {
 
     typedef struct __attribute__((packed)) {
         uint8_t bLength;
-        uint8_t bDescriptorType; // 0x01
+        uint8_t bDescriptorType; // 0x02
         int16_t wInputs[inputChannelNumber];
     } usb_data_inputs_descriptor;
 
     typedef struct __attribute__((packed)) {
         uint8_t bLength;
-        uint8_t bDescriptorType; // 0x02
+        uint8_t bDescriptorType; // 0x03
         int16_t wMux[inputChannelNumber * outputChannelNumber];
     } usb_data_mux_descriptor;
 
     typedef struct __attribute__((packed)) {
         uint8_t bLength;
-        uint8_t bDescriptorType; // 0x03
+        uint8_t bDescriptorType; // 0x04
         int16_t wTrims[outputChannelNumber];
     } usb_data_trims_descriptor;
 
     typedef struct __attribute__((packed)) {
         uint8_t bLength;
-        uint8_t bDescriptorType; //0x04
+        uint8_t bDescriptorType; //0x05
         int16_t wOutputs[outputChannelNumber];
     } usb_data_outputs_descriptor;
 

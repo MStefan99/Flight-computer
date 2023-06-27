@@ -1,7 +1,8 @@
 #include "lib/inc/data.hpp"
 
 data::usb_data_status_descriptor data::STATUS_DESCRIPTOR = {
-    .bLength = sizeof (usb_data_status_descriptor)
+    .bLength = sizeof (data::usb_data_status_descriptor),
+    .bDescriptorType = static_cast<uint8_t>(data::DATA_DESCRIPTOR_TYPE::STATUS)
 };
 
 data::usb_data_settings_descriptor data::SETTINGS_DESCRIPTOR = {

@@ -192,6 +192,7 @@ namespace usb {
 
 
     void init();
+    void writeDefault(uint8_t* data, uint8_t len);
     void write(uint8_t* data, uint8_t len);
     void read(uint8_t* data, uint8_t len);
 }

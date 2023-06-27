@@ -20,10 +20,8 @@ void updates::ms() {
 void updates::fast() {
     mpu6050::update();
     
-    usb::write(reinterpret_cast<uint8_t*>(&data::STATUS_DESCRIPTOR), 14);
-    
-//    util::copy(data::STATUS_DESCRIPTOR.wAcc, mpu6050::getRawAcc(), 3);
-//    util::copy(data::STATUS_DESCRIPTOR.wRot, mpu6050::getRawRot(), 3);
+    util::copy(data::STATUS_DESCRIPTOR.wAcc, mpu6050::getRawAcc(), 3);
+    util::copy(data::STATUS_DESCRIPTOR.wRot, mpu6050::getRawRot(), 3);
     
 //    e.update(mpu6050::getRot(), mpu6050::getAcc(), 0.02f);
     
