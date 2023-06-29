@@ -62,6 +62,7 @@
         <itemPath>../src/lib/inc/sbus.hpp</itemPath>
         <itemPath>../src/lib/inc/Matrix.hpp</itemPath>
         <itemPath>../src/lib/inc/data.hpp</itemPath>
+        <itemPath>../src/lib/inc/lsm6dso.hpp</itemPath>
       </logicalFolder>
       <logicalFolder name="f2" displayName="packs" projectFiles="true">
         <logicalFolder name="f1" displayName="ATSAML21E16B_DFP" projectFiles="true">
@@ -223,6 +224,7 @@
         <itemPath>../src/lib/src/sbus.cpp</itemPath>
         <itemPath>../src/lib/src/AttitudeEstimator.cpp</itemPath>
         <itemPath>../src/lib/src/data.cpp</itemPath>
+        <itemPath>../src/lib/src/lsm6dso.cpp</itemPath>
       </logicalFolder>
       <itemPath>../src/main.cpp</itemPath>
     </logicalFolder>
@@ -331,7 +333,7 @@
         <property key="generate-micro-compressed-code" value="false"/>
         <property key="isolate-each-function" value="true"/>
         <property key="make-warnings-into-errors" value="false"/>
-        <property key="optimization-level" value=""/>
+        <property key="optimization-level" value="-O1"/>
         <property key="place-data-into-section" value="true"/>
         <property key="post-instruction-scheduling" value="default"/>
         <property key="pre-instruction-scheduling" value="default"/>
@@ -429,7 +431,7 @@
         <property key="generate-micro-compressed-code" value="false"/>
         <property key="isolate-each-function" value="true"/>
         <property key="make-warnings-into-errors" value="false"/>
-        <property key="optimization-level" value=""/>
+        <property key="optimization-level" value="-O1"/>
         <property key="place-data-into-section" value="false"/>
         <property key="post-instruction-scheduling" value="default"/>
         <property key="pre-instruction-scheduling" value="default"/>

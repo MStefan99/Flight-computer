@@ -10,7 +10,7 @@ static PID pitchPID {3, 1, 5, MAX_INT16 / 4, MAX_INT16};
 
 
 void updates::init() {
-    mpu6050::init();
+    lsm6dso::init();
 }
 
 void updates::ms() {
@@ -18,15 +18,15 @@ void updates::ms() {
 }
 
 void updates::fast() {
-    mpu6050::update();
+    lsm6dso::update();
     
-    util::copy(data::STATUS_DESCRIPTOR.wAcc, mpu6050::getRawAcc(), 3);
-    util::copy(data::STATUS_DESCRIPTOR.wRot, mpu6050::getRawRot(), 3);
+    util::copy(data::STATUS_DESCRIPTOR.wAcc, lsm6dso::getRawAcc(), 3);
+    util::copy(data::STATUS_DESCRIPTOR.wRot, lsm6dso::getRawRot(), 3);
     
 //    e.update(mpu6050::getRot(), mpu6050::getAcc(), 0.02f);
     
-    data::inputs[0][0] = e.getRoll() * RAD_TO_DEG;
-    data::inputs[0][1] = e.getPitch() * RAD_TO_DEG;
+//    data::inputs[0][0] = e.getRoll() * RAD_TO_DEG;
+//    data::inputs[0][1] = e.getPitch() * RAD_TO_DEG;
     
 //    data::outputs = data::inputs * data::mux + data::trims;
 }

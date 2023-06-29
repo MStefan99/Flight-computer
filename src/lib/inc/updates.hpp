@@ -19,7 +19,7 @@
 #include "PID.hpp"
 #include "AttitudeEstimator.hpp"
 
-#include "mpu6050.hpp"
+#include "lsm6dso.hpp"
 
 
 namespace updates {

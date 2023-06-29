@@ -19,14 +19,6 @@ static float acc[3] {0};
 static float rot[3] {0};
 
 
-static void convert(bool success) {
-    for (uint8_t i {0}; i < 3; ++i) {
-        acc[i] = util::switchEndianness(rawAcc[i]) * ACC_FACTOR;
-        rot[i] = util::switchEndianness(rawRot[i]) * GYRO_FACTOR;
-    }
-}
-
-
 void mpu6050::init() {
 	uint8_t power1{0};
 	i2c::writeRegister(MPU6050_ADDR, 0x6b, &power1, 1);
@@ -35,7 +27,12 @@ void mpu6050::init() {
 
 void mpu6050::update() {
 	i2c::readRegister(MPU6050_ADDR, 0x3b, (uint8_t*) rawAcc, 6);
-	i2c::readRegister(MPU6050_ADDR, 0x43, (uint8_t*) rawRot, 6, &convert);
+	i2c::readRegister(MPU6050_ADDR, 0x43, (uint8_t*) rawRot, 6, [](bool success) {
+       for (uint8_t i {0}; i < 3; ++i) {
+            acc[i] = util::switchEndianness(rawAcc[i]) * ACC_FACTOR;
+            rot[i] = util::switchEndianness(rawRot[i]) * GYRO_FACTOR;
+        } 
+    });
 }
 
 

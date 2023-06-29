@@ -35,11 +35,11 @@ int main() {
     while (1) {
         util::sleep(1);
 
-        ADC_REGS->ADC_SWTRIG = ADC_SWTRIG_START(1); // Start conversion
-        while (!(ADC_REGS->ADC_INTFLAG & ADC_INTFLAG_RESRDY_Msk)) {
-            __WFI();
-        } // Wait for ADC result
-        data::STATUS_DESCRIPTOR.bTemp = tempR + ((ADC_REGS->ADC_RESULT - adcR) * (tempH - tempR) / (adcH - adcR));
+//        ADC_REGS->ADC_SWTRIG = ADC_SWTRIG_START(1); // Start conversion
+//        while (!(ADC_REGS->ADC_INTFLAG & ADC_INTFLAG_RESRDY_Msk)) {
+//            __WFI();
+//        } // Wait for ADC result
+//        data::STATUS_DESCRIPTOR.bTemp = tempR + ((ADC_REGS->ADC_RESULT - adcR) * (tempH - tempR) / (adcH - adcR));
 
         updates::ms();
 
