@@ -33,7 +33,7 @@ usb_device_endpoint0_request;
 
 typedef struct __attribute__((packed)) {
     uint8_t bRequest;
-    uint8_t bReserved;
+    uint8_t bValue;
     uint8_t bData[128];
 }
 usb_device_endpoint1_request;
@@ -161,8 +161,8 @@ static void vendorRequestHandler() {
 
 void endpoint1Handler() {
     if (USB_REGS->DEVICE.DEVICE_ENDPOINT[1].USB_EPINTFLAG & USB_DEVICE_EPINTFLAG_TRCPT0_Msk) { // OUT transfer
-        if ((EP1REQ.bRequest & 0x01) == static_cast<uint8_t>(data::DATA_REQUEST::READ)) {
-            switch (EP1REQ.bRequest >> 1u) {
+        if (EP1REQ.bRequest == static_cast<uint8_t>(data::DATA_REQUEST::READ)) {
+            switch (EP1REQ.bValue) {
                 case static_cast<uint8_t>(data::DATA_DESCRIPTOR_TYPE::SETTINGS):
                     write(reinterpret_cast<uint8_t*>(&data::SETTINGS_DESCRIPTOR), sizeof (data::SETTINGS_DESCRIPTOR));
                     break;
@@ -180,12 +180,12 @@ void endpoint1Handler() {
                     break;
             }
         } else {
-            switch (EP1REQ.bRequest >> 1u) {
+            switch (EP1REQ.bValue) {
                 case static_cast<uint8_t>(data::DATA_DESCRIPTOR_TYPE::MUX):
-                    util::copy(reinterpret_cast<uint8_t*>(&data::MUX_DESCRIPTOR), EP1REQ.bData);
+                    util::copy(data::MUX_DESCRIPTOR.wMux, reinterpret_cast<int16_t*>(EP1REQ.bData), sizeof(data::MUX_DESCRIPTOR.wMux) / sizeof(int16_t));
                     break;
                 case static_cast<uint8_t>(data::DATA_DESCRIPTOR_TYPE::TRIMS):
-                    util::copy(reinterpret_cast<uint8_t*>(&data::TRIMS_DESCRIPTOR), EP1REQ.bData);
+                    util::copy(data::TRIMS_DESCRIPTOR.wTrims, reinterpret_cast<int16_t*>(EP1REQ.bData), sizeof(data::TRIMS_DESCRIPTOR.wTrims) / sizeof(int16_t));
                     break;
             }
         }
