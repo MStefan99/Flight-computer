@@ -2,6 +2,8 @@
 
 static constexpr uint8_t LSM6DSO_ADDR {0x6a};
 
+static constexpr float ACC_LSB {0.122 / 1000};
+static constexpr float ROT_LSB {0.153 / 1000};
 
 static int16_t rawAcc[3] {0};
 static int16_t rawRot[3] {0};
@@ -21,8 +23,8 @@ void lsm6dso::update() {
 	i2c::readRegister(LSM6DSO_ADDR, 0x28, (uint8_t*) rawAcc, 6);
 	i2c::readRegister(LSM6DSO_ADDR, 0x22, (uint8_t*) rawRot, 6, [](bool success) {
        for (uint8_t i {0}; i < 3; ++i) {
-//            acc[i] = rawAcc[i] / 4096.0;
-//            rot[i] = rawRot[i] * 65.0;
+            acc[i] = rawAcc[i] * ACC_LSB;
+            rot[i] = rawRot[i] * ROT_LSB;
         } 
     });
 }

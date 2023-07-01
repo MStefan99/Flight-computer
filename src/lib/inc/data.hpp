@@ -39,6 +39,8 @@ namespace data {
         uint8_t bReserved;
         int16_t wAcc[3];
         int16_t wRot[3];
+        int16_t wRoll;
+        int16_t wPitch;
     } usb_data_status_descriptor;
 
     typedef struct __attribute__((packed)) {
