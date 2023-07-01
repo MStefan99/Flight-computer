@@ -11,7 +11,7 @@ usb::usb_descriptor_device usb::DESCRIPTOR_DEVICE = {
     .bMaxPacketSize = 64,
     .idVendor = 0x0424,
     .idProduct = 0x0001,
-    .bcdDevice = 0x0001,
+    .bcdDevice = 0x0002,
     .iManufacturer = 1,
     .iProduct = 2,
     .iSerialNumber = 0,
@@ -80,14 +80,14 @@ usb::usb_descriptor_string usb::DESCRIPTOR_STRING[] = {
         }
     },
     {
-        50,
+        20,
         (uint8_t) usb::DESCRIPTOR_TYPE::STRING,
-        u"Mishanya Technology Inc."
+        u"MStefan99"
     },
     {
-        58,
+        36,
         (uint8_t) usb::DESCRIPTOR_TYPE::STRING,
-        u"Sub-GHz Wireless transceiver"
+        u"Flight Controller"
     }
 };
 

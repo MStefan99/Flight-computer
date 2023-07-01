@@ -127,7 +127,7 @@ namespace usb {
     typedef struct __attribute__((packed)) {
         uint8_t bLength;
         uint8_t bDescriptorType; // 0x03
-        const char16_t bString[30];
+        const char16_t bString[18];
     }
     usb_descriptor_string;
 
