@@ -21,11 +21,13 @@ void util::init() { // TODO: move away
      * |
      * |--> GCLK0 @ 8MHz
      * |    |
-     * |     `-> MCLK @ 8MHz
+     * |    |--> MCLK @ 8MHz
+     * |    |
+     * |     `-> TCC @ 8MHz
      * |
-     *  `-> GCLK1 @ 250KHz
-     *      |
-     *       `-> GCLK_ADC @ 250KHz
+     * |--> GCLK1 @ 250KHz
+     * |    |
+     *       `-> ADC @ 250KHz
      *
      * DFLL48M @ 48MHz
      * |

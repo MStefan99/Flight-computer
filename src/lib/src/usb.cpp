@@ -49,6 +49,14 @@ static uint8_t defaultLen{0};
 extern "C" {
 
     void USB_Handler() {
+        if (USB_REGS->DEVICE.USB_INTFLAG & USB_DEVICE_INTFLAG_EORST_Msk) { // Process USB reset
+        USB_REGS->DEVICE.USB_INTFLAG = USB_DEVICE_INTFLAG_EORST(1); // Clear pending interrupt
+        USB_REGS->DEVICE.DEVICE_ENDPOINT[0].USB_EPINTENSET = USB_DEVICE_EPINTENSET_RXSTP(1) // Enable SETUP endpoint interrupt
+                | USB_DEVICE_EPINTENSET_TRCPT0(1) // Enable OUT endpoint interrupt
+                | USB_DEVICE_EPINTENSET_TRCPT1(1); // Enable IN endpoint interrupt
+        EPDESCTBL[0].DEVICE_DESC_BANK[0].USB_ADDR = (uint32_t) & EP0REQ;
+    }
+        
         if (USB_REGS->DEVICE.DEVICE_ENDPOINT[0].USB_EPINTFLAG & (USB_DEVICE_EPINTFLAG_RXSTP_Msk | USB_DEVICE_EPINTFLAG_TRCPT1_Msk | USB_DEVICE_EPINTFLAG_TRCPT0_Msk)) {
             controlHandler();
         } else if (USB_REGS->DEVICE.DEVICE_ENDPOINT[1].USB_EPINTFLAG & (USB_DEVICE_EPINTFLAG_TRCPT1_Msk | USB_DEVICE_EPINTFLAG_TRCPT0_Msk)) {
@@ -60,14 +68,6 @@ extern "C" {
 }
 
 static void controlHandler() {
-    if (USB_REGS->DEVICE.USB_INTFLAG & USB_DEVICE_INTFLAG_EORST_Msk) { // Process USB reset
-        USB_REGS->DEVICE.USB_INTFLAG = USB_DEVICE_INTFLAG_EORST(1); // Clear pending interrupt
-        USB_REGS->DEVICE.DEVICE_ENDPOINT[0].USB_EPINTENSET = USB_DEVICE_EPINTENSET_RXSTP(1) // Enable SETUP endpoint interrupt
-                | USB_DEVICE_EPINTENSET_TRCPT0(1) // Enable OUT endpoint interrupt
-                | USB_DEVICE_EPINTENSET_TRCPT1(1); // Enable IN endpoint interrupt
-        EPDESCTBL[0].DEVICE_DESC_BANK[0].USB_ADDR = (uint32_t) & EP0REQ;
-    }
-
     if (USB_REGS->DEVICE.DEVICE_ENDPOINT[0].USB_EPINTFLAG & USB_DEVICE_EPINTFLAG_RXSTP_Msk) { // Process SETUP transfers
         USB_REGS->DEVICE.DEVICE_ENDPOINT[0].USB_EPINTFLAG = USB_DEVICE_EPINTFLAG_RXSTP(1); // Clear pending interrupt
         uint8_t type = BMREQUESTTYPE_TYPE(EP0REQ.bmRequestType);
