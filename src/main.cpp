@@ -2,6 +2,7 @@
 //#include <xc.h>  // TODO: explore, possibly delete Harmony files
 
 #include "lib/inc/util.hpp"
+#include "lib/inc/data.hpp"
 #include "lib/inc/updates.hpp"
 #include "lib/inc/usb.hpp"
 #include "lib/inc/i2c.hpp"
@@ -17,9 +18,10 @@
 
 int main() {
     util::init();
-
+    
+    data::load();
     dma::init();
-    //    sbus::init();
+//    sbus::init();
     i2c::init();
     usb::init();
 

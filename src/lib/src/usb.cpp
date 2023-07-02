@@ -183,9 +183,11 @@ void endpoint1Handler() {
             switch (EP1REQ.bValue) {
                 case static_cast<uint8_t>(data::DATA_DESCRIPTOR_TYPE::MUX):
                     util::copy(data::MUX_DESCRIPTOR.wMux, reinterpret_cast<int16_t*>(EP1REQ.bData), data::muxLength);
+                    data::save();
                     break;
                 case static_cast<uint8_t>(data::DATA_DESCRIPTOR_TYPE::TRIMS):
-                    util::copy(data::TRIMS_DESCRIPTOR.wTrims, reinterpret_cast<int16_t*>(EP1REQ.bData), data::outputChannelNumber);
+                    util::copy(data::TRIMS_DESCRIPTOR.wTrims, reinterpret_cast<int16_t*>(EP1REQ.bData), data::outputChannelCount);
+                    data::save();
                     break;
             }
         }

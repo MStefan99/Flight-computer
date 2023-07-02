@@ -11,13 +11,17 @@
 #include "device.h"
 
 #include "lib/inc/Matrix.hpp"
-#include "lib/inc/usb.hpp"
+#include "lib/inc/util.hpp"
 
 
 namespace data {
-    constexpr uint8_t inputChannelNumber{2};
-    constexpr uint8_t outputChannelNumber{2};
-    constexpr uint8_t muxLength {inputChannelNumber * outputChannelNumber};
+    constexpr uint8_t inputChannelCount{2};
+    constexpr uint8_t outputChannelCount{2};
+    constexpr uint8_t muxLength {inputChannelCount * outputChannelCount};
+    
+    constexpr uint8_t NVM_MUX_PAGES {(inputChannelCount * outputChannelCount * sizeof(int16_t) + FLASH_PAGE_SIZE - 1) / FLASH_PAGE_SIZE};
+    constexpr uint8_t NVM_TRIM_PAGES {outputChannelCount * (sizeof(uint16_t) + FLASH_PAGE_SIZE - 1) / FLASH_PAGE_SIZE};
+    constexpr uint8_t NVM_PAGE_COUNT {NVM_MUX_PAGES + NVM_TRIM_PAGES};
 
     enum class DATA_REQUEST : uint8_t {
         READ = 0x00,
@@ -55,7 +59,7 @@ namespace data {
     typedef struct __attribute__((packed)) {
         uint8_t bLength;
         uint8_t bDescriptorType; // 0x02
-        int16_t wInputs[inputChannelNumber];
+        int16_t wInputs[inputChannelCount];
     } usb_data_inputs_descriptor;
 
     typedef struct __attribute__((packed)) {
@@ -67,14 +71,16 @@ namespace data {
     typedef struct __attribute__((packed)) {
         uint8_t bLength;
         uint8_t bDescriptorType; // 0x04
-        int16_t wTrims[outputChannelNumber];
+        int16_t wTrims[outputChannelCount];
     } usb_data_trims_descriptor;
 
     typedef struct __attribute__((packed)) {
         uint8_t bLength;
         uint8_t bDescriptorType; //0x05
-        int16_t wOutputs[outputChannelNumber];
+        int16_t wOutputs[outputChannelCount];
     } usb_data_outputs_descriptor;
+    
+    extern const uint8_t NVM_DATA[FLASH_PAGE_SIZE * 4];
 
     extern usb_data_status_descriptor STATUS_DESCRIPTOR;
     extern usb_data_settings_descriptor SETTINGS_DESCRIPTOR;
@@ -88,6 +94,9 @@ namespace data {
     extern Matrix<int16_t> mux;
     extern Matrix<int16_t> trims;
     extern Matrix<int16_t> outputs;
+    
+    void load();
+    void save();
 }
 
 #endif	/* DATA_HPP */
