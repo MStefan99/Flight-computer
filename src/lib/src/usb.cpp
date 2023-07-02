@@ -182,13 +182,14 @@ void endpoint1Handler() {
         } else {
             switch (EP1REQ.bValue) {
                 case static_cast<uint8_t>(data::DATA_DESCRIPTOR_TYPE::MUX):
-                    util::copy(data::MUX_DESCRIPTOR.wMux, reinterpret_cast<int16_t*>(EP1REQ.bData), sizeof(data::MUX_DESCRIPTOR.wMux) / sizeof(int16_t));
+                    util::copy(data::MUX_DESCRIPTOR.wMux, reinterpret_cast<int16_t*>(EP1REQ.bData), data::muxLength);
                     break;
                 case static_cast<uint8_t>(data::DATA_DESCRIPTOR_TYPE::TRIMS):
-                    util::copy(data::TRIMS_DESCRIPTOR.wTrims, reinterpret_cast<int16_t*>(EP1REQ.bData), sizeof(data::TRIMS_DESCRIPTOR.wTrims) / sizeof(int16_t));
+                    util::copy(data::TRIMS_DESCRIPTOR.wTrims, reinterpret_cast<int16_t*>(EP1REQ.bData), data::outputChannelNumber);
                     break;
             }
         }
+        EPDESCTBL[1].DEVICE_DESC_BANK[0].USB_PCKSIZE = USB_DEVICE_PCKSIZE_MULTI_PACKET_SIZE(sizeof(EP1REQ)) | USB_DEVICE_PCKSIZE_SIZE(0x3);
         return;
     }
 
@@ -201,6 +202,7 @@ static void enableEndpoints(uint8_t configurationNumber) {
     USB_REGS->DEVICE.DEVICE_ENDPOINT[1].USB_EPCFG = USB_DEVICE_EPCFG_EPTYPE0(0x4) // Configure endpoint 1 bank 0 as interrupt out
             | USB_DEVICE_EPCFG_EPTYPE1(0x4); // Configure endpoint 1 bank 1 as interrupt in
     EPDESCTBL[1].DEVICE_DESC_BANK[0].USB_ADDR = (uint32_t) & EP1REQ;
+    EPDESCTBL[1].DEVICE_DESC_BANK[0].USB_PCKSIZE = USB_DEVICE_PCKSIZE_MULTI_PACKET_SIZE(sizeof(EP1REQ)) | USB_DEVICE_PCKSIZE_SIZE(0x3);
     USB_REGS->DEVICE.DEVICE_ENDPOINT[1].USB_EPINTENSET = USB_DEVICE_EPINTENSET_TRCPT0(1) // Enable OUT endpoint interrupt
             | USB_DEVICE_EPINTENSET_TRCPT1(1); // Enable IN endpoint interrupt
 

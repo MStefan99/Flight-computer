@@ -8,8 +8,8 @@
 #ifndef USB_HPP
 #define	USB_HPP
 
-#include <cstring>
 #include "device.h"
+#include <cstring>
 
 #include "data.hpp"
 

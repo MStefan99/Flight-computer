@@ -17,6 +17,7 @@
 namespace data {
     constexpr uint8_t inputChannelNumber{2};
     constexpr uint8_t outputChannelNumber{2};
+    constexpr uint8_t muxLength {inputChannelNumber * outputChannelNumber};
 
     enum class DATA_REQUEST : uint8_t {
         READ = 0x00,
@@ -60,7 +61,7 @@ namespace data {
     typedef struct __attribute__((packed)) {
         uint8_t bLength;
         uint8_t bDescriptorType; // 0x03
-        int16_t wMux[inputChannelNumber * outputChannelNumber];
+        int16_t wMux[muxLength];
     } usb_data_mux_descriptor;
 
     typedef struct __attribute__((packed)) {
