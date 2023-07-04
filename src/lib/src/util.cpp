@@ -39,6 +39,12 @@ void util::init() { // TODO: move away
 
     uint32_t calibration = *((uint32_t*)0x00806020);
 
+    // SUPC config
+    SUPC_REGS->SUPC_VREF = SUPC_VREF_TSEN(1) // Enable temperature sensor
+            | SUPC_VREF_SEL_1V0; // Set 1.0V as a reference
+    SUPC_REGS->SUPC_VREG = SUPC_VREG_SEL_BUCK | SUPC_VREG_ENABLE(1);
+    while (!(SUPC_REGS->SUPC_STATUS & SUPC_INTFLAG_VREGRDY_Msk));
+
     // PM config
     PM_REGS->PM_PLCFG = PM_PLCFG_PLSEL_PL2; // Enter PL2
     while (!(PM_REGS->PM_INTFLAG & PM_INTFLAG_PLRDY_Msk)); // Wait for the transition to complete
@@ -76,10 +82,6 @@ void util::init() { // TODO: move away
     SysTick->CTRL = SysTick_CTRL_TICKINT_Msk
             | SysTick_CTRL_CLKSOURCE_Msk
             | SysTick_CTRL_ENABLE_Msk;
-
-    // SUPC config
-    SUPC_REGS->SUPC_VREF = SUPC_VREF_TSEN(1) // Enable temperature sensor
-            | SUPC_VREF_SEL_1V0; // Set 1.0V as a reference
 
     // ADC config
     ADC_REGS->ADC_REFCTRL = ADC_REFCTRL_REFSEL_INTREF; // Set ADC reference voltage
