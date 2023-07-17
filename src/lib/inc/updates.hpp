@@ -21,6 +21,7 @@
 
 #include "lsm6dso.hpp"
 
+#include "bldc.hpp"
 
 namespace updates {
 	void init();

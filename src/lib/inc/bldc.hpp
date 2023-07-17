@@ -9,6 +9,7 @@
 #define	BLDC_HPP
 
 #include "device.h"
+#include <cmath>
 
 #include "util.hpp"
 
@@ -17,6 +18,7 @@ namespace bldc {
     void init();
     
     void setAngle(int16_t angle);
+    void beep(uint16_t frequency);
 }
 
 #endif	/* BLDC_HPP */

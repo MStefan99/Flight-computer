@@ -9,13 +9,25 @@ static PID pitchPID {3, 1, 5, 256, 1536};
 #define ROLL_LIMIT ( 45 * DEG_TO_RAD )
 #define PITCH_LIMIT ( 45 * DEG_TO_RAD )
 
+static int16_t dt {0};
+static int16_t angle {0};
 
 void updates::init() {
     lsm6dso::init();
+    bldc::init();
 }
 
 void updates::ms() {
-    // Nothing to do here yet
+    angle += dt;
+    if (dt < 10) {
+        ++dt;
+    }
+    
+    if (angle > 1500) {
+        angle = -1500;
+    }
+    
+    bldc::setAngle(angle);
 }
 
 void updates::fast() {

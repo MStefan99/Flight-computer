@@ -35,14 +35,16 @@ void bldc::init() {
 
     // TCC config
     TCC0_REGS->TCC_DBGCTRL = TCC_DBGCTRL_DBGRUN(1); // Run while debugging
-    TCC0_REGS->TCC_WAVE = TCC_WAVE_WAVEGEN_NPWM; // PWM generation
+    TCC0_REGS->TCC_WAVE = TCC_WAVE_WAVEGEN_NPWM | TCC_WAVE_POL1(1) | TCC_WAVE_POL3(1); // PWM generation
     TCC0_REGS->TCC_PER = 250;
     TCC0_REGS->TCC_CC[0] = 0;
     TCC0_REGS->TCC_CC[1] = 0;
+    TCC0_REGS->TCC_CC[2] = 0;
+    TCC0_REGS->TCC_CC[3] = 0;
     TCC0_REGS->TCC_CTRLA |= TCC_CTRLA_ENABLE(1); // Enable timer
 
     TCC1_REGS->TCC_DBGCTRL = TCC_DBGCTRL_DBGRUN(1); // Run while debugging
-    TCC1_REGS->TCC_WAVE = TCC_WAVE_WAVEGEN_NPWM; // PWM generation
+    TCC1_REGS->TCC_WAVE = TCC_WAVE_WAVEGEN_NPWM | TCC_WAVE_POL1(1); // PWM generation
     TCC1_REGS->TCC_PER = 250;
     TCC1_REGS->TCC_CC[0] = 0;
     TCC1_REGS->TCC_CC[1] = 0;
@@ -62,24 +64,25 @@ void bldc::init() {
     }
 }
 
-void bldc::setAngle(int16_t angle) {
-    bool negative = angle < 0;
-    if (negative) angle = 1536 + angle;
-    angle = MIN((angle * 1000) >> 10u, 1500);
-    int values[6] = {MAX(0, 250 - angle), MAX(0, angle - 250), MAX(0, angle - 750), MAX(0, 750 - angle), MAX(0, 1250 - angle), MAX(0, angle - 1250)};
+static constexpr float SQRT3 = sqrtf(3);
 
-    if (negative) {
-        for (uint8_t i {0}; i < 6; i += 2) {
-            auto tmp {values[i]};
-            values[i] = values[i+1];
-            values[i+1] = tmp;
-        }
-    }
+void bldc::setAngle(int16_t angle) {
+    float fangle = angle / 477.4648292757;
     
-    TCC0_REGS->TCC_CCBUF[0] = values[0];
-    TCC0_REGS->TCC_CCBUF[1] = values[1];
-    TCC0_REGS->TCC_CCBUF[2] = values[2];
-    TCC0_REGS->TCC_CCBUF[3] = values[3];
-    TCC1_REGS->TCC_CCBUF[0] = values[4];
-    TCC1_REGS->TCC_CCBUF[1] = values[5];
+    float va = sinf(fangle);
+    float vb = cosf(fangle);
+    
+    TCC0_REGS->TCC_CCBUF[0] = TCC0_REGS->TCC_CCBUF[1] = (va + 1) / 2 * 250;
+    TCC0_REGS->TCC_CCBUF[2] = TCC0_REGS->TCC_CCBUF[3] = ((-va + SQRT3 * vb) / 2 + 1) / 2 * 250;
+    TCC1_REGS->TCC_CCBUF[0] = TCC1_REGS->TCC_CCBUF[1] = ((-va - SQRT3 * vb) / 2 + 1) / 2 * 250;
+}
+
+void bldc::beep(uint16_t frequency) {
+    uint16_t period = 8000000 / frequency;
+    
+    TCC0_REGS->TCC_PER = period;
+    TCC0_REGS->TCC_CCBUF[0] = period / 2;
+    TCC0_REGS->TCC_CCBUF[1] = 0;
+    TCC0_REGS->TCC_CCBUF[2] = 0;
+    TCC0_REGS->TCC_CCBUF[3] = 260;
 }
