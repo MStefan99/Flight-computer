@@ -11,6 +11,7 @@
 
 #include "device.h"
 
+#include "Matrix.hpp"
 
 constexpr float TWO_PI {6.283185307179586476925286766559};
 constexpr float PI {3.1415926535897932384626433832795};
@@ -19,7 +20,6 @@ constexpr float QUARTER_PI {0.78539816339744830961566084581988};
 constexpr float DEG_TO_RAD {0.017453292519943295769236907684886};
 constexpr float RAD_TO_DEG {57.295779513082320876798154814105};
 constexpr float EULER {2.718281828459045235360287471352};
-
 
 constexpr uint8_t  MIN_INT8   {0x80};
 constexpr uint8_t  MAX_INT8   {0x7f};
@@ -35,38 +35,26 @@ constexpr uint32_t MIN_UINT32 {0x00000000};
 constexpr uint32_t MAX_UINT32 {0xffffffff};
 
 
-#define AVG(a, b) ((a + b) / 2)
-#define ABS(a) ((a > 0)? (a) : -(a))
-#define MIN(a, b) ((a < b)? (a) : (b))
-#define MAX(a, b) ((a > b)? (a) : (b))
-#define CLAMP(min, val, max) ((val < min)? (min) : ((val > max)? max : val))
-#define MAP(minSrc, maxSrc, minTgt, maxTgt, val) ((val - minSrc) * (maxTgt - minTgt) / (maxSrc - minSrc) + minTgt)
-#define SWAP(a, b) {\
-  auto t {a};  \
-  a = b;  \
-  b = t;\
-}
-#define timeout(condition, time, body) {uint32_t _tme {system::getTickCount() + time}; \
-    while (condition && _tme < system::getTickCount()) {\
-        body\
-		}\
-}
-
-
 namespace util {
 	void init();
 
-	uint32_t getTickCount();
+	uint32_t getTime();
 	void sleep(uint32_t ms);
 
     
-	template <class T>
-	void copy(T* dest, const T* src, size_t len = 1) {
-		for (size_t i{0}; i < len; ++i) {
+	template <class T, class S>
+	void copy(T* dest, const T* src, S len = 1) {
+		for (S i{0}; i < len; ++i) {
 			dest[i] = src[i];
 		}
 	}
-
+    
+    template <class T>
+    void swap(T* a, T* b) {
+        T t {*a};
+        *a = *b;
+        *b = t;
+    }
 	
 	template <class T>
 	void copy(T* dest, const T& src) {
@@ -78,7 +66,41 @@ namespace util {
 	void copy(T* dest, T&& src) {
 		*dest = src;
 	}
-	
+    
+    template <class T>
+    T avg(T a, T b) {
+        return (a + b) / 2;
+    }
+    
+    template <class T>
+    T abs(T a) {
+        return a > 0? a : -a;
+    }
+    
+    template <class T>
+    int8_t sign(T a) {
+        return a > 0? 1 : a < 0? -1 : 0;
+    }
+    
+    template <class T>
+    T min(T a, T b) {
+        return (a < b)? a : b;
+    }
+    
+    template <class T>
+    T max(T a, T b) {
+        return (a > b)? a : b;
+    }
+    
+    template <class T>
+    T clamp(T val, T min, T max) {
+        return (val < min)? min : (val > max)? max : val;
+    }
+    
+    template <class T>
+    T map(T val, T minSrc, T maxSrc, T minTgt, T maxTgt) {
+        return (val - minSrc) * (maxTgt - minTgt) / (maxSrc - minSrc) + minTgt;
+    }
 
 	template <class T>
 	T switchEndianness(T val) {
@@ -94,6 +116,8 @@ namespace util {
 			return val;
 		}
 	}
+    
+    float invSqrt(float a);
 }
 
 #endif	/* SYSTEM_H */

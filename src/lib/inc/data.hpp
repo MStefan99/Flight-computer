@@ -9,94 +9,61 @@
 #define	DATA_HPP
 
 #include "device.h"
+#include <cstdlib>
 
-#include "lib/inc/Matrix.hpp"
 #include "lib/inc/util.hpp"
 
 
+#define FLASH_ROW_SIZE (FLASH_PAGE_SIZE * 4)
+
+/* Non-volatile memory controller can write one page and erase one row (4 pages) at a time,
+ * therefore, a following procedure is used: 
+ * - Upon any edits, a copy of an entire row is made
+ * - Multiple edits can take place
+ * - After calling write() or when starting to edit another row, the current row is erased,
+ * the data is copied back and all 4 pages are written.
+ */
+
+
 namespace data {
-    constexpr uint8_t inputChannelCount{2};
-    constexpr uint8_t outputChannelCount{2};
-    constexpr uint8_t muxLength {inputChannelCount * outputChannelCount};
+    namespace _internal {
+        extern uint8_t rowCopy[FLASH_ROW_SIZE]; // Copy of the row
+        extern const uint8_t* modifiedRow; // Original address of the data
+    }
     
-    constexpr uint8_t NVM_MUX_PAGES {(inputChannelCount * outputChannelCount * sizeof(int16_t) + FLASH_PAGE_SIZE - 1) / FLASH_PAGE_SIZE};
-    constexpr uint8_t NVM_TRIM_PAGES {outputChannelCount * (sizeof(uint16_t) + FLASH_PAGE_SIZE - 1) / FLASH_PAGE_SIZE};
-    constexpr uint8_t NVM_PAGE_COUNT {NVM_MUX_PAGES + NVM_TRIM_PAGES};
-
-    enum class DATA_REQUEST : uint8_t {
-        READ = 0x00,
-        WRITE = 0x01,
-    };
-
-    enum class DATA_DESCRIPTOR_TYPE : uint8_t {
-        STATUS = 0x00,
-        SETTINGS = 0x01,
-        INPUTS = 0x02,
-        MUX = 0x03,
-        TRIMS = 0x04,
-        OUTPUTS = 0x05
-    };
-
     typedef struct __attribute__((packed)) {
-        uint8_t bLength;
-        uint8_t bDescriptorType; // 0x00
-        int8_t bTemp;
-        uint8_t bReserved;
-        int16_t wAcc[3];
-        int16_t wRot[3];
-        int16_t wRoll;
-        int16_t wPitch;
-    } usb_data_status_descriptor;
-
-    typedef struct __attribute__((packed)) {
-        uint8_t bLength;
-        uint8_t bDescriptorType; // 0x01
-        uint8_t bInputChannels;
-        uint8_t bOutputChannels;
-        uint8_t bmActiveSensors;
-    } usb_data_settings_descriptor;
-
-    typedef struct __attribute__((packed)) {
-        uint8_t bLength;
-        uint8_t bDescriptorType; // 0x02
-        int16_t wInputs[inputChannelCount];
-    } usb_data_inputs_descriptor;
-
-    typedef struct __attribute__((packed)) {
-        uint8_t bLength;
-        uint8_t bDescriptorType; // 0x03
-        int16_t wMux[muxLength];
-    } usb_data_mux_descriptor;
-
-    typedef struct __attribute__((packed)) {
-        uint8_t bLength;
-        uint8_t bDescriptorType; // 0x04
-        int16_t wTrims[outputChannelCount];
-    } usb_data_trims_descriptor;
-
-    typedef struct __attribute__((packed)) {
-        uint8_t bLength;
-        uint8_t bDescriptorType; //0x05
-        int16_t wOutputs[outputChannelCount];
-    } usb_data_outputs_descriptor;
+        union {
+            struct {
+            };
+            uint8_t pad[FLASH_ROW_SIZE];
+        };
+    } Options;
     
-    extern const uint8_t NVM_DATA[FLASH_PAGE_SIZE * 4];
-
-    extern usb_data_status_descriptor STATUS_DESCRIPTOR;
-    extern usb_data_settings_descriptor SETTINGS_DESCRIPTOR;
-    extern usb_data_inputs_descriptor INPUTS_DESCRIPTOR;
-    extern usb_data_mux_descriptor MUX_DESCRIPTOR;
-    extern usb_data_trims_descriptor TRIMS_DESCRIPTOR;
-    extern usb_data_outputs_descriptor OUTPUTS_DESCRIPTOR;
-
-    extern uint8_t& activeSensors;
-    extern Matrix<int16_t> inputs;
-    extern Matrix<int16_t> mux;
-    extern Matrix<int16_t> trims;
-    extern Matrix<int16_t> outputs;
+    extern const Options options;
     
-    void load();
-    void save();
+    void write();
+    
+    template <class T>
+    void edit(const T* dest, T src) {
+        // Cannot use % with pointers, need to cast to a number and back
+        auto row {reinterpret_cast<const uint8_t*>(reinterpret_cast<uint32_t>(dest) - (reinterpret_cast<uint32_t>(dest) % FLASH_ROW_SIZE))};
+
+        if (reinterpret_cast<const Options*>(row) < &options || reinterpret_cast<const Options*>(row) >= &options + 1) {
+            return;
+        }
+
+        if (reinterpret_cast<const uint8_t*>(row) != _internal::modifiedRow) { // Starting to edit another row
+            write(); // Writing current row
+            util::copy( // Making a copy of the new row
+                    reinterpret_cast<uint32_t*>(_internal::rowCopy), // Destination
+                    reinterpret_cast<const uint32_t*>(row), // New row
+                    FLASH_ROW_SIZE / sizeof(uint32_t) // Copying the entire row in 32-bit operations
+            );
+            _internal::modifiedRow = row;
+        }
+
+        *reinterpret_cast<T*>(_internal::rowCopy + (reinterpret_cast<const uint8_t*>(dest) - row)) = src;
+    }
 }
 
 #endif	/* DATA_HPP */

@@ -9,18 +9,17 @@
 #define	DMA_H
 
 #include "device.h"
-#include "tl/allocator.hpp"
-#include "tl/list.hpp"
+#include "RingBuffer.hpp"
 
 
-#define DMA_CH_COUNT 6
+static constexpr uint8_t I2C_BUFFER_LEN {8};
+static constexpr uint8_t UART_BUFFER_LEN {16};
 
-#define DMA_CH_I2C_TX 0
-#define DMA_CH_I2C_RX 1
-#define DMA_CH_UART_TX 2
-#define DMA_CH_UART_RX 3
-#define DMA_CH_SBUS_TX 4
-#define DMA_CH_SBUS_RX 5
+
+static constexpr uint8_t DMA_CH_COUNT {2};
+
+static constexpr uint8_t DMA_CH_I2C_TX {0};
+static constexpr uint8_t DMA_CH_I2C_RX {1};
 
 
 namespace dma {
@@ -30,34 +29,20 @@ namespace dma {
 		WriteRead
 	};
 
-	typedef struct __attribute__((packed)) {
+	struct __attribute__((packed)) I2CTransfer {
 		uint8_t devAddr;
 		uint8_t regAddr;
-		uint8_t* buf;
+		uint8_t buf[I2C_BUFFER_LEN];
 		uint8_t len;
 		I2CTransferType type;
-		sercom_registers_t* sercom;
-        void (*cb)(bool);
-	}
-	I2CTransfer;
-
-	typedef struct __attribute__((packed)) {
-		uint8_t* buf;
-		uint8_t len;
-		sercom_registers_t* sercom;
-        void (*cb)(bool);
-	}
-	UARTTransfer;
-
+        void (*cb)(bool success, const I2CTransfer& transfer);
+		bool littleEndian;
+	};
 
 	void init();
 	void initI2C();
-	void initUART();
-	void initSBUS(uint8_t* rxBuf, uint16_t len);
-
 
 	void startTransfer(const I2CTransfer& transfer);
-	void startTransfer(const UARTTransfer& transfer);
 }
 
 #endif	/* DMA_H */

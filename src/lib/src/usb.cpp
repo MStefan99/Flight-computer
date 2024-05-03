@@ -160,44 +160,44 @@ static void vendorRequestHandler() {
 }
 
 void endpoint1Handler() {
-    if (USB_REGS->DEVICE.DEVICE_ENDPOINT[1].USB_EPINTFLAG & USB_DEVICE_EPINTFLAG_TRCPT0_Msk) { // OUT transfer
-        if (EP1REQ.bRequest == static_cast<uint8_t>(data::DATA_REQUEST::READ)) {
-            switch (EP1REQ.bValue) {
-                case static_cast<uint8_t>(data::DATA_DESCRIPTOR_TYPE::SETTINGS):
-                    write(reinterpret_cast<uint8_t*>(&data::SETTINGS_DESCRIPTOR), sizeof (data::SETTINGS_DESCRIPTOR));
-                    break;
-                case static_cast<uint8_t>(data::DATA_DESCRIPTOR_TYPE::INPUTS):
-                    write(reinterpret_cast<uint8_t*>(&data::INPUTS_DESCRIPTOR), sizeof (data::INPUTS_DESCRIPTOR));
-                    break;
-                case static_cast<uint8_t>(data::DATA_DESCRIPTOR_TYPE::MUX):
-                    write(reinterpret_cast<uint8_t*>(&data::MUX_DESCRIPTOR), sizeof (data::MUX_DESCRIPTOR));
-                    break;
-                case static_cast<uint8_t>(data::DATA_DESCRIPTOR_TYPE::TRIMS):
-                    write(reinterpret_cast<uint8_t*>(&data::TRIMS_DESCRIPTOR), sizeof (data::TRIMS_DESCRIPTOR));
-                    break;
-                case static_cast<uint8_t>(data::DATA_DESCRIPTOR_TYPE::OUTPUTS):
-                    write(reinterpret_cast<uint8_t*>(&data::OUTPUTS_DESCRIPTOR), sizeof (data::OUTPUTS_DESCRIPTOR));
-                    break;
-            }
-        } else {
-            switch (EP1REQ.bValue) {
-                case static_cast<uint8_t>(data::DATA_DESCRIPTOR_TYPE::MUX):
-                    util::copy(data::MUX_DESCRIPTOR.wMux, reinterpret_cast<int16_t*>(EP1REQ.bData), data::muxLength);
-                    data::save();
-                    break;
-                case static_cast<uint8_t>(data::DATA_DESCRIPTOR_TYPE::TRIMS):
-                    util::copy(data::TRIMS_DESCRIPTOR.wTrims, reinterpret_cast<int16_t*>(EP1REQ.bData), data::outputChannelCount);
-                    data::save();
-                    break;
-            }
-        }
-        EPDESCTBL[1].DEVICE_DESC_BANK[0].USB_PCKSIZE = USB_DEVICE_PCKSIZE_MULTI_PACKET_SIZE(sizeof(EP1REQ)) | USB_DEVICE_PCKSIZE_SIZE(0x3);
-        return;
-    }
-
-    if (defaultLen) {
-        write(defaultData, defaultLen);
-    }
+//    if (USB_REGS->DEVICE.DEVICE_ENDPOINT[1].USB_EPINTFLAG & USB_DEVICE_EPINTFLAG_TRCPT0_Msk) { // OUT transfer
+//        if (EP1REQ.bRequest == static_cast<uint8_t>(data::DATA_REQUEST::READ)) {
+//            switch (EP1REQ.bValue) {
+//                case static_cast<uint8_t>(data::DATA_DESCRIPTOR_TYPE::SETTINGS):
+//                    write(reinterpret_cast<uint8_t*>(&data::SETTINGS_DESCRIPTOR), sizeof (data::SETTINGS_DESCRIPTOR));
+//                    break;
+//                case static_cast<uint8_t>(data::DATA_DESCRIPTOR_TYPE::INPUTS):
+//                    write(reinterpret_cast<uint8_t*>(&data::INPUTS_DESCRIPTOR), sizeof (data::INPUTS_DESCRIPTOR));
+//                    break;
+//                case static_cast<uint8_t>(data::DATA_DESCRIPTOR_TYPE::MUX):
+//                    write(reinterpret_cast<uint8_t*>(&data::MUX_DESCRIPTOR), sizeof (data::MUX_DESCRIPTOR));
+//                    break;
+//                case static_cast<uint8_t>(data::DATA_DESCRIPTOR_TYPE::TRIMS):
+//                    write(reinterpret_cast<uint8_t*>(&data::TRIMS_DESCRIPTOR), sizeof (data::TRIMS_DESCRIPTOR));
+//                    break;
+//                case static_cast<uint8_t>(data::DATA_DESCRIPTOR_TYPE::OUTPUTS):
+//                    write(reinterpret_cast<uint8_t*>(&data::OUTPUTS_DESCRIPTOR), sizeof (data::OUTPUTS_DESCRIPTOR));
+//                    break;
+//            }
+//        } else {
+//            switch (EP1REQ.bValue) {
+//                case static_cast<uint8_t>(data::DATA_DESCRIPTOR_TYPE::MUX):
+//                    util::copy(data::MUX_DESCRIPTOR.wMux, reinterpret_cast<int16_t*>(EP1REQ.bData), data::muxLength);
+//                    data::save();
+//                    break;
+//                case static_cast<uint8_t>(data::DATA_DESCRIPTOR_TYPE::TRIMS):
+//                    util::copy(data::TRIMS_DESCRIPTOR.wTrims, reinterpret_cast<int16_t*>(EP1REQ.bData), data::outputChannelCount);
+//                    data::save();
+//                    break;
+//            }
+//        }
+//        EPDESCTBL[1].DEVICE_DESC_BANK[0].USB_PCKSIZE = USB_DEVICE_PCKSIZE_MULTI_PACKET_SIZE(sizeof(EP1REQ)) | USB_DEVICE_PCKSIZE_SIZE(0x3);
+//        return;
+//    }
+//
+//    if (defaultLen) {
+//        write(defaultData, defaultLen);
+//    }
 }
 
 static void enableEndpoints(uint8_t configurationNumber) {
@@ -208,13 +208,12 @@ static void enableEndpoints(uint8_t configurationNumber) {
     USB_REGS->DEVICE.DEVICE_ENDPOINT[1].USB_EPINTENSET = USB_DEVICE_EPINTENSET_TRCPT0(1) // Enable OUT endpoint interrupt
             | USB_DEVICE_EPINTENSET_TRCPT1(1); // Enable IN endpoint interrupt
 
-    writeDefault(reinterpret_cast<uint8_t*>(&data::STATUS_DESCRIPTOR), sizeof(data::STATUS_DESCRIPTOR));
+//    writeDefault(reinterpret_cast<uint8_t*>(&data::STATUS_DESCRIPTOR), sizeof(data::STATUS_DESCRIPTOR));
 }
 
 void usb::init() {
     uint32_t calibration = *((uint32_t*)0x00806020);
 
-    NVIC_SetPriority(USB_IRQn, 3);
     NVIC_EnableIRQ(USB_IRQn);
 
     PORT_REGS->GROUP[0].PORT_PINCFG[24] = PORT_PINCFG_PMUXEN(1); // Enable mux on pin 24

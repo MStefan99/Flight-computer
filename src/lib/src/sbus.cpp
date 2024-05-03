@@ -36,9 +36,6 @@ void sbus::init() {
 	PORT_REGS->GROUP[0].PORT_PINCFG[17] = PORT_PINCFG_PMUXEN(1); // Enable mux on pin 17
 	PORT_REGS->GROUP[0].PORT_PMUX[8] = PORT_PMUX_PMUXO_C; // Mux pin 17 to SERCOM1
 
-	// DMA config
-	dma::initSBUS(SBUSBuffer, 25);
-
 	// SERCOM config
 	SERCOM_REGS->USART_INT.SERCOM_CTRLB = SERCOM_USART_INT_CTRLB_RXEN(1) |
 					//SERCOM_USART_INT_CTRLB_TXEN(1) |  // For future use
@@ -59,5 +56,5 @@ void sbus::init() {
 int16_t sbus::getChannel(uint8_t channel) {
 	// TODO: clamp values
 	int16_t value = getValue(SBUSBuffer + 1, channel);
-	return value? MAP(160, 1850, (int16_t)0x8000, (int16_t)0x7fff, value) : 0;
+	return value? util::map(static_cast<int>(value), 160, 1850, 0x8000, 0x7fff) : 0;
 }
