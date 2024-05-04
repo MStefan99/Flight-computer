@@ -76,7 +76,9 @@ namespace data {
     } usb_data_outputs_descriptor;
 
     
-    extern usb_data_status_descriptor status;
+    extern usb_data_status_descriptor statusDescriptor;
+    extern usb_data_inputs_descriptor inputsDescriptor;
+    extern usb_data_outputs_descriptor outputsDescriptor;
                 
     extern const uint8_t& activeSensors;
     extern InlineMatrix<const int16_t, uint8_t, inputChannelCount, 1> inputs;

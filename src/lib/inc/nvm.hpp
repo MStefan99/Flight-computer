@@ -36,10 +36,8 @@ namespace nvm {
         union {
             struct {
                 data::usb_data_settings_descriptor settings {};
-                data::usb_data_inputs_descriptor inputs {};
                 data::usb_data_mux_descriptor mux {};
                 data::usb_data_trims_descriptor trims {};
-                data::usb_data_outputs_descriptor outputs {};
             };
             uint8_t pad[FLASH_ROW_SIZE * 4];
         };
