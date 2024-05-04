@@ -27,23 +27,27 @@
 
 
 namespace nvm {
+    struct Options {
+        data::usb_data_settings_descriptor settings {};
+        data::usb_data_mux_descriptor mux {};
+        data::usb_data_trims_descriptor trims {};
+    };
+    
     namespace _internal {
         extern uint8_t rowCopy[FLASH_ROW_SIZE]; // Copy of the row
         extern const uint8_t* modifiedRow; // Original address of the data
+        
+        struct __attribute__((packed)) Rows {
+            union {
+                Options options {};
+                uint8_t pad[FLASH_ROW_SIZE * 4];
+            };
+        };
+        
+        extern const Rows rows;
     }
     
-    typedef struct __attribute__((packed)) {
-        union {
-            struct {
-                data::usb_data_settings_descriptor settings {};
-                data::usb_data_mux_descriptor mux {};
-                data::usb_data_trims_descriptor trims {};
-            };
-            uint8_t pad[FLASH_ROW_SIZE * 4];
-        };
-    } Options;
-    
-    extern const Options options;
+    extern const Options& options;
     
     void write();
     
@@ -52,7 +56,8 @@ namespace nvm {
         // Cannot use % with pointers, need to cast to a number and back
         auto row {reinterpret_cast<const uint8_t*>(reinterpret_cast<uint32_t>(dest) - (reinterpret_cast<uint32_t>(dest) % FLASH_ROW_SIZE))};
 
-        if (reinterpret_cast<const Options*>(row) < &options || reinterpret_cast<const Options*>(row) >= &options + 1) {
+        if (reinterpret_cast<const _internal::Rows*>(row) < &_internal::rows 
+                || reinterpret_cast<const _internal::Rows*>(row) >= &_internal::rows + 1) {
             return;
         }
 

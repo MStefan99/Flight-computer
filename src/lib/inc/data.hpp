@@ -15,7 +15,7 @@
 
 
 namespace data {
-    constexpr uint8_t inputChannelCount {16};
+    constexpr uint8_t inputChannelCount {12};
     constexpr uint8_t outputChannelCount {8};
     constexpr uint8_t muxLength {inputChannelCount * outputChannelCount};
 
@@ -33,54 +33,53 @@ namespace data {
         OUTPUTS = 0x05
     };
 
-    typedef struct __attribute__((packed)) {
-        uint8_t bLength;
-        uint8_t bDescriptorType; // 0x00
+    struct __attribute__((packed)) usb_data_status_descriptor {
+        const uint8_t bLength {sizeof(usb_data_status_descriptor)};
+        const uint8_t bDescriptorType {0x00};
         int8_t bTemp;
         uint8_t bmActiveSensors;
         int16_t wAcc[3];
         int16_t wRot[3];
         int16_t wRoll;
         int16_t wPitch;
-    } usb_data_status_descriptor;
+    };
 
-    typedef struct __attribute__((packed)) {
-        uint8_t bLength;
-        uint8_t bDescriptorType; // 0x01
+    struct __attribute__((packed)) usb_data_settings_descriptor {
+        const uint8_t bLength {sizeof(usb_data_settings_descriptor)};
+        const uint8_t bDescriptorType {0x01};
         uint8_t bInputChannels;
         uint8_t bOutputChannels;
-    } usb_data_settings_descriptor;
+    };
 
-    typedef struct __attribute__((packed)) {
-        uint8_t bLength;
-        uint8_t bDescriptorType; // 0x02
+    struct __attribute__((packed)) usb_data_inputs_descriptor {
+        const uint8_t bLength {sizeof(usb_data_settings_descriptor)};
+        const uint8_t bDescriptorType {0x02};
         int16_t wInputs[inputChannelCount];
-    } usb_data_inputs_descriptor;
+    };
 
-    typedef struct __attribute__((packed)) {
-        uint8_t bLength;
-        uint8_t bDescriptorType; // 0x03
+    struct __attribute__((packed)) usb_data_mux_descriptor {
+        const uint8_t bLength {sizeof(usb_data_mux_descriptor)};
+        const uint8_t bDescriptorType {0x03};
         int16_t wMux[muxLength];
-    } usb_data_mux_descriptor;
+    };
 
-    typedef struct __attribute__((packed)) {
-        uint8_t bLength;
-        uint8_t bDescriptorType; // 0x04
+    struct __attribute__((packed)) usb_data_trims_descriptor {
+        const uint8_t bLength {sizeof(usb_data_trims_descriptor)};
+        const uint8_t bDescriptorType {0x04};
         int16_t wTrims[outputChannelCount];
-    } usb_data_trims_descriptor;
+    };
 
-    typedef struct __attribute__((packed)) {
-        uint8_t bLength;
-        uint8_t bDescriptorType; //0x05
+    struct __attribute__((packed)) usb_data_outputs_descriptor {
+        const uint8_t bLength {sizeof(usb_data_outputs_descriptor)};
+        const uint8_t bDescriptorType {0x05};
         int16_t wOutputs[outputChannelCount];
-    } usb_data_outputs_descriptor;
+    };
 
     
     extern usb_data_status_descriptor statusDescriptor;
     extern usb_data_inputs_descriptor inputsDescriptor;
     extern usb_data_outputs_descriptor outputsDescriptor;
-                
-    extern const uint8_t& activeSensors;
+    
     extern InlineMatrix<const int16_t, uint8_t, inputChannelCount, 1> inputs;
     extern InlineMatrix<const int16_t, uint8_t, inputChannelCount, outputChannelCount> mux;
     extern InlineMatrix<const int16_t, uint8_t, 1, outputChannelCount> trims;
