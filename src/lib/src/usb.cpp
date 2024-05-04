@@ -212,6 +212,9 @@ static void enableEndpoints(uint8_t configurationNumber) {
 }
 
 void usb::init() {
+    GCLK_REGS->GCLK_PCHCTRL[4] = GCLK_PCHCTRL_CHEN(1) // Enable USB clock
+            | GCLK_PCHCTRL_GEN_GCLK2; //Set GCLK2 as a clock source
+    
     uint32_t calibration = *((uint32_t*)0x00806020);
 
     NVIC_EnableIRQ(USB_IRQn);
