@@ -10,7 +10,7 @@ static uart::DefaultCallback::buffer_type inBuffer2 {};
 static uart::DefaultCallback::callback_type callback2 {nullptr};
 
 
-static void initSERCOM(sercom_registers_t* regs) {
+static void initSERCOM(sercom_registers_t* regs, unsigned txPad = SERCOM_USART_INT_CTRLA_TXPO_PAD0, unsigned rxPad = SERCOM_USART_INT_CTRLA_RXPO_PAD1)  {
     regs->USART_INT.SERCOM_CTRLB = SERCOM_USART_INT_CTRLB_RXEN(1)
 					| SERCOM_USART_INT_CTRLB_PMODE_ODD
 					| SERCOM_USART_INT_CTRLB_SBMODE_1_BIT
@@ -21,15 +21,15 @@ static void initSERCOM(sercom_registers_t* regs) {
 					| SERCOM_USART_INT_CTRLA_CMODE_ASYNC
                     | SERCOM_USART_INT_CTRLA_SAMPR_16X_ARITHMETIC
 					| SERCOM_USART_INT_CTRLA_FORM_USART_FRAME_WITH_PARITY
-					| SERCOM_USART_INT_CTRLA_RXPO_PAD0
-					| SERCOM_USART_INT_CTRLA_TXPO_PAD1
+					| txPad
+					| rxPad
 					| SERCOM_USART_INT_CTRLA_MODE_USART_INT_CLK
 					| SERCOM_USART_INT_CTRLA_ENABLE(1);
     
 	regs->USART_INT.SERCOM_INTENSET = SERCOM_USART_INT_INTENSET_RXC(1)
             | SERCOM_USART_INT_INTENSET_TXC(1);
 }
-        
+
 
 static void disableTx(sercom_registers_t* regs) {
     regs->USART_INT.SERCOM_CTRLB &= ~SERCOM_USART_INT_CTRLB_TXEN(1);
@@ -124,7 +124,7 @@ void uart::init() {
     initSERCOM(SERCOM1_REGS);
     NVIC_EnableIRQ(SERCOM1_IRQn);
     
-    initSERCOM(SERCOM4_REGS);
+    initSERCOM(SERCOM4_REGS, SERCOM_USART_INT_CTRLA_TXPO_PAD1, SERCOM_USART_INT_CTRLA_RXPO_PAD3);
     NVIC_EnableIRQ(SERCOM4_IRQn);
 }
 

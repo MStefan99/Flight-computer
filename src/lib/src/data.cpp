@@ -1,7 +1,9 @@
 #include "lib/inc/data.hpp"
 #include "lib/inc/nvm.hpp"
 
-const uint8_t& data::activeSensors {nvm::options.settings.bmActiveSensors};
+data::usb_data_status_descriptor data::status {};
+
+const uint8_t& data::activeSensors {data::status.bmActiveSensors};
 
 InlineMatrix<const int16_t, uint8_t, data::inputChannelCount, 1> data::inputs {nvm::options.inputs.wInputs};
 InlineMatrix<const int16_t, uint8_t, data::inputChannelCount, data::outputChannelCount> data::mux {nvm::options.mux.wMux};

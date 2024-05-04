@@ -37,7 +37,7 @@ namespace data {
         uint8_t bLength;
         uint8_t bDescriptorType; // 0x00
         int8_t bTemp;
-        uint8_t bReserved;
+        uint8_t bmActiveSensors;
         int16_t wAcc[3];
         int16_t wRot[3];
         int16_t wRoll;
@@ -49,7 +49,6 @@ namespace data {
         uint8_t bDescriptorType; // 0x01
         uint8_t bInputChannels;
         uint8_t bOutputChannels;
-        uint8_t bmActiveSensors;
     } usb_data_settings_descriptor;
 
     typedef struct __attribute__((packed)) {
@@ -76,6 +75,9 @@ namespace data {
         int16_t wOutputs[outputChannelCount];
     } usb_data_outputs_descriptor;
 
+    
+    extern usb_data_status_descriptor status;
+                
     extern const uint8_t& activeSensors;
     extern InlineMatrix<const int16_t, uint8_t, inputChannelCount, 1> inputs;
     extern InlineMatrix<const int16_t, uint8_t, inputChannelCount, outputChannelCount> mux;

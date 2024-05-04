@@ -35,7 +35,6 @@ namespace nvm {
     typedef struct __attribute__((packed)) {
         union {
             struct {
-                data::usb_data_status_descriptor status {};
                 data::usb_data_settings_descriptor settings {};
                 data::usb_data_inputs_descriptor inputs {};
                 data::usb_data_mux_descriptor mux {};
