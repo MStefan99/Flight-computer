@@ -23,11 +23,10 @@ int main() {
     uint8_t tempH = (NVMTEMP[0] & 0xff0000) >> 12u;
     uint16_t adcH = (NVMTEMP[1] & 0xfff00000) >> 20u;
 
-
     while (1) {
         ADC_REGS->ADC_SWTRIG = ADC_SWTRIG_START(1); // Start conversion
         while (!(ADC_REGS->ADC_INTFLAG & ADC_INTFLAG_RESRDY_Msk)); // Wait for ADC result
-        //data::STATUS_DESCRIPTOR.bTemp = tempR + ((ADC_REGS->ADC_RESULT - adcR) * (tempH - tempR) / (adcH - adcR));
+        data::statusDescriptor.bTemp = tempR + ((ADC_REGS->ADC_RESULT - adcR) * (tempH - tempR) / (adcH - adcR));
 
         util::sleep(1);
     }

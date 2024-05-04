@@ -70,7 +70,7 @@ namespace usb {
         DEVICE_CAPABILITY = 0x10
     };
 
-    typedef struct __attribute__((packed)) {
+    struct __attribute__((packed)) usb_descriptor_device {
         uint8_t bLength; // 18
         uint8_t bDescriptorType; // 0x01
         uint16_t bcdUSB; // 0x0210
@@ -85,19 +85,18 @@ namespace usb {
         uint8_t iProduct;
         uint8_t iSerialNumber;
         uint8_t bNumConfigurations;
-    } usb_descriptor_device;
+    };
 
-    typedef struct __attribute__((packed)) {
+    struct __attribute__((packed)) usb_descriptor_endpoint {
         uint8_t bLength; // 7
         uint8_t bDescriptorType; // 0x05
         uint8_t bEndpointAddress;
         uint8_t bmAttributes;
         uint16_t wMaxPacketSize;
         uint8_t bInterval;
-    }
-    usb_descriptor_endpoint;
+    };
 
-    typedef struct __attribute__((packed)) {
+    struct __attribute__((packed)) usb_descriptor_interface {
         uint8_t bLength; // 9
         uint8_t bDescriptorType; // 0x04
         uint8_t bInterfaceNumber;
@@ -107,11 +106,10 @@ namespace usb {
         uint8_t bInterfaceSubclass;
         uint8_t bInterfaceProtocol;
         uint8_t iInterface;
-        usb_descriptor_endpoint ENDPOINTS[2]; // TODO: make dynamic size
-    }
-    usb_descriptor_interface;
+        usb_descriptor_endpoint ENDPOINTS[2];
+    };
 
-    typedef struct __attribute__((packed)) {
+    struct __attribute__((packed)) usb_descriptor_configuration {
         uint8_t bLength; // 9
         uint8_t bDescritptorType; // 0x02
         uint16_t wTotalLength;
@@ -120,18 +118,16 @@ namespace usb {
         uint8_t iConfiguration;
         uint8_t bmAttributes;
         uint8_t bMaxPower;
-        usb_descriptor_interface INTERFACES[1]; // TODO: make dynamic size
-    }
-    usb_descriptor_configuration;
+        usb_descriptor_interface INTERFACES[1];
+    };
 
-    typedef struct __attribute__((packed)) {
+    struct __attribute__((packed)) usb_descriptor_string {
         uint8_t bLength;
         uint8_t bDescriptorType; // 0x03
         const char16_t bString[18];
-    }
-    usb_descriptor_string;
+    };
 
-    typedef struct __attribute__((packed)) {
+    struct __attribute__((packed)) usb_dev_capability {
         uint8_t bLength; // 20
         uint8_t bDescriptorType;
         uint8_t bDevCapabilityType;
@@ -141,27 +137,24 @@ namespace usb {
         uint16_t wMSOSDescriptorSetTotalLength;
         uint8_t bMS_VendorCode;
         uint8_t bAltEnumCode;
-    }
-    usb_dev_capability;
+    };
 
-    typedef struct __attribute__((packed)) {
+    struct __attribute__((packed)) usb_descriptor_bos {
         uint8_t bLength; // 5
         uint8_t bDescriptorType;
         uint16_t wTotalLength;
         uint8_t bNumDeviceCaps;
         usb_dev_capability dev_capability;
-    }
-    usb_descriptor_bos;
+    };
 
-    typedef struct __attribute__((packed)) {
+    struct __attribute__((packed)) usb_descriptor_compatible_id {
         uint16_t wLength; // 20
         uint16_t wDescriptorType; // 0x03 for MS_OS_20_FEATURE_COMPATBLE_ID
         uint8_t wCompatibleID[8];
         uint8_t wSubCompatibleID[8];
-    }
-    usb_descriptor_compatible_id;
+    };
 
-    typedef struct __attribute__((packed)) {
+    struct __attribute__((packed)) usb_descriptor_registry_property {
         uint16_t wLength;
         uint16_t wDescriptorType; // 0x04
         uint16_t wPropertyDataType; // 0x01
@@ -169,18 +162,16 @@ namespace usb {
         const char16_t PropertyName[20];
         uint16_t wPropertyDataLength;
         const char16_t PropertyData[39];
-    }
-    usb_descriptor_registry_property;
+    };
 
-    typedef struct __attribute__((packed)) {
+    struct __attribute__((packed)) usb_descriptor_ms_os_20 {
         uint16_t wLength; // 10
         uint16_t wDescriptorType; // 0x00
         uint32_t dwWindowsVersion; // 0x06030000 for Windows 8.1
         uint16_t wTotalLength;
         usb_descriptor_compatible_id compatible_id;
         usb_descriptor_registry_property registry_property;
-    }
-    usb_descriptor_ms_os_20;
+    };
 
     extern usb_descriptor_device_registers_t EPDESCTBL[];
 
@@ -192,8 +183,8 @@ namespace usb {
 
 
     void init();
-    void writeDefault(uint8_t* data, uint8_t len);
-    void write(uint8_t* data, uint8_t len);
+    void writeDefault(const uint8_t* data, uint8_t len);
+    void write(const uint8_t* data, uint8_t len);
     void read(uint8_t* data, uint8_t len);
 }
 

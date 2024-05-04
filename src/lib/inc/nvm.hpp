@@ -28,9 +28,8 @@
 
 namespace nvm {
     struct Options {
-        data::usb_data_settings_descriptor settings {};
-        data::usb_data_mux_descriptor mux {};
-        data::usb_data_trims_descriptor trims {};
+        uint16_t mux[data::inputChannelCount * data::outputChannelCount] {};
+        uint16_t trims[data::outputChannelCount] {};
     };
     
     namespace _internal {
@@ -40,7 +39,7 @@ namespace nvm {
         struct __attribute__((packed)) Rows {
             union {
                 Options options {};
-                uint8_t pad[FLASH_ROW_SIZE * 4];
+                uint8_t pad[FLASH_ROW_SIZE];
             };
         };
         

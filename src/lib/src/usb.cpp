@@ -1,5 +1,7 @@
 #include "lib/inc/usb.hpp"
 #include "lib/inc/servo.hpp"
+#include "lib/inc/nvm.hpp"
+#include "lib/inc/uart.hpp"
 
 using namespace usb;
 
@@ -34,7 +36,7 @@ usb_device_endpoint0_request;
 typedef struct __attribute__((packed)) {
     uint8_t bRequest;
     uint8_t bValue;
-    uint8_t bData[128];
+    uint8_t bData[160];
 }
 usb_device_endpoint1_request;
 
@@ -43,8 +45,8 @@ usb_descriptor_device_registers_t usb::EPDESCTBL[2];
 static usb_device_endpoint0_request EP0REQ;
 static usb_device_endpoint1_request EP1REQ;
 
-static uint8_t* defaultData{nullptr};
-static uint8_t defaultLen{0};
+static const uint8_t* defaultData {nullptr};
+static uint8_t defaultLen {0};
 
 extern "C" {
 
@@ -160,44 +162,40 @@ static void vendorRequestHandler() {
 }
 
 void endpoint1Handler() {
-//    if (USB_REGS->DEVICE.DEVICE_ENDPOINT[1].USB_EPINTFLAG & USB_DEVICE_EPINTFLAG_TRCPT0_Msk) { // OUT transfer
-//        if (EP1REQ.bRequest == static_cast<uint8_t>(data::DATA_REQUEST::READ)) {
-//            switch (EP1REQ.bValue) {
-//                case static_cast<uint8_t>(data::DATA_DESCRIPTOR_TYPE::SETTINGS):
-//                    write(reinterpret_cast<uint8_t*>(&data::SETTINGS_DESCRIPTOR), sizeof (data::SETTINGS_DESCRIPTOR));
-//                    break;
-//                case static_cast<uint8_t>(data::DATA_DESCRIPTOR_TYPE::INPUTS):
-//                    write(reinterpret_cast<uint8_t*>(&data::INPUTS_DESCRIPTOR), sizeof (data::INPUTS_DESCRIPTOR));
-//                    break;
-//                case static_cast<uint8_t>(data::DATA_DESCRIPTOR_TYPE::MUX):
-//                    write(reinterpret_cast<uint8_t*>(&data::MUX_DESCRIPTOR), sizeof (data::MUX_DESCRIPTOR));
-//                    break;
-//                case static_cast<uint8_t>(data::DATA_DESCRIPTOR_TYPE::TRIMS):
-//                    write(reinterpret_cast<uint8_t*>(&data::TRIMS_DESCRIPTOR), sizeof (data::TRIMS_DESCRIPTOR));
-//                    break;
-//                case static_cast<uint8_t>(data::DATA_DESCRIPTOR_TYPE::OUTPUTS):
-//                    write(reinterpret_cast<uint8_t*>(&data::OUTPUTS_DESCRIPTOR), sizeof (data::OUTPUTS_DESCRIPTOR));
-//                    break;
-//            }
-//        } else {
-//            switch (EP1REQ.bValue) {
-//                case static_cast<uint8_t>(data::DATA_DESCRIPTOR_TYPE::MUX):
-//                    util::copy(data::MUX_DESCRIPTOR.wMux, reinterpret_cast<int16_t*>(EP1REQ.bData), data::muxLength);
-//                    data::save();
-//                    break;
-//                case static_cast<uint8_t>(data::DATA_DESCRIPTOR_TYPE::TRIMS):
-//                    util::copy(data::TRIMS_DESCRIPTOR.wTrims, reinterpret_cast<int16_t*>(EP1REQ.bData), data::outputChannelCount);
-//                    data::save();
-//                    break;
-//            }
-//        }
-//        EPDESCTBL[1].DEVICE_DESC_BANK[0].USB_PCKSIZE = USB_DEVICE_PCKSIZE_MULTI_PACKET_SIZE(sizeof(EP1REQ)) | USB_DEVICE_PCKSIZE_SIZE(0x3);
-//        return;
-//    }
-//
-//    if (defaultLen) {
-//        write(defaultData, defaultLen);
-//    }
+    if (USB_REGS->DEVICE.DEVICE_ENDPOINT[1].USB_EPINTFLAG & USB_DEVICE_EPINTFLAG_TRCPT0_Msk) { // OUT transfer
+        if (EP1REQ.bRequest == static_cast<uint8_t>(data::DATA_REQUEST::READ)) {
+            switch (EP1REQ.bValue) {
+                case static_cast<uint8_t>(data::DATA_DESCRIPTOR_TYPE::SETTINGS):
+                    write(reinterpret_cast<uint8_t*>(&data::settingsDescriptor), sizeof (data::usb_data_settings_descriptor));
+                    break;
+                case static_cast<uint8_t>(data::DATA_DESCRIPTOR_TYPE::INPUTS):
+                    write(reinterpret_cast<uint8_t*>(&data::inputsDescriptor), sizeof (data::usb_data_inputs_descriptor));
+                    break;
+                case static_cast<uint8_t>(data::DATA_DESCRIPTOR_TYPE::MUX):
+                    write(reinterpret_cast<uint8_t*>(&data::muxDescriptor), sizeof (data::usb_data_mux_descriptor));
+                    break;
+                case static_cast<uint8_t>(data::DATA_DESCRIPTOR_TYPE::TRIMS):
+                    write(reinterpret_cast<uint8_t*>(&data::trimsDescriptor), sizeof (data::usb_data_trims_descriptor));
+                    break;
+                case static_cast<uint8_t>(data::DATA_DESCRIPTOR_TYPE::OUTPUTS):
+                    write(reinterpret_cast<uint8_t*>(&data::outputsDescriptor), sizeof (data::usb_data_outputs_descriptor));
+                    break;
+            }
+        } else {
+            switch (EP1REQ.bValue) {
+                case static_cast<uint8_t>(data::DATA_DESCRIPTOR_TYPE::MUX):
+                    util::copy(data::muxDescriptor.wMux, reinterpret_cast<int16_t*>(EP1REQ.bData), data::muxLength);
+                    break;
+                case static_cast<uint8_t>(data::DATA_DESCRIPTOR_TYPE::TRIMS):
+                    util::copy(data::trimsDescriptor.wTrims, reinterpret_cast<int16_t*>(EP1REQ.bData), data::outputChannelCount);
+                    break;
+            }
+        }
+        EPDESCTBL[1].DEVICE_DESC_BANK[0].USB_PCKSIZE = USB_DEVICE_PCKSIZE_MULTI_PACKET_SIZE(sizeof(EP1REQ)) | USB_DEVICE_PCKSIZE_SIZE(0x3);
+        return;
+    } else if (defaultLen) {
+        write(defaultData, defaultLen);
+    }
 }
 
 static void enableEndpoints(uint8_t configurationNumber) {
@@ -208,12 +206,12 @@ static void enableEndpoints(uint8_t configurationNumber) {
     USB_REGS->DEVICE.DEVICE_ENDPOINT[1].USB_EPINTENSET = USB_DEVICE_EPINTENSET_TRCPT0(1) // Enable OUT endpoint interrupt
             | USB_DEVICE_EPINTENSET_TRCPT1(1); // Enable IN endpoint interrupt
 
-//    writeDefault(reinterpret_cast<uint8_t*>(&data::STATUS_DESCRIPTOR), sizeof(data::STATUS_DESCRIPTOR));
+    writeDefault(reinterpret_cast<const uint8_t*>(&data::statusDescriptor), sizeof(data::usb_data_status_descriptor));
 }
 
 void usb::init() {
     GCLK_REGS->GCLK_PCHCTRL[4] = GCLK_PCHCTRL_CHEN(1) // Enable USB clock
-            | GCLK_PCHCTRL_GEN_GCLK2; //Set GCLK2 as a clock source
+            | GCLK_PCHCTRL_GEN_GCLK0; //Set GCLK2 as a clock source
     
     uint32_t calibration = *((uint32_t*)0x00806020);
 
@@ -236,7 +234,7 @@ void usb::init() {
     USB_REGS->DEVICE.USB_INTENSET = USB_DEVICE_INTENSET_EORST(1); // Enable end-of-reset interrupt
 }
 
-void usb::writeDefault(uint8_t* data, uint8_t len) {
+void usb::writeDefault(const uint8_t* data, uint8_t len) {
     defaultData = data;
     defaultLen = len;
 
@@ -245,7 +243,7 @@ void usb::writeDefault(uint8_t* data, uint8_t len) {
     }
 }
 
-void usb::write(uint8_t* data, uint8_t len) {
+void usb::write(const uint8_t* data, uint8_t len) {
     EPDESCTBL[1].DEVICE_DESC_BANK[1].USB_ADDR = (uint32_t)data;
     EPDESCTBL[1].DEVICE_DESC_BANK[1].USB_PCKSIZE = USB_DEVICE_PCKSIZE_BYTE_COUNT(len) | USB_DEVICE_PCKSIZE_SIZE(0x3) | USB_DEVICE_PCKSIZE_AUTO_ZLP(1);
     USB_REGS->DEVICE.DEVICE_ENDPOINT[1].USB_EPSTATUSSET = USB_DEVICE_EPSTATUS_BK1RDY(1);

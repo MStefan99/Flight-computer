@@ -2,10 +2,13 @@
 #include "lib/inc/nvm.hpp"
 
 data::usb_data_status_descriptor data::statusDescriptor {};
+data::usb_data_settings_descriptor data::settingsDescriptor {};
 data::usb_data_inputs_descriptor data::inputsDescriptor {};
+data::usb_data_mux_descriptor data::muxDescriptor {};
+data::usb_data_trims_descriptor data::trimsDescriptor {};
 data::usb_data_outputs_descriptor data::outputsDescriptor {};
 
-//InlineMatrix<const int16_t, uint8_t, data::inputChannelCount, 1> data::inputs {data::inputsDescriptor.wInputs};
-//InlineMatrix<const int16_t, uint8_t, data::inputChannelCount, data::outputChannelCount> data::mux {nvm::options.mux.wMux};
-//InlineMatrix<const int16_t, uint8_t, 1, data::outputChannelCount> data::trims {nvm::options.trims.wTrims};
-//InlineMatrix<const int16_t, uint8_t, 1, data::outputChannelCount> data::outputs {data::outputsDescriptor.wOutputs};
+InlineMatrix<int16_t, uint8_t, data::inputChannelCount, 1> data::inputs {data::inputsDescriptor.wInputs};
+InlineMatrix<int16_t, uint8_t, data::inputChannelCount, data::outputChannelCount> data::mux {data::muxDescriptor.wMux};
+InlineMatrix<int16_t, uint8_t, 1, data::outputChannelCount> data::trims {data::trimsDescriptor.wTrims};
+InlineMatrix<int16_t, uint8_t, 1, data::outputChannelCount> data::outputs {data::outputsDescriptor.wOutputs};
