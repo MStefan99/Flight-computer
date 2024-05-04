@@ -53,6 +53,9 @@
         <itemPath>../src/lib/inc/RingBuffer.hpp</itemPath>
         <itemPath>../src/lib/inc/TaskScheduler.hpp</itemPath>
         <itemPath>../src/lib/inc/SBUS.hpp</itemPath>
+        <itemPath>../src/lib/inc/uart.hpp</itemPath>
+        <itemPath>../src/lib/inc/InlineMatrix.hpp</itemPath>
+        <itemPath>../src/lib/inc/nvm.hpp</itemPath>
       </logicalFolder>
       <logicalFolder name="f2" displayName="packs" projectFiles="true">
         <logicalFolder name="f1" displayName="ATSAML21E16B_DFP" projectFiles="true">
@@ -228,6 +231,8 @@
         <itemPath>../src/lib/src/Mahony.cpp</itemPath>
         <itemPath>../src/lib/src/Quaternion.cpp</itemPath>
         <itemPath>../src/lib/src/SBUS.cpp</itemPath>
+        <itemPath>../src/lib/src/uart.cpp</itemPath>
+        <itemPath>../src/lib/src/nvm.cpp</itemPath>
       </logicalFolder>
       <itemPath>../src/main.cpp</itemPath>
     </logicalFolder>
