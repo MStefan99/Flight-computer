@@ -41,7 +41,7 @@ Vector3<float, uint8_t> Quaternion::toEuler() const {
     return {{yaw}, {pitch}, {roll}};
 }
 
-Quaternion fromEuler(float yaw, float pitch, float roll) {
+Quaternion Quaternion::fromEuler(float yaw, float pitch, float roll) {
     float cy = std::cos(yaw * 0.5);
     float sy = std::sin(yaw * 0.5);
     float cp = std::cos(pitch * 0.5);

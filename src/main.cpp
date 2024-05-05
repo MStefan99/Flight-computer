@@ -7,6 +7,8 @@
 #include "lib/inc/i2c.hpp"
 #include "lib/inc/dma.hpp"
 #include "lib/inc/LSM6DSO32.hpp"
+#include "lib/inc/servo.hpp"
+#include "lib/inc/Quaternion.hpp"
 #include "lib/inc/Mahony.hpp"
 
 #define NVMTEMP ((uint32_t*)0x00806030)
@@ -44,10 +46,16 @@ int main() {
         
         mahony.updateIMU(LSM6DSO32::getRot(), LSM6DSO32::getAcc(), 0.01f);
         Quaternion deviceOrientation {mahony.getQuat()};
-        auto angles {deviceOrientation.toEuler()};
+        auto deviceAngles {deviceOrientation.toEuler()};
         
-        data::statusDescriptor.wPitch = angles[1][0] * ATT_LSB;
-        data::statusDescriptor.wRoll = angles[2][0] * ATT_LSB;
+        data::statusDescriptor.wPitch = deviceAngles[1][0] * ATT_LSB;
+        data::statusDescriptor.wRoll = deviceAngles[2][0] * ATT_LSB;
+        
+        Quaternion targetOrientation {Quaternion::fromEuler(deviceAngles[0][0], data::inputs[1][0], data::inputs[0][0])};
+        Quaternion cameraOrientation {Quaternion::fromEuler(deviceAngles[0][0] + data::inputs[4][0], data::inputs[5][0], 0)};
+        
+        Quaternion deviceRotation {deviceOrientation * targetOrientation.conjugate()};
+        Quaternion cameraRotation {deviceOrientation * cameraOrientation.conjugate()};
         
         util::sleep(10);
     }
