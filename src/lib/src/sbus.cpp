@@ -8,7 +8,7 @@ static constexpr uint8_t END_BYTE = 0x00;
 
 uint8_t buffer[PACKET_SIZE] {};
 uint8_t bytesReceived {0};
-bool packetReceived {false};
+uint32_t lastPacketReceived {0};
 
 
 extern "C" {
@@ -23,7 +23,11 @@ extern "C" {
         
         if (bytesReceived == PACKET_SIZE) {
             bytesReceived = 0; // Reset counter to start receiving new packet
-            packetReceived = byte == END_BYTE; // Check if the end byte matches up
+            if (byte == END_BYTE) {
+                lastPacketReceived = util::getTime();
+            } else {
+                lastPacketReceived = 0;
+            }
         }
     }
 }
@@ -89,12 +93,14 @@ void sbus::init() {
 
 
 bool sbus::available() {
-    return packetReceived;
+    return util::getTime() - lastPacketReceived < 20;
 }
 
 
 int16_t sbus::getChannel(uint8_t channel) {
-    if (channel < 16) {   
+    if (!available) {
+        return 0;
+    } else if (channel < 16) {   
         int16_t value = getValue(buffer + 1, channel);
         
         return value? util::map(static_cast<int>(value), 160, 1850, -1500, 1500) : 0;
