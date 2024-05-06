@@ -5,8 +5,8 @@
  * Created on December 7, 2021, 12:34 PM
  */
 
-#ifndef RECEIVER_H
-#define	RECEIVER_H
+#ifndef SBUS_H
+#define	SBUS_H
 
 #include "device.h"
 
@@ -17,8 +17,11 @@
 namespace sbus {
 	void init();
 
+    bool available();
 	int16_t getChannel(uint8_t channel);  // Channels start from 0
+    bool frameLost();
+    bool failsafeActive();
 }
 
-#endif	/* RECEIVER_H */
+#endif	/* SBUS_H */
 

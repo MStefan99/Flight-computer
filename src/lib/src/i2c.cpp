@@ -4,14 +4,15 @@
 
 
 void i2c::init() { // GCLK config
-	GCLK_REGS->GCLK_PCHCTRL[20] = GCLK_PCHCTRL_CHEN(1) // Enable SERCOM2 clock
+	GCLK_REGS->GCLK_PCHCTRL[SERCOM2_GCLK_ID_CORE] = GCLK_PCHCTRL_CHEN(1) // Enable SERCOM3 clock
 					| GCLK_PCHCTRL_GEN_GCLK0; //Set GCLK0 as a clock source
 
 	// PORT config
-	PORT_REGS->GROUP[0].PORT_PINCFG[8] = PORT_PINCFG_PMUXEN(1); // Enable mux on pin 8
-	PORT_REGS->GROUP[0].PORT_PINCFG[9] = PORT_PINCFG_PMUXEN(1); // Enable mux on pin 9
-	PORT_REGS->GROUP[0].PORT_PMUX[4] = PORT_PMUX_PMUXE_D // Mux pin 8 to SERCOM2
-					| PORT_PMUX_PMUXO_D; // Mux pin 9 to SERCOM2
+    PORT_REGS->GROUP[0].PORT_WRCONFIG = PORT_WRCONFIG_PINMASK((0x1 << 8u) | (0x1 << 9u))
+            | PORT_WRCONFIG_PMUXEN(1)
+            | PORT_WRCONFIG_PMUX(MUX_PA08D_SERCOM2_PAD0)
+            | PORT_WRCONFIG_WRPMUX(1)
+            | PORT_WRCONFIG_WRPINCFG(1);
 
 	// DMA config
 	dma::initI2C();
