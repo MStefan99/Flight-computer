@@ -53,21 +53,21 @@ int main() {
     while (1) {
         ADC_REGS->ADC_SWTRIG = ADC_SWTRIG_START(1); // Start conversion
         while (!(ADC_REGS->ADC_INTFLAG & ADC_INTFLAG_RESRDY_Msk)); // Wait for ADC result
-        data::statusDescriptor.bTemp = tempR + ((ADC_REGS->ADC_RESULT - adcR) * (tempH - tempR) / (adcH - adcR));
+        data::statusDescriptor.temperature = tempR + ((ADC_REGS->ADC_RESULT - adcR) * (tempH - tempR) / (adcH - adcR));
         
         LSM6DSO32::update();
         
         for (uint8_t i {0}; i < 3; ++i) {
-            data::statusDescriptor.wAcc[i] = LSM6DSO32::getRawAcc()[i][0];
-            data::statusDescriptor.wRot[i] = LSM6DSO32::getRawRot()[i][0];
+            data::statusDescriptor.accelerations[i] = LSM6DSO32::getRawAcc()[2 - i][0];
+            data::statusDescriptor.angularRates[i] = LSM6DSO32::getRawRot()[2 - i][0];
         }
         
         mahony.updateIMU(LSM6DSO32::getRot(), LSM6DSO32::getAcc(), 0.01f);
         Quaternion deviceOrientation {mahony.getQuat()};
         auto deviceAngles {deviceOrientation.toEuler()};
         
-        data::statusDescriptor.wPitch = deviceAngles[1][0] * ATT_LSB;
-        data::statusDescriptor.wRoll = deviceAngles[2][0] * ATT_LSB;
+        data::statusDescriptor.pitch = deviceAngles[1][0] * ATT_LSB;
+        data::statusDescriptor.roll = deviceAngles[2][0] * ATT_LSB;
         
         Quaternion targetOrientation {Quaternion::fromEuler(deviceAngles[0][0], data::inputs[1][0], data::inputs[0][0])};
         Quaternion cameraOrientation {};

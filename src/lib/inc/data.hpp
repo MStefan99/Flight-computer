@@ -19,60 +19,66 @@ namespace data {
     constexpr uint8_t outputChannelCount {8};
     constexpr uint8_t muxLength {inputChannelCount * outputChannelCount};
 
-    enum class DATA_REQUEST : uint8_t {
-        READ = 0x00,
-        WRITE = 0x01,
+    enum class CommandType : uint8_t {
+        GetVariable = 0x0,
+        SetVariable = 0x1,
+        Calibration = 0x2
+    };
+    
+    enum class ResponseType : uint8_t {
+        ReturnVariable = 0x0
     };
 
-    enum class DATA_DESCRIPTOR_TYPE : uint8_t {
-        STATUS = 0x00,
-        SETTINGS = 0x01,
-        INPUTS = 0x02,
-        MUX = 0x03,
-        TRIMS = 0x04,
-        OUTPUTS = 0x05
+    enum class VariableID : uint8_t {
+        Status = 0x0,
+        Settings = 0x1,
+        Inputs = 0x2,
+        Mux = 0x3,
+        Trims = 0x4,
+        Limits = 0x5,
+        Outputs = 0x6,
     };
 
     struct __attribute__((packed)) usb_data_status_descriptor {
-        const uint8_t bLength {sizeof(usb_data_status_descriptor)};
-        const uint8_t bDescriptorType {static_cast<uint8_t>(DATA_DESCRIPTOR_TYPE::STATUS)};
-        int8_t bTemp;
-        uint8_t bmActiveSensors;
-        int16_t wAcc[3];
-        int16_t wRot[3];
-        int16_t wRoll;
-        int16_t wPitch;
+        const uint8_t responseType {static_cast<uint8_t>(ResponseType::ReturnVariable)};
+        const uint8_t variableID {static_cast<uint8_t>(VariableID::Status)};
+        int8_t temperature;
+        uint8_t activeSensors;
+        int16_t accelerations[3];  // ZYX
+        int16_t angularRates[3];  // Yaw - pitch - roll
+        int16_t pitch;
+        int16_t roll;
     };
 
     struct __attribute__((packed)) usb_data_settings_descriptor {
-        const uint8_t bLength {sizeof(usb_data_settings_descriptor)};
-        const uint8_t bDescriptorType {static_cast<uint8_t>(DATA_DESCRIPTOR_TYPE::SETTINGS)};
-        uint8_t bInputChannels {inputChannelCount};
-        uint8_t bOutputChannels {outputChannelCount};
+        const uint8_t responseType {static_cast<uint8_t>(ResponseType::ReturnVariable)};
+        const uint8_t variableID {static_cast<uint8_t>(VariableID::Settings)};
+        uint8_t inputChannelCount {inputChannelCount};
+        uint8_t outputChannelCount {outputChannelCount};
     };
 
     struct __attribute__((packed)) usb_data_inputs_descriptor {
-        const uint8_t bLength {sizeof(usb_data_inputs_descriptor)};
-        const uint8_t bDescriptorType {static_cast<uint8_t>(DATA_DESCRIPTOR_TYPE::INPUTS)};
-        int16_t wInputs[inputChannelCount];
+        const uint8_t responseType {static_cast<uint8_t>(ResponseType::ReturnVariable)};
+        const uint8_t variableID {static_cast<uint8_t>(VariableID::Inputs)};
+        int16_t inputs[inputChannelCount];
     };
 
     struct __attribute__((packed)) usb_data_mux_descriptor {
-        const uint8_t bLength {sizeof(usb_data_mux_descriptor)};
-        const uint8_t bDescriptorType {static_cast<uint8_t>(DATA_DESCRIPTOR_TYPE::MUX)};
-        int16_t wMux[muxLength];
+        const uint8_t responseType {static_cast<uint8_t>(ResponseType::ReturnVariable)};
+        const uint8_t variableID {static_cast<uint8_t>(VariableID::Mux)};
+        int16_t mux[muxLength];
     };
 
     struct __attribute__((packed)) usb_data_trims_descriptor {
-        const uint8_t bLength {sizeof(usb_data_trims_descriptor)};
-        const uint8_t bDescriptorType {static_cast<uint8_t>(DATA_DESCRIPTOR_TYPE::TRIMS)};
-        int16_t wTrims[outputChannelCount];
+        const uint8_t responseType {static_cast<uint8_t>(ResponseType::ReturnVariable)};
+        const uint8_t variableID {static_cast<uint8_t>(VariableID::Trims)};
+        int16_t trims[outputChannelCount];
     };
 
     struct __attribute__((packed)) usb_data_outputs_descriptor {
-        const uint8_t bLength {sizeof(usb_data_outputs_descriptor)};
-        const uint8_t bDescriptorType {static_cast<uint8_t>(DATA_DESCRIPTOR_TYPE::OUTPUTS)};
-        int16_t wOutputs[outputChannelCount];
+        const uint8_t responseType {static_cast<uint8_t>(ResponseType::ReturnVariable)};
+        const uint8_t variableID {static_cast<uint8_t>(VariableID::Outputs)};
+        int16_t outputs[outputChannelCount];
     };
 
     

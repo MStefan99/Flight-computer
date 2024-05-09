@@ -163,31 +163,31 @@ static void vendorRequestHandler() {
 
 void endpoint1Handler() {
     if (USB_REGS->DEVICE.DEVICE_ENDPOINT[1].USB_EPINTFLAG & USB_DEVICE_EPINTFLAG_TRCPT0_Msk) { // OUT transfer
-        if (EP1REQ.bRequest == static_cast<uint8_t>(data::DATA_REQUEST::READ)) {
+        if (EP1REQ.bRequest == static_cast<uint8_t>(data::CommandType::GetVariable)) {
             switch (EP1REQ.bValue) {
-                case static_cast<uint8_t>(data::DATA_DESCRIPTOR_TYPE::SETTINGS):
+                case static_cast<uint8_t>(data::VariableID::Settings):
                     write(reinterpret_cast<uint8_t*>(&data::settingsDescriptor), sizeof (data::usb_data_settings_descriptor));
                     break;
-                case static_cast<uint8_t>(data::DATA_DESCRIPTOR_TYPE::INPUTS):
+                case static_cast<uint8_t>(data::VariableID::Inputs):
                     write(reinterpret_cast<uint8_t*>(&data::inputsDescriptor), sizeof (data::usb_data_inputs_descriptor));
                     break;
-                case static_cast<uint8_t>(data::DATA_DESCRIPTOR_TYPE::MUX):
+                case static_cast<uint8_t>(data::VariableID::Mux):
                     write(reinterpret_cast<uint8_t*>(&data::muxDescriptor), sizeof (data::usb_data_mux_descriptor));
                     break;
-                case static_cast<uint8_t>(data::DATA_DESCRIPTOR_TYPE::TRIMS):
+                case static_cast<uint8_t>(data::VariableID::Trims):
                     write(reinterpret_cast<uint8_t*>(&data::trimsDescriptor), sizeof (data::usb_data_trims_descriptor));
                     break;
-                case static_cast<uint8_t>(data::DATA_DESCRIPTOR_TYPE::OUTPUTS):
+                case static_cast<uint8_t>(data::VariableID::Outputs):
                     write(reinterpret_cast<uint8_t*>(&data::outputsDescriptor), sizeof (data::usb_data_outputs_descriptor));
                     break;
             }
         } else {
             switch (EP1REQ.bValue) {
-                case static_cast<uint8_t>(data::DATA_DESCRIPTOR_TYPE::MUX):
-                    util::copy(data::muxDescriptor.wMux, reinterpret_cast<int16_t*>(EP1REQ.bData), data::muxLength);
+                case static_cast<uint8_t>(data::VariableID::Mux):
+                    util::copy(data::muxDescriptor.mux, reinterpret_cast<int16_t*>(EP1REQ.bData), data::muxLength);
                     break;
-                case static_cast<uint8_t>(data::DATA_DESCRIPTOR_TYPE::TRIMS):
-                    util::copy(data::trimsDescriptor.wTrims, reinterpret_cast<int16_t*>(EP1REQ.bData), data::outputChannelCount);
+                case static_cast<uint8_t>(data::VariableID::Trims):
+                    util::copy(data::trimsDescriptor.trims, reinterpret_cast<int16_t*>(EP1REQ.bData), data::outputChannelCount);
                     break;
             }
         }
