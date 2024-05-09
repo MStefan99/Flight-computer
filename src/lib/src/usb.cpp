@@ -166,28 +166,28 @@ void endpoint1Handler() {
         if (EP1REQ.bRequest == static_cast<uint8_t>(data::CommandType::GetVariable)) {
             switch (EP1REQ.bValue) {
                 case static_cast<uint8_t>(data::VariableID::Settings):
-                    write(reinterpret_cast<uint8_t*>(&data::settingsDescriptor), sizeof (data::usb_data_settings_descriptor));
+                    write(reinterpret_cast<uint8_t*>(&data::usbSettingsResponse), sizeof (data::USBSettingsResponse));
                     break;
                 case static_cast<uint8_t>(data::VariableID::Inputs):
-                    write(reinterpret_cast<uint8_t*>(&data::inputsDescriptor), sizeof (data::usb_data_inputs_descriptor));
+                    write(reinterpret_cast<uint8_t*>(&data::usbInputsResponse), sizeof (data::USBInputsResponse));
                     break;
                 case static_cast<uint8_t>(data::VariableID::Mux):
-                    write(reinterpret_cast<uint8_t*>(&data::muxDescriptor), sizeof (data::usb_data_mux_descriptor));
+                    write(reinterpret_cast<uint8_t*>(&data::usbMixesResponse), sizeof (data::USBMixesResponse));
                     break;
                 case static_cast<uint8_t>(data::VariableID::Trims):
-                    write(reinterpret_cast<uint8_t*>(&data::trimsDescriptor), sizeof (data::usb_data_trims_descriptor));
+                    write(reinterpret_cast<uint8_t*>(&data::usbTrimsResponse), sizeof (data::USBTrimsResponse));
                     break;
                 case static_cast<uint8_t>(data::VariableID::Outputs):
-                    write(reinterpret_cast<uint8_t*>(&data::outputsDescriptor), sizeof (data::usb_data_outputs_descriptor));
+                    write(reinterpret_cast<uint8_t*>(&data::usbOutputsResponse), sizeof (data::USBOutputsResponse));
                     break;
             }
         } else {
             switch (EP1REQ.bValue) {
                 case static_cast<uint8_t>(data::VariableID::Mux):
-                    util::copy(data::muxDescriptor.mux, reinterpret_cast<int16_t*>(EP1REQ.bData), data::muxLength);
+                    util::copy(data::usbMixesResponse.mixes, reinterpret_cast<int16_t*>(EP1REQ.bData), data::mixesLength);
                     break;
                 case static_cast<uint8_t>(data::VariableID::Trims):
-                    util::copy(data::trimsDescriptor.trims, reinterpret_cast<int16_t*>(EP1REQ.bData), data::outputChannelCount);
+                    util::copy(data::usbTrimsResponse.trims, reinterpret_cast<int16_t*>(EP1REQ.bData), data::outputChannelCount);
                     break;
             }
         }
@@ -206,7 +206,7 @@ static void enableEndpoints(uint8_t configurationNumber) {
     USB_REGS->DEVICE.DEVICE_ENDPOINT[1].USB_EPINTENSET = USB_DEVICE_EPINTENSET_TRCPT0(1) // Enable OUT endpoint interrupt
             | USB_DEVICE_EPINTENSET_TRCPT1(1); // Enable IN endpoint interrupt
 
-    writeDefault(reinterpret_cast<const uint8_t*>(&data::statusDescriptor), sizeof(data::usb_data_status_descriptor));
+    writeDefault(reinterpret_cast<const uint8_t*>(&data::usbStatusResponse), sizeof(data::USBStatusResponse));
 }
 
 void usb::init() {

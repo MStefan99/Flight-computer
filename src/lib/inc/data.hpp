@@ -17,7 +17,7 @@
 namespace data {
     constexpr uint8_t inputChannelCount {8};
     constexpr uint8_t outputChannelCount {8};
-    constexpr uint8_t muxLength {inputChannelCount * outputChannelCount};
+    constexpr uint8_t mixesLength {inputChannelCount * outputChannelCount};
 
     enum class CommandType : uint8_t {
         GetVariable = 0x0,
@@ -39,7 +39,7 @@ namespace data {
         Outputs = 0x6,
     };
 
-    struct __attribute__((packed)) usb_data_status_descriptor {
+    struct __attribute__((packed)) USBStatusResponse {
         const uint8_t responseType {static_cast<uint8_t>(ResponseType::ReturnVariable)};
         const uint8_t variableID {static_cast<uint8_t>(VariableID::Status)};
         int8_t temperature;
@@ -50,47 +50,47 @@ namespace data {
         int16_t roll;
     };
 
-    struct __attribute__((packed)) usb_data_settings_descriptor {
+    struct __attribute__((packed)) USBSettingsResponse {
         const uint8_t responseType {static_cast<uint8_t>(ResponseType::ReturnVariable)};
         const uint8_t variableID {static_cast<uint8_t>(VariableID::Settings)};
-        uint8_t inputChannelCount {inputChannelCount};
-        uint8_t outputChannelCount {outputChannelCount};
+        const uint8_t inputChannelCount {data::inputChannelCount};
+        const uint8_t outputChannelCount {data::outputChannelCount};
     };
 
-    struct __attribute__((packed)) usb_data_inputs_descriptor {
+    struct __attribute__((packed)) USBInputsResponse {
         const uint8_t responseType {static_cast<uint8_t>(ResponseType::ReturnVariable)};
         const uint8_t variableID {static_cast<uint8_t>(VariableID::Inputs)};
         int16_t inputs[inputChannelCount];
     };
 
-    struct __attribute__((packed)) usb_data_mux_descriptor {
+    struct __attribute__((packed)) USBMixesResponse {
         const uint8_t responseType {static_cast<uint8_t>(ResponseType::ReturnVariable)};
         const uint8_t variableID {static_cast<uint8_t>(VariableID::Mux)};
-        int16_t mux[muxLength];
+        int16_t mixes[mixesLength];
     };
 
-    struct __attribute__((packed)) usb_data_trims_descriptor {
+    struct __attribute__((packed)) USBTrimsResponse {
         const uint8_t responseType {static_cast<uint8_t>(ResponseType::ReturnVariable)};
         const uint8_t variableID {static_cast<uint8_t>(VariableID::Trims)};
         int16_t trims[outputChannelCount];
     };
 
-    struct __attribute__((packed)) usb_data_outputs_descriptor {
+    struct __attribute__((packed)) USBOutputsResponse {
         const uint8_t responseType {static_cast<uint8_t>(ResponseType::ReturnVariable)};
         const uint8_t variableID {static_cast<uint8_t>(VariableID::Outputs)};
         int16_t outputs[outputChannelCount];
     };
 
     
-    extern usb_data_status_descriptor statusDescriptor;
-    extern usb_data_settings_descriptor settingsDescriptor;
-    extern usb_data_inputs_descriptor inputsDescriptor;
-    extern usb_data_mux_descriptor muxDescriptor;
-    extern usb_data_trims_descriptor trimsDescriptor;
-    extern usb_data_outputs_descriptor outputsDescriptor;
+    extern USBStatusResponse usbStatusResponse;
+    extern USBSettingsResponse usbSettingsResponse;
+    extern USBInputsResponse usbInputsResponse;
+    extern USBMixesResponse usbMixesResponse;
+    extern USBTrimsResponse usbTrimsResponse;
+    extern USBOutputsResponse usbOutputsResponse;
     
     extern InlineMatrix<int16_t, uint8_t, inputChannelCount, 1> inputs;
-    extern InlineMatrix<int16_t, uint8_t, inputChannelCount, outputChannelCount> mux;
+    extern InlineMatrix<int16_t, uint8_t, inputChannelCount, outputChannelCount> mixes;
     extern InlineMatrix<int16_t, uint8_t, 1, outputChannelCount> trims;
     extern InlineMatrix<int16_t, uint8_t, 1, outputChannelCount> outputs;
 }
