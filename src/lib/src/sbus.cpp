@@ -93,7 +93,7 @@ void sbus::init() {
 
 
 bool sbus::available() {
-    return util::getTime() - lastPacketReceived < 20;
+    return bytesReceived && (util::getTime() - lastPacketReceived < 20);
 }
 
 

@@ -16,18 +16,48 @@ template <class scalar = float, class size_type = unsigned int, size_type h = 1,
 class InlineMatrix : public Matrix<scalar, size_type, h, w> {
 public:
     constexpr InlineMatrix() = delete;
-    constexpr explicit InlineMatrix(scalar values[h * w]);
+    constexpr explicit InlineMatrix(scalar* values);
 	constexpr InlineMatrix(const std::initializer_list<std::initializer_list<scalar>>& values) = delete;
 	constexpr InlineMatrix(const InlineMatrix& matrix) = delete;
-	constexpr InlineMatrix& operator=(const InlineMatrix& matrix) = delete;
+    
+	constexpr InlineMatrix& operator=(const Matrix<scalar, size_type, h, w>& matrix);
+    
+	constexpr scalar* operator[](size_type i);
+	constexpr const scalar* operator[](size_type i) const;
     
 protected:
-    scalar* _values;
+    scalar* _values {nullptr};
 };
 
+
 template <class scalar, class size_type, size_type h, size_type w>
-constexpr InlineMatrix<scalar, size_type, h, w>::InlineMatrix(scalar values[h * w]) {
+constexpr InlineMatrix<scalar, size_type, h, w>::InlineMatrix(scalar* values) {
     _values = values;
+}
+
+
+template <class scalar, class size_type, size_type h, size_type w>
+constexpr scalar* InlineMatrix<scalar, size_type, h, w>::operator[](size_type i) {
+	return _values + (i * w);
+}
+
+
+template <class scalar, class size_type, size_type h, size_type w>
+constexpr const scalar* InlineMatrix<scalar, size_type, h, w>::operator[](size_type i) const {
+	return _values + (i * w);
+}
+
+
+template <class scalar, class size_type, size_type h, size_type w>
+constexpr InlineMatrix<scalar, size_type, h, w>& InlineMatrix<scalar, size_type, h, w>::operator=(const Matrix<scalar, size_type, h, w>& matrix) {
+	if (this != &matrix) {
+		for (size_type j {0}; j < h; ++j) {
+			for (size_type i {0}; i < w; ++i) {
+				this->operator[](j)[i] = matrix[j][i];
+			}
+		}
+	}
+	return *this;
 }
 
 #endif	/* INLINEMATRIX_HPP */

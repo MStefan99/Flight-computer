@@ -91,8 +91,8 @@ namespace data {
     
     extern InlineMatrix<int16_t, uint8_t, inputChannelCount, 1> inputs;
     extern InlineMatrix<int16_t, uint8_t, inputChannelCount, outputChannelCount> mixes;
-    extern InlineMatrix<int16_t, uint8_t, 1, outputChannelCount> trims;
-    extern InlineMatrix<int16_t, uint8_t, 1, outputChannelCount> outputs;
+    extern InlineMatrix<int16_t, uint8_t, outputChannelCount, 1> trims;
+    extern InlineMatrix<int16_t, uint8_t, outputChannelCount, 1> outputs;
 }
 
 #endif	/* DATA_HPP */

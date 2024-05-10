@@ -25,11 +25,10 @@ public:
 	constexpr Matrix(const Matrix& matrix);
 	constexpr Matrix& operator=(const Matrix& matrix);
 
-	static constexpr Matrix identity();
+	constexpr static Matrix identity();
 
-	scalar constexpr* operator[](size_type i);
-
-	const constexpr scalar* operator[](size_type i) const;
+	constexpr scalar* operator[](size_type i);
+	constexpr const scalar* operator[](size_type i) const;
 
 	constexpr Matrix<scalar, size_type, w, h> transpose() const;
 	constexpr Matrix inverse() const;
@@ -44,6 +43,9 @@ public:
 	constexpr Matrix operator-(const Matrix& matrix) const;
 	template <size_type mw>
 	constexpr Matrix<scalar, size_type, h, mw> operator*(const Matrix<scalar, size_type, w, mw>& matrix) const;
+    // Multiplies matrices and scales each element. Useful for avoiding overflows
+    template <size_type mw>
+	constexpr Matrix<scalar, size_type, h, mw> multiplyAndScale(const Matrix<scalar, size_type, w, mw>& matrix, scalar factor) const;
 
 	constexpr Matrix multiplyComponents(const Matrix& matrix) const;
 	constexpr Matrix concat(const Matrix& matrix) const;
@@ -254,6 +256,24 @@ Matrix<scalar, size_type, h, w>::operator*(const Matrix<scalar, size_type, w, mw
 			scalar sum {0};
 			for (size_type k {0}; k < w; ++k) {
 				sum += this->operator[](i)[k] * matrix[k][j];
+			}
+			result[i][j] = sum;
+		}
+	}
+	return result;
+}
+
+
+template <class scalar, class size_type, size_type h, size_type w>
+template <size_type mw>
+constexpr Matrix<scalar, size_type, h, mw>
+Matrix<scalar, size_type, h, w>::multiplyAndScale(const Matrix<scalar, size_type, w, mw>& matrix, scalar factor) const {
+	Matrix<scalar, size_type, h, mw> result {};
+	for (size_type j {0}; j < matrix.getWidth(); ++j) {
+		for (size_type i {0}; i < h; ++i) {
+			scalar sum {0};
+			for (size_type k {0}; k < w; ++k) {
+				sum += this->operator[](i)[k] * matrix[k][j] * factor;
 			}
 			result[i][j] = sum;
 		}

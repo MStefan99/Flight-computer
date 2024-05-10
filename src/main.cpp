@@ -33,6 +33,7 @@ int main() {
     servo::init();
     LSM6DSO32::init();
     usb::init();
+    uart::init();
     
     Mahony mahony {};
     
@@ -69,36 +70,40 @@ int main() {
         data::usbStatusResponse.pitch = deviceAngles[1][0] * ATT_LSB;
         data::usbStatusResponse.roll = deviceAngles[2][0] * ATT_LSB;
         
-        Quaternion targetOrientation {Quaternion::fromEuler(deviceAngles[0][0], data::inputs[1][0], data::inputs[0][0])};
-        Quaternion cameraOrientation {};
-        
-        Quaternion deviceRotation {targetOrientation * deviceOrientation.conjugate()};
-        
-        mode = static_cast<Mode>((sbus::getChannel(3) + 1200) / 300);
+        float pitchTarget {0};
+        float rollTarget {0};
         
         if (!sbus::available()) {
             PORT_REGS->GROUP[0].PORT_OUTSET = 0x1 << 27u;
             mode = Mode::Attitude;
+            pitchTarget = rollTarget = 0;
         } else {
             PORT_REGS->GROUP[0].PORT_OUTCLR = 0x1 << 27u;
+            pitchTarget = sbus::getChannel(0) / 1273.0f;
+            rollTarget = sbus::getChannel(1) / 1273.0f;
+            mode = static_cast<Mode>((sbus::getChannel(3) + 1200) / 300);
         }
         
+        Quaternion targetOrientation {Quaternion::fromEuler(deviceAngles[0][0], pitchTarget, rollTarget)};
+        Quaternion cameraOrientation {};
+        Quaternion deviceRotation {targetOrientation * deviceOrientation.conjugate()};
+        
         switch (mode) {
-            case (Mode::Manual): {   
-                servo::setChannel(0, sbus::getChannel(0));
-                servo::setChannel(1, sbus::getChannel(1));
+            case (Mode::Manual): {
+                data::inputs[0][0] = sbus::getChannel(0);
+                data::inputs[1][0] = sbus::getChannel(1);
                 break;
             }
             case (Mode::Attitude): {
                 auto rotationAngles {deviceRotation.toEuler()};
                 
-                servo::setChannel(0, rotationAngles[2][0] * 1910);
-                servo::setChannel(1, rotationAngles[1][0] * 1910);
+                data::inputs[0][0] = rotationAngles[2][0] * 1273;
+                data::inputs[1][0] = rotationAngles[1][0] * 1273;
                 break;
             }
             default: {
                 for (uint8_t i {0}; i < 8; ++i) {
-                    servo::setChannel(i, 0);
+                    data::inputs[i][0] = 0;
                 }
                 break;
             }
@@ -107,9 +112,15 @@ int main() {
         Quaternion cameraRotation {cameraOrientation * deviceOrientation.conjugate()};
         auto cameraAngles {cameraRotation.toEuler()};
         
-        servo::setChannel(2, cameraAngles[0][0] * 1273);
-        servo::setChannel(3, cameraAngles[1][0] * 1273);
-        servo::setChannel(4, cameraAngles[2][0] * 1273);
+        for (uint8_t i {0}; i < 3; ++i) {
+            data::inputs[i + 2][0] = cameraAngles[i][0] * 1273;
+        }
+        
+        data::outputs = data::mixes.multiplyAndScale(data::inputs, 1e-6) + data::trims;
+        
+        for (uint8_t i {0}; i < 8; ++i) {
+            servo::setChannel(i, data::outputs[i][0]);
+        }
         
         util::sleep(10);
     }
