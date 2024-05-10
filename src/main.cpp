@@ -116,9 +116,9 @@ int main() {
             data::inputs[i + 2][0] = cameraAngles[i][0] * 1273;
         }
         
-        data::outputs = data::mixes.multiplyAndScale(data::inputs, 1e-6) + data::trims;
+        data::calculateOutputs();
         
-        for (uint8_t i {0}; i < 8; ++i) {
+        for (uint8_t i {0}; i < data::outputChannelNumber; ++i) {
             servo::setChannel(i, data::outputs[i][0]);
         }
         

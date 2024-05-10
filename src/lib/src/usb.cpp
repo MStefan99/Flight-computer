@@ -177,6 +177,9 @@ void endpoint1Handler() {
                 case static_cast<uint8_t>(data::VariableID::Trims):
                     write(reinterpret_cast<uint8_t*>(&data::usbTrimsResponse), sizeof (data::USBTrimsResponse));
                     break;
+                case static_cast<uint8_t>(data::VariableID::Limits):
+                    write(reinterpret_cast<uint8_t*>(&data::usbLimitsResponse), sizeof (data::USBLimitsResponse));
+                    break;
                 case static_cast<uint8_t>(data::VariableID::Outputs):
                     write(reinterpret_cast<uint8_t*>(&data::usbOutputsResponse), sizeof (data::USBOutputsResponse));
                     break;
@@ -184,10 +187,13 @@ void endpoint1Handler() {
         } else {
             switch (EP1REQ.bValue) {
                 case static_cast<uint8_t>(data::VariableID::Mux):
-                    util::copy(data::usbMixesResponse.mixes, reinterpret_cast<int16_t*>(EP1REQ.bData), data::mixesLength);
+                    util::copy(data::usbMixesResponse.mixes, reinterpret_cast<int16_t*>(EP1REQ.bData), data::mixesNumber);
                     break;
                 case static_cast<uint8_t>(data::VariableID::Trims):
-                    util::copy(data::usbTrimsResponse.trims, reinterpret_cast<int16_t*>(EP1REQ.bData), data::outputChannelCount);
+                    util::copy(data::usbTrimsResponse.trims, reinterpret_cast<int16_t*>(EP1REQ.bData), data::outputChannelNumber);
+                    break;
+                case static_cast<uint8_t>(data::VariableID::Limits):
+                    util::copy(data::usbLimitsResponse.limits, reinterpret_cast<int16_t*>(EP1REQ.bData), data::outputChannelNumber * 2);
                     break;
             }
         }

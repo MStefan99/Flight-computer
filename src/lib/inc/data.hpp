@@ -15,9 +15,9 @@
 
 
 namespace data {
-    constexpr uint8_t inputChannelCount {8};
-    constexpr uint8_t outputChannelCount {8};
-    constexpr uint8_t mixesLength {inputChannelCount * outputChannelCount};
+    constexpr uint8_t inputChannelNumber {8};
+    constexpr uint8_t outputChannelNumber {8};
+    constexpr uint8_t mixesNumber {inputChannelNumber * outputChannelNumber};
 
     enum class CommandType : uint8_t {
         GetVariable = 0x0,
@@ -53,32 +53,38 @@ namespace data {
     struct __attribute__((packed)) USBSettingsResponse {
         const uint8_t responseType {static_cast<uint8_t>(ResponseType::ReturnVariable)};
         const uint8_t variableID {static_cast<uint8_t>(VariableID::Settings)};
-        const uint8_t inputChannelCount {data::inputChannelCount};
-        const uint8_t outputChannelCount {data::outputChannelCount};
+        const uint8_t inputChannelNumber {data::inputChannelNumber};
+        const uint8_t outputChannelNumber {data::outputChannelNumber};
     };
 
     struct __attribute__((packed)) USBInputsResponse {
         const uint8_t responseType {static_cast<uint8_t>(ResponseType::ReturnVariable)};
         const uint8_t variableID {static_cast<uint8_t>(VariableID::Inputs)};
-        int16_t inputs[inputChannelCount];
+        int16_t inputs[inputChannelNumber];
     };
 
     struct __attribute__((packed)) USBMixesResponse {
         const uint8_t responseType {static_cast<uint8_t>(ResponseType::ReturnVariable)};
         const uint8_t variableID {static_cast<uint8_t>(VariableID::Mux)};
-        int16_t mixes[mixesLength];
+        int16_t mixes[mixesNumber];
     };
 
     struct __attribute__((packed)) USBTrimsResponse {
         const uint8_t responseType {static_cast<uint8_t>(ResponseType::ReturnVariable)};
         const uint8_t variableID {static_cast<uint8_t>(VariableID::Trims)};
-        int16_t trims[outputChannelCount];
+        int16_t trims[outputChannelNumber];
+    };
+    
+    struct __attribute__((packed)) USBLimitsResponse {
+        const uint8_t responseType {static_cast<uint8_t>(ResponseType::ReturnVariable)};
+        const uint8_t variableID {static_cast<uint8_t>(VariableID::Limits)};
+        int16_t limits[outputChannelNumber * 2];
     };
 
     struct __attribute__((packed)) USBOutputsResponse {
         const uint8_t responseType {static_cast<uint8_t>(ResponseType::ReturnVariable)};
         const uint8_t variableID {static_cast<uint8_t>(VariableID::Outputs)};
-        int16_t outputs[outputChannelCount];
+        int16_t outputs[outputChannelNumber];
     };
 
     
@@ -87,12 +93,17 @@ namespace data {
     extern USBInputsResponse usbInputsResponse;
     extern USBMixesResponse usbMixesResponse;
     extern USBTrimsResponse usbTrimsResponse;
+    extern USBLimitsResponse usbLimitsResponse;
     extern USBOutputsResponse usbOutputsResponse;
     
-    extern InlineMatrix<int16_t, uint8_t, inputChannelCount, 1> inputs;
-    extern InlineMatrix<int16_t, uint8_t, inputChannelCount, outputChannelCount> mixes;
-    extern InlineMatrix<int16_t, uint8_t, outputChannelCount, 1> trims;
-    extern InlineMatrix<int16_t, uint8_t, outputChannelCount, 1> outputs;
+    extern InlineMatrix<int16_t, uint8_t, inputChannelNumber, 1> inputs;
+    extern InlineMatrix<int16_t, uint8_t, inputChannelNumber, outputChannelNumber> mixes;
+    extern InlineMatrix<int16_t, uint8_t, outputChannelNumber, 1> trims;
+    extern InlineMatrix<int16_t, uint8_t, outputChannelNumber, 2> limits;
+    extern InlineMatrix<int16_t, uint8_t, outputChannelNumber, 1> outputs;
+    
+    
+    void calculateOutputs();
 }
 
 #endif	/* DATA_HPP */

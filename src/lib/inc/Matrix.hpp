@@ -186,12 +186,12 @@ constexpr Matrix<scalar, size_type, h, w> Matrix<scalar, size_type, h, w>::inver
 
 
 template <class scalar, class size_type, size_type h, size_type w>
-constexpr Matrix<scalar, size_type, h, w> Matrix<scalar, size_type, h, w>::operator*(scalar multiplier) const {
+constexpr Matrix<scalar, size_type, h, w> Matrix<scalar, size_type, h, w>::operator*(scalar factor) const {
 	Matrix<scalar, size_type, h, w> result {};
 
 	for (size_type j {0}; j < h; ++j) {
 		for (size_type i {0}; i < w; ++i) {
-			result[j][i] = this->operator[](j)[i] * multiplier;
+			result[j][i] = this->operator[](j)[i] / factor;
 		}
 	}
 	return result;

@@ -28,8 +28,8 @@
 
 namespace nvm {
     struct Options {
-        uint16_t mux[data::inputChannelCount * data::outputChannelCount] {};
-        uint16_t trims[data::outputChannelCount] {};
+        uint16_t mux[data::inputChannelNumber * data::outputChannelNumber] {};
+        uint16_t trims[data::outputChannelNumber] {};
     };
     
     namespace _internal {
