@@ -3,6 +3,7 @@
 
 
 data::USBStatusResponse data::usbStatusResponse {};
+data::USBSensorsResponse data::usbSensorsResponse {};
 data::USBSettingsResponse data::usbSettingsResponse {};
 data::USBInputsResponse data::usbInputsResponse {};
 data::USBMixesResponse data::usbMixesResponse {};

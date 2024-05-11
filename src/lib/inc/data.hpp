@@ -31,23 +31,34 @@ namespace data {
 
     enum class VariableID : uint8_t {
         Status = 0x0,
-        Settings = 0x1,
-        Inputs = 0x2,
-        Mux = 0x3,
-        Trims = 0x4,
-        Limits = 0x5,
-        Outputs = 0x6,
+        Sensors = 0x1,
+        Settings = 0x2,
+        Inputs = 0x3,
+        Mux = 0x4,
+        Trims = 0x5,
+        Limits = 0x6,
+        Outputs = 0x7,
     };
 
     struct __attribute__((packed)) USBStatusResponse {
         const uint8_t responseType {static_cast<uint8_t>(ResponseType::ReturnVariable)};
         const uint8_t variableID {static_cast<uint8_t>(VariableID::Status)};
+        uint8_t mode;
+        uint8_t _reserved0;
+        int16_t yaw;
+        int16_t pitch;
+        int16_t roll;
+    };
+    
+    struct __attribute__((packed)) USBSensorsResponse {
+        const uint8_t responseType {static_cast<uint8_t>(ResponseType::ReturnVariable)};
+        const uint8_t variableID {static_cast<uint8_t>(VariableID::Sensors)};
         int8_t temperature;
         uint8_t activeSensors;
         int16_t accelerations[3];  // ZYX
         int16_t angularRates[3];  // Yaw - pitch - roll
-        int16_t pitch;
-        int16_t roll;
+        int16_t magneticFields[3];
+        uint16_t airPressure;
     };
 
     struct __attribute__((packed)) USBSettingsResponse {
@@ -89,6 +100,7 @@ namespace data {
 
     
     extern USBStatusResponse usbStatusResponse;
+    extern USBSensorsResponse usbSensorsResponse;
     extern USBSettingsResponse usbSettingsResponse;
     extern USBInputsResponse usbInputsResponse;
     extern USBMixesResponse usbMixesResponse;
