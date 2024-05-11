@@ -28,8 +28,9 @@
 
 namespace nvm {
     struct Options {
-        uint16_t mux[data::inputChannelNumber * data::outputChannelNumber] {};
-        uint16_t trims[data::outputChannelNumber] {};
+        int16_t mixes[data::mixesNumber] {};
+        int16_t trims[data::outputChannelNumber] {};
+        int16_t limits[data::outputChannelNumber * 2] {};
     };
     
     namespace _internal {
@@ -47,6 +48,8 @@ namespace nvm {
     }
     
     extern const Options& options;
+    
+    void load();
     
     void write();
     

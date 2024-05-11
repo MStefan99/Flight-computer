@@ -28,6 +28,20 @@ static void nvmPageWrite(const uint8_t* address) {
     nvmWaitUntilReady();
 }
 
+void nvm::load() {
+    for (uint8_t i {0}; i < data::mixesNumber; ++i) {
+        data::usbMixesResponse.mixes[i] = nvm::options.mixes[i];
+    }
+    
+    for (uint8_t i {0}; i < data::outputChannelNumber; ++i) {
+        data::usbTrimsResponse.trims[i] = nvm::options.trims[i];
+    }
+    
+    for (uint8_t i {0}; i < data::outputChannelNumber * 2; ++i) {
+        data::usbLimitsResponse.limits[i] = nvm::options.limits[i];
+    }
+}
+
 void nvm::write() {
     if (_internal::modifiedRow == nullptr) {
         return; // No rows modified, nothing to do
