@@ -1,7 +1,7 @@
 #include "lib/inc/nvm.hpp"
 
 const nvm::_internal::Rows nvm::_internal::rows __attribute__((aligned(FLASH_ROW_SIZE),keep,space(prog))) {};
-const nvm::Options& nvm::options {nvm::_internal::rows.options};
+const nvm::Options* nvm::options {&nvm::_internal::rows.options};
 
 uint8_t nvm::_internal::rowCopy[FLASH_ROW_SIZE] {};
 const uint8_t* nvm::_internal::modifiedRow {nullptr};
@@ -30,15 +30,15 @@ static void nvmPageWrite(const uint8_t* address) {
 
 void nvm::load() {
     for (uint8_t i {0}; i < data::mixesNumber; ++i) {
-        data::usbMixesResponse.mixes[i] = nvm::options.mixes[i];
+        data::usbMixesResponse.mixes[i] = nvm::options->mixes[i];
     }
     
     for (uint8_t i {0}; i < data::outputChannelNumber; ++i) {
-        data::usbTrimsResponse.trims[i] = nvm::options.trims[i];
+        data::usbTrimsResponse.trims[i] = nvm::options->trims[i];
     }
     
     for (uint8_t i {0}; i < data::outputChannelNumber * 2; ++i) {
-        data::usbLimitsResponse.limits[i] = nvm::options.limits[i];
+        data::usbLimitsResponse.limits[i] = nvm::options->limits[i];
     }
 }
 

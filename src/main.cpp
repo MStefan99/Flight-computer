@@ -3,6 +3,7 @@
 
 #include "lib/inc/util.hpp"
 #include "lib/inc/data.hpp"
+#include "lib/inc/nvm.hpp"
 #include "lib/inc/usb.hpp"
 #include "lib/inc/i2c.hpp"
 #include "lib/inc/dma.hpp"
@@ -27,13 +28,14 @@ enum class Mode : uint8_t {
 int main() {
     util::init();
     
+    nvm::load();
+
     dma::init();
     sbus::init();
     i2c::init();
     servo::init();
     LSM6DSO32::init();
     usb::init();
-    uart::init();
     
     Mahony mahony {};
     

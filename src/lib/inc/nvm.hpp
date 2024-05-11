@@ -47,7 +47,7 @@ namespace nvm {
         extern const Rows rows;
     }
     
-    extern const Options& options;
+    extern const Options* options;
     
     void load();
     

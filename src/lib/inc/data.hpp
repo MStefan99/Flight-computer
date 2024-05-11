@@ -43,8 +43,6 @@ namespace data {
     struct __attribute__((packed)) USBStatusResponse {
         const uint8_t responseType {static_cast<uint8_t>(ResponseType::ReturnVariable)};
         const uint8_t variableID {static_cast<uint8_t>(VariableID::Status)};
-        uint8_t mode;
-        uint8_t _reserved0;
         int16_t yaw;
         int16_t pitch;
         int16_t roll;
@@ -53,8 +51,8 @@ namespace data {
     struct __attribute__((packed)) USBSensorsResponse {
         const uint8_t responseType {static_cast<uint8_t>(ResponseType::ReturnVariable)};
         const uint8_t variableID {static_cast<uint8_t>(VariableID::Sensors)};
-        int8_t temperature;
         uint8_t activeSensors;
+        int8_t temperature;
         int16_t accelerations[3];  // ZYX
         int16_t angularRates[3];  // Yaw - pitch - roll
         int16_t magneticFields[3];

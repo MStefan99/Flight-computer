@@ -165,6 +165,9 @@ void endpoint1Handler() {
     if (USB_REGS->DEVICE.DEVICE_ENDPOINT[1].USB_EPINTFLAG & USB_DEVICE_EPINTFLAG_TRCPT0_Msk) { // OUT transfer
         if (EP1REQ.bRequest == static_cast<uint8_t>(data::CommandType::GetVariable)) {
             switch (EP1REQ.bValue) {
+                case static_cast<uint8_t>(data::VariableID::Sensors):
+                    write(reinterpret_cast<uint8_t*>(&data::usbSensorsResponse), sizeof (data::USBSensorsResponse));
+                    break;
                 case static_cast<uint8_t>(data::VariableID::Settings):
                     write(reinterpret_cast<uint8_t*>(&data::usbSettingsResponse), sizeof (data::USBSettingsResponse));
                     break;
@@ -189,21 +192,21 @@ void endpoint1Handler() {
                 case static_cast<uint8_t>(data::VariableID::Mux):
                     util::copy(data::usbMixesResponse.mixes, reinterpret_cast<int16_t*>(EP1REQ.bData), data::mixesNumber);
                     for (uint8_t i {0}; i < data::mixesNumber; ++i) {
-                        nvm::edit(nvm::options.mixes + i, data::usbMixesResponse.mixes[i]);
+                        nvm::edit(nvm::options->mixes + i, data::usbMixesResponse.mixes[i]);
                     }
                     nvm::write();
                     break;
                 case static_cast<uint8_t>(data::VariableID::Trims):
                     util::copy(data::usbTrimsResponse.trims, reinterpret_cast<int16_t*>(EP1REQ.bData), data::outputChannelNumber);
                     for (uint8_t i {0}; i < data::outputChannelNumber; ++i) {
-                        nvm::edit(nvm::options.trims + i, data::usbTrimsResponse.trims[i]);
+                        nvm::edit(nvm::options->trims + i, data::usbTrimsResponse.trims[i]);
                     }
                     nvm::write();
                     break;
                 case static_cast<uint8_t>(data::VariableID::Limits):
                     util::copy(data::usbLimitsResponse.limits, reinterpret_cast<int16_t*>(EP1REQ.bData), data::outputChannelNumber * 2);
                     for (uint8_t i {0}; i < data::outputChannelNumber * 2; ++i) {
-                        nvm::edit(nvm::options.limits + i, data::usbLimitsResponse.limits[i]);
+                        nvm::edit(nvm::options->limits + i, data::usbLimitsResponse.limits[i]);
                     }
                     nvm::write();
                     break;
