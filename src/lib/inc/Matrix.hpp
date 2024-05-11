@@ -19,40 +19,40 @@
 template <class scalar = float, class size_type = unsigned int, size_type h = 1, size_type w = 1>
 class Matrix {
 public:
-	constexpr Matrix() = default;
-	constexpr explicit Matrix(scalar* values);
-	constexpr Matrix(const std::initializer_list<std::initializer_list<scalar>>& values);
-	constexpr Matrix(const Matrix& matrix);
-	constexpr Matrix& operator=(const Matrix& matrix);
+	Matrix() = default;
+	explicit Matrix(scalar* values);
+	Matrix(const std::initializer_list<std::initializer_list<scalar>>& values);
+	Matrix(const Matrix& matrix);
+	Matrix& operator=(const Matrix& matrix);
 
-	constexpr static Matrix identity();
+	static Matrix identity();
 
-	constexpr scalar* operator[](size_type i);
-	constexpr const scalar* operator[](size_type i) const;
+	virtual scalar* operator[](size_type i);
+	virtual const scalar* operator[](size_type i) const;
 
-	constexpr Matrix<scalar, size_type, w, h> transpose() const;
-	constexpr Matrix inverse() const;
+	Matrix<scalar, size_type, w, h> transpose() const;
+	Matrix inverse() const;
 
-	constexpr Matrix operator*(scalar multiplier) const;
-	constexpr Matrix& operator*=(scalar multiplier);
-	constexpr Matrix operator/(scalar multiplier) const;
-	constexpr Matrix& operator/=(scalar divisor);
-	constexpr Matrix operator-() const;
+	Matrix operator*(scalar multiplier) const;
+	Matrix& operator*=(scalar multiplier);
+	Matrix operator/(scalar multiplier) const;
+	Matrix& operator/=(scalar divisor);
+	Matrix operator-() const;
 
-	constexpr Matrix operator+(const Matrix& matrix) const;
-	constexpr Matrix operator-(const Matrix& matrix) const;
+	Matrix operator+(const Matrix& matrix) const;
+	Matrix operator-(const Matrix& matrix) const;
 	template <size_type mw>
-	constexpr Matrix<scalar, size_type, h, mw> operator*(const Matrix<scalar, size_type, w, mw>& matrix) const;
+	Matrix<scalar, size_type, h, mw> operator*(const Matrix<scalar, size_type, w, mw>& matrix) const;
     // Multiplies matrices and scales each element. Useful for avoiding overflows
     template <size_type mw>
-	constexpr Matrix<scalar, size_type, h, mw> multiplyAndScale(const Matrix<scalar, size_type, w, mw>& matrix, scalar factor) const;
+	Matrix<scalar, size_type, h, mw> multiplyAndScale(const Matrix<scalar, size_type, w, mw>& matrix, scalar factor) const;
 
-	constexpr Matrix multiplyComponents(const Matrix& matrix) const;
-	constexpr Matrix concat(const Matrix& matrix) const;
+	Matrix multiplyComponents(const Matrix& matrix) const;
+	Matrix concat(const Matrix& matrix) const;
 
-	constexpr size_type getWidth() const;
-	constexpr size_type getHeight() const;
-	constexpr scalar norm() const;
+	size_type getWidth() const;
+	size_type getHeight() const;
+	scalar norm() const;
 
 #ifdef MATRIX_IO
 	template <class sc, class st, int sh, int sw>
@@ -71,7 +71,7 @@ using Vector3 = Matrix<scalar, size_type, 3, 1>;
 
 
 template <class scalar, class size_type, size_type h, size_type w>
-constexpr Matrix<scalar, size_type, h, w>::Matrix(scalar* values) {
+Matrix<scalar, size_type, h, w>::Matrix(scalar* values) {
 	for (size_type i {0}; i < h * w; ++i) {
 		_values[i] = values[i];
 	}
@@ -79,7 +79,7 @@ constexpr Matrix<scalar, size_type, h, w>::Matrix(scalar* values) {
 
 
 template <class scalar, class size_type, size_type h, size_type w>
-constexpr Matrix<scalar, size_type, h, w>::Matrix(const std::initializer_list<std::initializer_list<scalar>>& values) {
+Matrix<scalar, size_type, h, w>::Matrix(const std::initializer_list<std::initializer_list<scalar>>& values) {
 	size_type j = 0;
 	for (auto& row: values) {
 		size_type i = 0;
@@ -92,7 +92,7 @@ constexpr Matrix<scalar, size_type, h, w>::Matrix(const std::initializer_list<st
 
 
 template <class scalar, class size_type, size_type h, size_type w>
-constexpr Matrix<scalar, size_type, h, w>::Matrix(const Matrix& matrix) {
+Matrix<scalar, size_type, h, w>::Matrix(const Matrix& matrix) {
 	for (size_type j {0}; j < h; ++j) {
 		for (size_type i {0}; i < w; ++i) {
 			this->operator[](j)[i] = matrix[j][i];
@@ -102,7 +102,7 @@ constexpr Matrix<scalar, size_type, h, w>::Matrix(const Matrix& matrix) {
 
 
 template <class scalar, class size_type, size_type h, size_type w>
-constexpr Matrix<scalar, size_type, h, w>& Matrix<scalar, size_type, h, w>::operator=(const Matrix& matrix) {
+Matrix<scalar, size_type, h, w>& Matrix<scalar, size_type, h, w>::operator=(const Matrix& matrix) {
 	if (this != &matrix) {
 		for (size_type j {0}; j < h; ++j) {
 			for (size_type i {0}; i < w; ++i) {
@@ -115,7 +115,7 @@ constexpr Matrix<scalar, size_type, h, w>& Matrix<scalar, size_type, h, w>::oper
 
 
 template <class scalar, class size_type, size_type h, size_type w>
-constexpr Matrix<scalar, size_type, h, w> Matrix<scalar, size_type, h, w>::identity() {
+Matrix<scalar, size_type, h, w> Matrix<scalar, size_type, h, w>::identity() {
 	Matrix<scalar, size_type, h, w> result {};
 
 	for (size_type i {0}; i < h; ++i) {
@@ -127,19 +127,19 @@ constexpr Matrix<scalar, size_type, h, w> Matrix<scalar, size_type, h, w>::ident
 
 
 template <class scalar, class size_type, size_type h, size_type w>
-constexpr scalar* Matrix<scalar, size_type, h, w>::operator[](size_type i) {
+scalar* Matrix<scalar, size_type, h, w>::operator[](size_type i) {
 	return _values + (i * w);
 }
 
 
 template <class scalar, class size_type, size_type h, size_type w>
-constexpr const scalar* Matrix<scalar, size_type, h, w>::operator[](size_type i) const {
+const scalar* Matrix<scalar, size_type, h, w>::operator[](size_type i) const {
 	return _values + (i * w);
 }
 
 
 template <class scalar, class size_type, size_type h, size_type w>
-constexpr Matrix<scalar, size_type, w, h> Matrix<scalar, size_type, h, w>::transpose() const {
+Matrix<scalar, size_type, w, h> Matrix<scalar, size_type, h, w>::transpose() const {
 	Matrix<scalar, size_type, w, h> result {};
 
 	for (size_type j {0}; j < h; ++j) {
@@ -152,7 +152,7 @@ constexpr Matrix<scalar, size_type, w, h> Matrix<scalar, size_type, h, w>::trans
 
 
 template <class scalar, class size_type, size_type h, size_type w>
-constexpr Matrix<scalar, size_type, h, w> Matrix<scalar, size_type, h, w>::inverse() const {
+Matrix<scalar, size_type, h, w> Matrix<scalar, size_type, h, w>::inverse() const {
 	Matrix temp {*this};
 	auto augmented {Matrix<scalar, size_type, h, h>::identity()};
 
@@ -186,7 +186,7 @@ constexpr Matrix<scalar, size_type, h, w> Matrix<scalar, size_type, h, w>::inver
 
 
 template <class scalar, class size_type, size_type h, size_type w>
-constexpr Matrix<scalar, size_type, h, w> Matrix<scalar, size_type, h, w>::operator*(scalar factor) const {
+Matrix<scalar, size_type, h, w> Matrix<scalar, size_type, h, w>::operator*(scalar factor) const {
 	Matrix<scalar, size_type, h, w> result {};
 
 	for (size_type j {0}; j < h; ++j) {
@@ -199,7 +199,7 @@ constexpr Matrix<scalar, size_type, h, w> Matrix<scalar, size_type, h, w>::opera
 
 
 template <class scalar, class size_type, size_type h, size_type w>
-constexpr Matrix<scalar, size_type, h, w>& Matrix<scalar, size_type, h, w>::operator*=(scalar multiplier) {
+Matrix<scalar, size_type, h, w>& Matrix<scalar, size_type, h, w>::operator*=(scalar multiplier) {
 	for (size_type j {0}; j < h; ++j) {
 		for (size_type i {0}; i < w; ++i) {
 			this->operator[](j)[i] *= multiplier;
@@ -210,7 +210,7 @@ constexpr Matrix<scalar, size_type, h, w>& Matrix<scalar, size_type, h, w>::oper
 
 
 template <class scalar, class size_type, size_type h, size_type w>
-constexpr Matrix<scalar, size_type, h, w> Matrix<scalar, size_type, h, w>::operator/(scalar multiplier) const {
+Matrix<scalar, size_type, h, w> Matrix<scalar, size_type, h, w>::operator/(scalar multiplier) const {
 	Matrix<scalar, size_type, h, w> result {};
 
 	for (size_type j {0}; j < h; ++j) {
@@ -223,7 +223,7 @@ constexpr Matrix<scalar, size_type, h, w> Matrix<scalar, size_type, h, w>::opera
 
 
 template <class scalar, class size_type, size_type h, size_type w>
-constexpr Matrix<scalar, size_type, h, w>& Matrix<scalar, size_type, h, w>::operator/=(scalar divisor) {
+Matrix<scalar, size_type, h, w>& Matrix<scalar, size_type, h, w>::operator/=(scalar divisor) {
 	for (size_type j {0}; j < h; ++j) {
 		for (size_type i {0}; i < w; ++i) {
 			this->operator[](j)[i] /= divisor;
@@ -234,7 +234,7 @@ constexpr Matrix<scalar, size_type, h, w>& Matrix<scalar, size_type, h, w>::oper
 
 
 template <class scalar, class size_type, size_type h, size_type w>
-constexpr Matrix<scalar, size_type, h, w> Matrix<scalar, size_type, h, w>::operator-() const {
+Matrix<scalar, size_type, h, w> Matrix<scalar, size_type, h, w>::operator-() const {
 	Matrix<scalar, size_type, h, w> result {};
 
 	for (size_type j {0}; j < h; ++j) {
@@ -248,7 +248,7 @@ constexpr Matrix<scalar, size_type, h, w> Matrix<scalar, size_type, h, w>::opera
 
 template <class scalar, class size_type, size_type h, size_type w>
 template <size_type mw>
-constexpr Matrix<scalar, size_type, h, mw>
+Matrix<scalar, size_type, h, mw>
 Matrix<scalar, size_type, h, w>::operator*(const Matrix<scalar, size_type, w, mw>& matrix) const {
 	Matrix<scalar, size_type, h, mw> result {};
 	for (size_type j {0}; j < matrix.getWidth(); ++j) {
@@ -266,14 +266,14 @@ Matrix<scalar, size_type, h, w>::operator*(const Matrix<scalar, size_type, w, mw
 
 template <class scalar, class size_type, size_type h, size_type w>
 template <size_type mw>
-constexpr Matrix<scalar, size_type, h, mw>
+Matrix<scalar, size_type, h, mw>
 Matrix<scalar, size_type, h, w>::multiplyAndScale(const Matrix<scalar, size_type, w, mw>& matrix, scalar factor) const {
 	Matrix<scalar, size_type, h, mw> result {};
 	for (size_type j {0}; j < matrix.getWidth(); ++j) {
 		for (size_type i {0}; i < h; ++i) {
 			scalar sum {0};
 			for (size_type k {0}; k < w; ++k) {
-				sum += this->operator[](i)[k] * matrix[k][j] * factor;
+				sum += this->operator[](i)[k] * matrix[k][j] / factor;
 			}
 			result[i][j] = sum;
 		}
@@ -283,7 +283,7 @@ Matrix<scalar, size_type, h, w>::multiplyAndScale(const Matrix<scalar, size_type
 
 
 template <class scalar, class size_type, size_type h, size_type w>
-constexpr Matrix<scalar, size_type, h, w> Matrix<scalar, size_type, h, w>::operator+(const Matrix& matrix) const {
+Matrix<scalar, size_type, h, w> Matrix<scalar, size_type, h, w>::operator+(const Matrix& matrix) const {
 	Matrix<scalar, size_type, h, w> result {};
 
 	for (size_type j {0}; j < h; ++j) {
@@ -296,7 +296,7 @@ constexpr Matrix<scalar, size_type, h, w> Matrix<scalar, size_type, h, w>::opera
 
 
 template <class scalar, class size_type, size_type h, size_type w>
-constexpr Matrix<scalar, size_type, h, w> Matrix<scalar, size_type, h, w>::operator-(const Matrix& matrix) const {
+Matrix<scalar, size_type, h, w> Matrix<scalar, size_type, h, w>::operator-(const Matrix& matrix) const {
 	Matrix<scalar, size_type, h, w> result {};
 
 	for (size_type j {0}; j < h; ++j) {
@@ -309,7 +309,7 @@ constexpr Matrix<scalar, size_type, h, w> Matrix<scalar, size_type, h, w>::opera
 
 
 template <class scalar, class size_type, size_type h, size_type w>
-constexpr Matrix<scalar, size_type, h, w>
+Matrix<scalar, size_type, h, w>
 Matrix<scalar, size_type, h, w>::multiplyComponents(const Matrix& matrix) const {
 	Matrix<scalar, size_type, h, w> result {};
 
@@ -323,7 +323,7 @@ Matrix<scalar, size_type, h, w>::multiplyComponents(const Matrix& matrix) const 
 
 
 template <class scalar, class size_type, size_type h, size_type w>
-constexpr Matrix<scalar, size_type, h, w> Matrix<scalar, size_type, h, w>::concat(const Matrix& matrix) const {
+Matrix<scalar, size_type, h, w> Matrix<scalar, size_type, h, w>::concat(const Matrix& matrix) const {
 	Matrix<scalar, size_type, h, w + matrix.getWidth()> result {};
 
 	for (size_type j {0}; j < h; ++j) {
@@ -339,19 +339,19 @@ constexpr Matrix<scalar, size_type, h, w> Matrix<scalar, size_type, h, w>::conca
 
 
 template <class scalar, class size_type, size_type h, size_type w>
-constexpr size_type Matrix<scalar, size_type, h, w>::getWidth() const {
+size_type Matrix<scalar, size_type, h, w>::getWidth() const {
 	return w;
 }
 
 
 template <class scalar, class size_type, size_type h, size_type w>
-constexpr size_type Matrix<scalar, size_type, h, w>::getHeight() const {
+size_type Matrix<scalar, size_type, h, w>::getHeight() const {
 	return h;
 }
 
 
 template <class scalar, class size_type, size_type h, size_type w>
-constexpr scalar Matrix<scalar, size_type, h, w>::norm() const {
+scalar Matrix<scalar, size_type, h, w>::norm() const {
 	scalar norm {0};
 
 	for (size_type j {0}; j < h; ++j) {

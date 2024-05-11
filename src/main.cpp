@@ -102,7 +102,7 @@ int main() {
                 break;
             }
             default: {
-                for (uint8_t i {0}; i < 8; ++i) {
+                for (uint8_t i {0}; i < data::inputChannelNumber; ++i) {
                     data::inputs[i][0] = 0;
                 }
                 break;
