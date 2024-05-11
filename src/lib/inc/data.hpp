@@ -97,7 +97,7 @@ namespace data {
     extern USBOutputsResponse usbOutputsResponse;
     
     extern InlineMatrix<int16_t, uint8_t, inputChannelNumber, 1> inputs;
-    extern InlineMatrix<int16_t, uint8_t, inputChannelNumber, outputChannelNumber> mixes;
+    extern InlineMatrix<int16_t, uint8_t, outputChannelNumber, inputChannelNumber> mixes;
     extern InlineMatrix<int16_t, uint8_t, outputChannelNumber, 1> trims;
     extern InlineMatrix<int16_t, uint8_t, outputChannelNumber, 2> limits;
     extern InlineMatrix<int16_t, uint8_t, outputChannelNumber, 1> outputs;

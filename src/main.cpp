@@ -45,7 +45,7 @@ int main() {
     uint8_t tempH = (NVMTEMP[0] & 0xff0000) >> 12u;
     uint16_t adcH = (NVMTEMP[1] & 0xfff00000) >> 20u;
     
-    for (uint8_t i {0}; i < 8; ++i) {
+    for (uint8_t i {0}; i < data::outputChannelNumber; ++i) {
         servo::enable(i);
     }
     
@@ -84,10 +84,6 @@ int main() {
             mode = static_cast<Mode>((sbus::getChannel(3) + 1200) / 300);
         }
         
-        Quaternion targetOrientation {Quaternion::fromEuler(deviceAngles[0][0], pitchTarget, rollTarget)};
-        Quaternion cameraOrientation {};
-        Quaternion deviceRotation {targetOrientation * deviceOrientation.conjugate()};
-        
         switch (mode) {
             case (Mode::Manual): {
                 data::inputs[0][0] = sbus::getChannel(0);
@@ -95,7 +91,7 @@ int main() {
                 break;
             }
             case (Mode::Attitude): {
-                auto rotationAngles {deviceRotation.toEuler()};
+                auto rotationAngles {deviceOrientation.toEuler()};
                 
                 data::inputs[0][0] = rotationAngles[2][0] * 1273;
                 data::inputs[1][0] = rotationAngles[1][0] * 1273;
@@ -109,6 +105,7 @@ int main() {
             }
         }
         
+        Quaternion cameraOrientation {};
         Quaternion cameraRotation {cameraOrientation * deviceOrientation.conjugate()};
         auto cameraAngles {cameraRotation.toEuler()};
         

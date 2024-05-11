@@ -11,7 +11,7 @@ data::USBLimitsResponse data::usbLimitsResponse {};
 data::USBOutputsResponse data::usbOutputsResponse {};
 
 InlineMatrix<int16_t, uint8_t, data::inputChannelNumber, 1> data::inputs {data::usbInputsResponse.inputs};
-InlineMatrix<int16_t, uint8_t, data::inputChannelNumber, data::outputChannelNumber> data::mixes {data::usbMixesResponse.mixes};
+InlineMatrix<int16_t, uint8_t, data::outputChannelNumber, data::inputChannelNumber> data::mixes {data::usbMixesResponse.mixes};
 InlineMatrix<int16_t, uint8_t, data::outputChannelNumber, 1> data::trims {data::usbTrimsResponse.trims};
 InlineMatrix<int16_t, uint8_t, data::outputChannelNumber, 2> data::limits {data::usbLimitsResponse.limits};
 InlineMatrix<int16_t, uint8_t, data::outputChannelNumber, 1> data::outputs {data::usbOutputsResponse.outputs};
