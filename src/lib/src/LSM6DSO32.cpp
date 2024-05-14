@@ -3,11 +3,13 @@
 static constexpr float ACC_LSB {0.122f / 1000.0f}; // mg
 static constexpr float ROT_LSB {8.75f / 1000.0f}; // dps
 
-static int16_t rawAcc[3] {0};
-static int16_t rawRot[3] {0};
+static int16_t rawAccelerations[3] {0};
+static int16_t rawAngularRates[3] {0};
 
-static float acc[3] {0};
-static float rot[3] {0};
+static float rateOffsets[3] {0};
+
+static float accelerations[3] {0};
+static float angularRates[3] {0};
 
 
 void LSM6DSO32::init() {
@@ -21,29 +23,35 @@ void LSM6DSO32::init() {
 void LSM6DSO32::update() {
 	i2c::readRegister(LSM6DSO32_ADDR_0, LSM6DSO32_OUTX_L_A_ADDR, 6, [](bool success, const dma::I2CTransfer& transfer) {
         for (uint8_t i {0}; i < 3; ++i) {
-            acc[i] = (rawAcc[i] = reinterpret_cast<const int16_t*>(transfer.buf)[i]) * ACC_LSB;
+            accelerations[i] = (rawAccelerations[i] = reinterpret_cast<const int16_t*>(transfer.buf)[i]) * ACC_LSB;
         }
         i2c::readRegister(LSM6DSO32_ADDR_0, LSM6DSO32_OUTX_L_G_ADDR, 6, [](bool success, const dma::I2CTransfer& transfer) {
            for (uint8_t i {0}; i < 3; ++i) {
-                rot[i] = (rawRot[i] = reinterpret_cast<const int16_t*>(transfer.buf)[i]) * ROT_LSB;
+                angularRates[i] = (rawAngularRates[i] = reinterpret_cast<const int16_t*>(transfer.buf)[i]) * ROT_LSB;
             } 
         });
     });
 }
 
-Vector3<int16_t, uint8_t> LSM6DSO32::getRawAcc() {
-	return {{static_cast<int16_t>(-rawAcc[0])}, {static_cast<int16_t>(-rawAcc[1])}, {rawAcc[2]}};
+Vector3<int16_t, uint8_t> LSM6DSO32::getRawAccelerations() {
+	return {{static_cast<int16_t>(-rawAccelerations[0])}, {static_cast<int16_t>(-rawAccelerations[1])}, {rawAccelerations[2]}};
 }
 
 
-Vector3<int16_t, uint8_t> LSM6DSO32::getRawRot() {
-	return {{static_cast<int16_t>(-rawRot[0])}, {static_cast<int16_t>(-rawRot[1])}, {rawRot[2]}};
+Vector3<int16_t, uint8_t> LSM6DSO32::getRawAngularRates() {
+	return {{static_cast<int16_t>(-rawAngularRates[0])}, {static_cast<int16_t>(-rawAngularRates[1])}, {rawAngularRates[2]}};
 }
 
-Vector3<float, uint8_t> LSM6DSO32::getAcc() {
-	return {{-acc[0]}, {-acc[1]}, {acc[2]}};
+void LSM6DSO32::setOffsets(const Vector3<float, uint8_t>& offsets) {
+    for (uint8_t i {0}; i < 3; ++i) {
+        rateOffsets[i] = offsets[i][0];
+    } 
 }
 
-Vector3<float, uint8_t> LSM6DSO32::getRot() {
-	return {{-rot[0]}, {-rot[1]}, {rot[2]}};
+Vector3<float, uint8_t> LSM6DSO32::getAccelerations() {
+	return {{-accelerations[0]}, {-accelerations[1]}, {accelerations[2]}};
+}
+
+Vector3<float, uint8_t> LSM6DSO32::getAngularRates() {
+	return {{-angularRates[0] - rateOffsets[0]}, {-angularRates[1] - rateOffsets[1]}, {angularRates[2] - rateOffsets[2]}};
 }

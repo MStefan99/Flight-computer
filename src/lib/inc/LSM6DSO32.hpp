@@ -20,11 +20,13 @@ namespace LSM6DSO32 {
 	void init();
 	void update();
     
-    Vector3<int16_t, uint8_t> getRawAcc();
-    Vector3<int16_t, uint8_t> getRawRot();
+    Vector3<int16_t, uint8_t> getRawAccelerations();
+    Vector3<int16_t, uint8_t> getRawAngularRates();
     
-    Vector3<float, uint8_t> getAcc();
-	Vector3<float, uint8_t> getRot();
+    void setOffsets(const Vector3<float, uint8_t>& offsets);
+    
+    Vector3<float, uint8_t> getAccelerations();
+	Vector3<float, uint8_t> getAngularRates();
 }
 
 #endif	/* LSM6DSO32_HPP */

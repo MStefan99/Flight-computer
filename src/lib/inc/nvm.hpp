@@ -28,9 +28,10 @@
 
 namespace nvm {
     struct Options {
-        int16_t mixes[data::mixesNumber] {};
-        int16_t trims[data::outputChannelNumber] {};
-        int16_t limits[data::outputChannelNumber * 2] {};
+        float angularRateOffsets[3] {0};
+        int16_t mixes[data::mixesNumber] {0};
+        int16_t trims[data::outputChannelNumber] {0};
+        int16_t limits[data::outputChannelNumber * 2] {0};
     };
     
     namespace _internal {

@@ -40,7 +40,9 @@ public:
 	Matrix operator-() const;
 
 	Matrix operator+(const Matrix& matrix) const;
+    Matrix& operator+=(const Matrix& matrix);
 	Matrix operator-(const Matrix& matrix) const;
+	Matrix& operator-=(const Matrix& matrix);
 	template <size_type mw>
 	Matrix<scalar, size_type, h, mw> operator*(const Matrix<scalar, size_type, w, mw>& matrix) const;
     // Multiplies matrices and scales each element. Useful for avoiding overflows
@@ -296,6 +298,17 @@ Matrix<scalar, size_type, h, w> Matrix<scalar, size_type, h, w>::operator+(const
 
 
 template <class scalar, class size_type, size_type h, size_type w>
+Matrix<scalar, size_type, h, w>& Matrix<scalar, size_type, h, w>::operator+=(const Matrix& matrix) {
+    for (size_type j {0}; j < h; ++j) {
+		for (size_type i {0}; i < w; ++i) {
+			this->operator[](j)[i] += matrix[j][i];
+		}
+	}
+	return *this;
+}
+
+
+template <class scalar, class size_type, size_type h, size_type w>
 Matrix<scalar, size_type, h, w> Matrix<scalar, size_type, h, w>::operator-(const Matrix& matrix) const {
 	Matrix<scalar, size_type, h, w> result {};
 
@@ -305,6 +318,17 @@ Matrix<scalar, size_type, h, w> Matrix<scalar, size_type, h, w>::operator-(const
 		}
 	}
 	return result;
+}
+
+
+template <class scalar, class size_type, size_type h, size_type w>
+Matrix<scalar, size_type, h, w>& Matrix<scalar, size_type, h, w>::operator-=(const Matrix& matrix) {
+	for (size_type j {0}; j < h; ++j) {
+		for (size_type i {0}; i < w; ++i) {
+			this->operator[](j)[i] -= matrix[j][i];
+		}
+	}
+	return *this;
 }
 
 

@@ -25,6 +25,37 @@ enum class Mode : uint8_t {
 };
 
 
+void calibrate() {
+    if (nvm::options->angularRateOffsets[0] == 0
+            && nvm::options->angularRateOffsets[1] == 0
+            && nvm::options->angularRateOffsets[2] == 0) {
+        // If all offsets are zero, recalibrate
+        Vector3<float, uint8_t> zeroOffsets {};
+
+        for (uint16_t i {0}; i < 100; ++i) {
+            LSM6DSO32::update();
+            auto rates {LSM6DSO32::getAngularRates()};
+
+            zeroOffsets += (rates - zeroOffsets) / 2;
+            util::sleep(1);
+        }
+
+        LSM6DSO32::setOffsets(zeroOffsets);
+        
+        for (uint8_t i {0}; i < 3; ++i) {
+            nvm::edit(nvm::options->angularRateOffsets + i, zeroOffsets[i][0]);
+        }
+        
+        nvm::write();
+    } else { // Otherwise load previous calibration
+        LSM6DSO32::setOffsets({{nvm::options->angularRateOffsets[0]},
+            {nvm::options->angularRateOffsets[1]},
+            {nvm::options->angularRateOffsets[2]}
+        });
+    }
+}
+
+
 int main() {
     util::init();
     
@@ -36,6 +67,8 @@ int main() {
     servo::init();
     LSM6DSO32::init();
     usb::init();
+    
+    calibrate();
     
     Mahony mahony {};
     
@@ -61,11 +94,11 @@ int main() {
         LSM6DSO32::update();
         
         for (uint8_t i {0}; i < 3; ++i) {
-            data::usbSensorsResponse.accelerations[i] = LSM6DSO32::getRawAcc()[2 - i][0];
-            data::usbSensorsResponse.angularRates[i] = LSM6DSO32::getRawRot()[2 - i][0];
+            data::usbSensorsResponse.accelerations[i] = LSM6DSO32::getRawAccelerations()[2 - i][0];
+            data::usbSensorsResponse.angularRates[i] = LSM6DSO32::getRawAngularRates()[2 - i][0];
         }
         
-        mahony.updateIMU(LSM6DSO32::getRot(), LSM6DSO32::getAcc(), 0.01f);
+        mahony.updateIMU(LSM6DSO32::getAngularRates(), LSM6DSO32::getAccelerations(), 0.01f);
         Quaternion deviceOrientation {mahony.getQuat()};
         auto deviceAngles {deviceOrientation.toEuler()};
         
