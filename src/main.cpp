@@ -21,14 +21,15 @@ static constexpr float ATT_LSB {10430.0f};
 enum class Mode : uint8_t {
     Manual = 0x0,
     Attitude = 0x1,
-    Heading = 0x2
+    Position = 0x2
 };
 
 
-void calibrate() {
-    if (nvm::options->angularRateOffsets[0] == 0
+void calibrate(bool force = false) {
+    if ((nvm::options->angularRateOffsets[0] == 0
             && nvm::options->angularRateOffsets[1] == 0
-            && nvm::options->angularRateOffsets[2] == 0) {
+            && nvm::options->angularRateOffsets[2] == 0)
+            || force) {
         // If all offsets are zero, recalibrate
         Vector3<float, uint8_t> zeroOffsets {};
 
@@ -56,6 +57,36 @@ void calibrate() {
 }
 
 
+// Temperature calibration values
+static uint8_t tempR = NVMTEMP[0] & 0xff;
+static uint16_t adcR = (NVMTEMP[1] & 0xfff00) >> 8u;
+static uint8_t tempH = (NVMTEMP[0] & 0xff0000) >> 12u;
+static uint16_t adcH = (NVMTEMP[1] & 0xfff00000) >> 20u;
+
+static Mahony mahony {};
+static Quaternion deviceOrientation {};
+
+
+void updateSensors() {
+    ADC_REGS->ADC_SWTRIG = ADC_SWTRIG_START(1); // Start conversion
+    while (!(ADC_REGS->ADC_INTFLAG & ADC_INTFLAG_RESRDY_Msk)); // Wait for ADC result
+    data::usbSensorsResponse.temperature = tempR + ((ADC_REGS->ADC_RESULT - adcR) * (tempH - tempR) / (adcH - adcR));
+
+    LSM6DSO32::update();
+
+    for (uint8_t i {0}; i < 3; ++i) {
+        data::usbSensorsResponse.accelerations[i] = LSM6DSO32::getRawAccelerations()[2 - i][0];
+        data::usbSensorsResponse.angularRates[i] = LSM6DSO32::getRawAngularRates()[2 - i][0];
+    }
+
+    mahony.updateIMU(LSM6DSO32::getAngularRates(), LSM6DSO32::getAccelerations(), 0.01f);
+    deviceOrientation = mahony.getQuat();
+    auto deviceAngles {deviceOrientation.toEuler()};
+
+    data::usbStatusResponse.pitch = deviceAngles[1][0] * ATT_LSB;
+    data::usbStatusResponse.roll = deviceAngles[2][0] * ATT_LSB;
+}
+
 int main() {
     util::init();
     
@@ -70,53 +101,41 @@ int main() {
     
     calibrate();
     
-    Mahony mahony {};
-    
     PORT_REGS->GROUP[0].PORT_DIR = 0x1 << 27u;
-
-    // Temperature calibration values
-    uint8_t tempR = NVMTEMP[0] & 0xff;
-    uint16_t adcR = (NVMTEMP[1] & 0xfff00) >> 8u;
-    uint8_t tempH = (NVMTEMP[0] & 0xff0000) >> 12u;
-    uint16_t adcH = (NVMTEMP[1] & 0xfff00000) >> 20u;
     
     for (uint8_t i {0}; i < data::outputChannelNumber; ++i) {
         servo::enable(i);
     }
-    
+
     Mode mode {};
+    float pitchTarget {0};
+    float rollTarget {0};
+    float headingTarget {0};
+    bool failsafe {false};
 
     while (1) {
-        ADC_REGS->ADC_SWTRIG = ADC_SWTRIG_START(1); // Start conversion
-        while (!(ADC_REGS->ADC_INTFLAG & ADC_INTFLAG_RESRDY_Msk)); // Wait for ADC result
-        data::usbSensorsResponse.temperature = tempR + ((ADC_REGS->ADC_RESULT - adcR) * (tempH - tempR) / (adcH - adcR));
+        updateSensors();
         
-        LSM6DSO32::update();
+        auto rotationAngles {deviceOrientation.toEuler()};
         
-        for (uint8_t i {0}; i < 3; ++i) {
-            data::usbSensorsResponse.accelerations[i] = LSM6DSO32::getRawAccelerations()[2 - i][0];
-            data::usbSensorsResponse.angularRates[i] = LSM6DSO32::getRawAngularRates()[2 - i][0];
-        }
+        pitchTarget = sbus::getChannel(0) / 1273.0f;
+        rollTarget = sbus::getChannel(1) / 1273.0f;
+        mode = static_cast<Mode>((sbus::getChannel(3) + 1200) / 300);
         
-        mahony.updateIMU(LSM6DSO32::getAngularRates(), LSM6DSO32::getAccelerations(), 0.01f);
-        Quaternion deviceOrientation {mahony.getQuat()};
-        auto deviceAngles {deviceOrientation.toEuler()};
-        
-        data::usbStatusResponse.pitch = deviceAngles[1][0] * ATT_LSB;
-        data::usbStatusResponse.roll = deviceAngles[2][0] * ATT_LSB;
-        
-        float pitchTarget {0};
-        float rollTarget {0};
-        
-        if (!sbus::available()) {
-            PORT_REGS->GROUP[0].PORT_OUTSET = 0x1 << 27u;
-            mode = Mode::Attitude;
-            pitchTarget = rollTarget = 0;
-        } else {
-            PORT_REGS->GROUP[0].PORT_OUTCLR = 0x1 << 27u;
-            pitchTarget = sbus::getChannel(0) / 1273.0f;
-            rollTarget = sbus::getChannel(1) / 1273.0f;
-            mode = static_cast<Mode>((sbus::getChannel(3) + 1200) / 300);
+        if (!sbus::available() || sbus::frameLost()) {
+            if (!failsafe) {
+                PORT_REGS->GROUP[0].PORT_OUTSET = 0x1 << 27u;
+                mode = Mode::Position;
+                pitchTarget = 0;
+                headingTarget = rotationAngles[0][0] + PI;
+                if (headingTarget > TWO_PI) {
+                    headingTarget -= TWO_PI;
+                }
+                failsafe = true;
+            } else {
+                PORT_REGS->GROUP[0].PORT_OUTCLR = 0x1 << 27u;
+                failsafe = false;
+            }
         }
         
         switch (mode) {
@@ -125,11 +144,13 @@ int main() {
                 data::inputs[1][0] = sbus::getChannel(1);
                 break;
             }
+            case (Mode::Position): {
+                rollTarget = data::headingPID.process(rotationAngles[0][0], headingTarget);
+                // Fallthrough is intentional!
+            }
             case (Mode::Attitude): {
-                auto rotationAngles {deviceOrientation.toEuler()};
-                
-                data::inputs[0][0] = rotationAngles[2][0] * 1273;
-                data::inputs[1][0] = rotationAngles[1][0] * 1273;
+                data::inputs[0][0] = data::rollPID.process(rotationAngles[2][0], rollTarget);
+                data::inputs[1][0] = data::pitchPID.process(rotationAngles[1][0], pitchTarget);
                 break;
             }
             default: {

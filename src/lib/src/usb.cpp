@@ -186,6 +186,9 @@ void endpoint1Handler() {
                 case static_cast<uint8_t>(data::VariableID::Outputs):
                     write(reinterpret_cast<uint8_t*>(&data::usbOutputsResponse), sizeof (data::USBOutputsResponse));
                     break;
+                case static_cast<uint8_t>(data::VariableID::PIDs):
+                    write(reinterpret_cast<uint8_t*>(&data::usbPIDsResponse), sizeof (data::usbPIDsResponse));
+                    break;
             }
         } else {
             switch (EP1REQ.bValue) {
@@ -207,6 +210,13 @@ void endpoint1Handler() {
                     util::copy(data::usbLimitsResponse.limits, reinterpret_cast<int16_t*>(EP1REQ.bData), data::outputChannelNumber * 2);
                     for (uint8_t i {0}; i < data::outputChannelNumber * 2; ++i) {
                         nvm::edit(nvm::options->limits + i, data::usbLimitsResponse.limits[i]);
+                    }
+                    nvm::write();
+                    break;
+                case static_cast<uint8_t>(data::VariableID::PIDs):
+                    for (uint8_t i {0}; i < data::pidNumber; ++i) {
+                        data::usbPIDsResponse.coefficients[i] = *reinterpret_cast<InlinePID<float>::PIDCoefficients*>(EP1REQ.bData + 2);
+                        nvm::edit(nvm::options->pidCoefficients + i, data::usbPIDsResponse.coefficients[i]);
                     }
                     nvm::write();
                     break;

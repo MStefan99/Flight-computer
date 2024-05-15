@@ -5,8 +5,8 @@
  * Created on December 7, 2021, 12:34 PM
  */
 
-#ifndef SBUS_H
-#define	SBUS_H
+#ifndef SBUS_HPP
+#define	SBUS_HPP
 
 #include "device.h"
 
@@ -23,5 +23,5 @@ namespace sbus {
     bool failsafeActive();
 }
 
-#endif	/* SBUS_H */
+#endif	/* SBUS_HPP */
 

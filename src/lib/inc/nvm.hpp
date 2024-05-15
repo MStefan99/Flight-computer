@@ -27,11 +27,12 @@
 
 
 namespace nvm {
-    struct Options {
+    struct __attribute__((packed)) Options {
         float angularRateOffsets[3] {0};
         int16_t mixes[data::mixesNumber] {0};
         int16_t trims[data::outputChannelNumber] {0};
         int16_t limits[data::outputChannelNumber * 2] {0};
+        InlinePID<float>::PIDCoefficients pidCoefficients [data::pidNumber] {};
     };
     
     namespace _internal {

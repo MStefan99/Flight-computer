@@ -10,6 +10,7 @@
 
 #include "device.h"
 
+#include "lib/inc/InlinePID.hpp"
 #include "lib/inc/InlineMatrix.hpp"
 #include "lib/inc/util.hpp"
 
@@ -17,6 +18,7 @@
 namespace data {
     constexpr uint8_t inputChannelNumber {8};
     constexpr uint8_t outputChannelNumber {8};
+    constexpr uint8_t pidNumber {3};
     constexpr uint8_t mixesNumber {inputChannelNumber * outputChannelNumber};
 
     enum class CommandType : uint8_t {
@@ -38,6 +40,7 @@ namespace data {
         Trims = 0x5,
         Limits = 0x6,
         Outputs = 0x7,
+        PIDs = 0x8
     };
 
     struct __attribute__((packed)) USBStatusResponse {
@@ -95,7 +98,13 @@ namespace data {
         const uint8_t variableID {static_cast<uint8_t>(VariableID::Outputs)};
         int16_t outputs[outputChannelNumber];
     };
-
+    
+    struct __attribute__((packed)) USBPIDsResponse {
+        const uint8_t responseType {static_cast<uint8_t>(ResponseType::ReturnVariable)};
+        const uint8_t variableID {static_cast<uint8_t>(VariableID::PIDs)};
+        uint16_t pad {0};
+        InlinePID<float>::PIDCoefficients coefficients[pidNumber];
+    };
     
     extern USBStatusResponse usbStatusResponse;
     extern USBSensorsResponse usbSensorsResponse;
@@ -105,6 +114,7 @@ namespace data {
     extern USBTrimsResponse usbTrimsResponse;
     extern USBLimitsResponse usbLimitsResponse;
     extern USBOutputsResponse usbOutputsResponse;
+    extern USBPIDsResponse usbPIDsResponse;
     
     extern InlineMatrix<int16_t, uint8_t, inputChannelNumber, 1> inputs;
     extern InlineMatrix<int16_t, uint8_t, outputChannelNumber, inputChannelNumber> mixes;
@@ -112,6 +122,10 @@ namespace data {
     extern InlineMatrix<int16_t, uint8_t, outputChannelNumber, 2> limits;
     extern InlineMatrix<int16_t, uint8_t, outputChannelNumber, 1> outputs;
     
+    extern InlinePID<float> pids[pidNumber];
+    extern InlinePID<float>& pitchPID;
+    extern InlinePID<float>& rollPID;
+    extern InlinePID<float>& headingPID;
     
     void calculateOutputs();
 }
