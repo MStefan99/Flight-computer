@@ -40,6 +40,10 @@ void nvm::load() {
     for (uint8_t i {0}; i < data::outputChannelNumber * 2; ++i) {
         data::usbLimitsResponse.limits[i] = nvm::options->limits[i];
     }
+    
+    for (uint8_t i {0}; i < data::pidNumber; ++i) {
+        data::usbPIDsResponse.coefficients[i] = nvm::options->pidCoefficients[i];
+    }
 }
 
 void nvm::write() {

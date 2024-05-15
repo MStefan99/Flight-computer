@@ -215,7 +215,8 @@ void endpoint1Handler() {
                     break;
                 case static_cast<uint8_t>(data::VariableID::PIDs):
                     for (uint8_t i {0}; i < data::pidNumber; ++i) {
-                        data::usbPIDsResponse.coefficients[i] = *reinterpret_cast<InlinePID<float>::PIDCoefficients*>(EP1REQ.bData + 2);
+                        data::usbPIDsResponse.coefficients[i] = *reinterpret_cast<InlinePID<float>::PIDCoefficients*>(EP1REQ.bData + 2
+                                + sizeof(InlinePID<float>::PIDCoefficients) * i);
                         nvm::edit(nvm::options->pidCoefficients + i, data::usbPIDsResponse.coefficients[i]);
                     }
                     nvm::write();
