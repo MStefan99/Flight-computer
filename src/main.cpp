@@ -87,6 +87,11 @@ void updateSensors() {
     data::usbStatusResponse.roll = deviceAngles[2][0] * ATT_LSB;
 }
 
+void startWatchdog() {
+    WDT_REGS->WDT_CONFIG = WDT_CONFIG_PER_CYC64;
+    WDT_REGS->WDT_CTRLA = WDT_CTRLA_ENABLE(1);
+}
+
 int main() {
     util::init();
     
@@ -112,6 +117,8 @@ int main() {
     float rollTarget {0};
     float headingTarget {0};
     bool failsafe {false};
+    
+    startWatchdog();
 
     while (1) {
         updateSensors();
@@ -176,6 +183,8 @@ int main() {
         }
         
         util::sleep(10);
+        
+        WDT_REGS->WDT_CLEAR = WDT_CLEAR_CLEAR_KEY;
     }
 
     return 1;
