@@ -19,9 +19,9 @@ InlineMatrix<int16_t, uint8_t, data::outputChannelNumber, 2> data::limits {data:
 InlineMatrix<int16_t, uint8_t, data::outputChannelNumber, 1> data::outputs {data::usbOutputsResponse.outputs};
 
 InlinePID<float> data::pids[data::pidNumber] {
-    {data::usbPIDsResponse.coefficients, PI / 8}, 
-    {data::usbPIDsResponse.coefficients + 1, PI / 8},
-    {data::usbPIDsResponse.coefficients + 2, PI / 8}
+    {data::usbPIDsResponse.coefficients, F_PI_8}, 
+    {data::usbPIDsResponse.coefficients + 1, F_PI_8},
+    {data::usbPIDsResponse.coefficients + 2, F_PI_8}
 };
 
 InlinePID<float>& data::rollPID {data::pids[0]};

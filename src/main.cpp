@@ -18,12 +18,17 @@
 
 static constexpr float ATT_LSB {10430.0f};
 
-enum class Mode : uint8_t {
+enum class FlightMode : uint8_t {
     Manual = 0x0,
     Attitude = 0x1,
     Position = 0x2
 };
 
+enum class GimbalMode : uint8_t {
+    Fixed = 0x0,
+    Horizon = 0x1,
+    Direction = 0x2
+};
 
 void calibrate(bool force = false) {
     if ((nvm::options->angularRateOffsets[0] == 0
@@ -112,7 +117,7 @@ int main() {
         servo::enable(i);
     }
 
-    Mode mode {};
+    FlightMode flightMode {};
     float pitchTarget {0};
     float rollTarget {0};
     float headingTarget {0};
@@ -123,57 +128,99 @@ int main() {
     while (1) {
         updateSensors();
         
-        auto rotationAngles {deviceOrientation.toEuler()};
+        auto deviceAngles {deviceOrientation.toEuler()};
         
         pitchTarget = sbus::getChannel(0) / 1273.0f;
         rollTarget = sbus::getChannel(1) / 1273.0f;
-        mode = static_cast<Mode>((sbus::getChannel(3) + 1200) / 300);
+        flightMode = sbus::available() ? static_cast<FlightMode>((sbus::getChannel(3) + 1100) / 500) : FlightMode::Position;
         
-        if (!sbus::available() || sbus::frameLost()) {
+        if (!sbus::available()) {
             if (!failsafe) {
                 PORT_REGS->GROUP[0].PORT_OUTSET = 0x1 << 27u;
-                mode = Mode::Position;
-                pitchTarget = 0;
-                headingTarget = rotationAngles[0][0] + PI;
-                if (headingTarget > TWO_PI) {
-                    headingTarget -= TWO_PI;
+                headingTarget = deviceAngles[0][0] + F_PI;
+                if (headingTarget > F_2_PI) {
+                    headingTarget -= F_2_PI;
                 }
                 failsafe = true;
-            } else {
-                PORT_REGS->GROUP[0].PORT_OUTCLR = 0x1 << 27u;
-                failsafe = false;
-            }
+            }  
+        } else {
+            PORT_REGS->GROUP[0].PORT_OUTCLR = 0x1 << 27u;
+            failsafe = false;
         }
         
-        switch (mode) {
-            case (Mode::Manual): {
+        switch (flightMode) {
+            case (FlightMode::Manual): {
                 data::inputs[0][0] = sbus::getChannel(0);
                 data::inputs[1][0] = sbus::getChannel(1);
                 break;
             }
-            case (Mode::Position): {
-                rollTarget = data::headingPID.process(rotationAngles[0][0], headingTarget);
-                // Fallthrough is intentional!
+            case (FlightMode::Position): {
+                if (sbus::available()) {
+                    headingTarget = sbus::getChannel(0) * F_PI / 1000;
+                }
+                rollTarget = data::headingPID.process(deviceAngles[0][0], headingTarget);
+                pitchTarget = sbus::getChannel(1) * F_PI_4 / 1000;
+                
+                data::inputs[0][0] = data::rollPID.process(deviceAngles[2][0], rollTarget);
+                data::inputs[1][0] = data::pitchPID.process(deviceAngles[1][0], pitchTarget);
+                break;
             }
-            case (Mode::Attitude): {
-                data::inputs[0][0] = data::rollPID.process(rotationAngles[2][0], rollTarget);
-                data::inputs[1][0] = data::pitchPID.process(rotationAngles[1][0], pitchTarget);
+            case (FlightMode::Attitude): {
+                rollTarget = sbus::getChannel(0) * F_PI_4 / 1000;
+                pitchTarget = sbus::getChannel(1) * F_PI_4 / 1000;
+                
+                data::inputs[0][0] = data::rollPID.process(deviceAngles[2][0], rollTarget);
+                data::inputs[1][0] = data::pitchPID.process(deviceAngles[1][0], pitchTarget);
                 break;
             }
             default: {
-                for (uint8_t i {0}; i < data::inputChannelNumber; ++i) {
-                    data::inputs[i][0] = 0;
+                data::inputs[0][0] = 0;
+                data::inputs[1][0] = 0;
+                break;
+            }
+        }
+        
+        GimbalMode gimbalMode {static_cast<GimbalMode>((sbus::getChannel(4) + 1100) / 1000)};
+        
+        switch (gimbalMode) {
+            case (GimbalMode::Fixed): {
+                data::inputs[2][0] = sbus::getChannel(5);
+                data::inputs[3][0] = sbus::getChannel(6);
+                data::inputs[4][0] = 0;
+                break;   
+            }
+            case (GimbalMode::Horizon): {
+                Quaternion cameraOrientation {Quaternion::fromEuler(
+                    deviceAngles[0][0] + sbus::getChannel(5) * F_PI_4 / 1000,
+                    sbus::getChannel(6) * F_PI_4 / 1000,
+                    0
+                )};
+                Quaternion cameraRotation {deviceOrientation.conjugate() * cameraOrientation};
+                auto cameraAngles {cameraRotation.toEuler()};
+
+                for (uint8_t i {0}; i < 3; ++i) {
+                    data::inputs[i + 2][0] = cameraAngles[i][0] / F_PI_4 * 1000;
+                }
+                break;
+            }
+            case (GimbalMode::Direction): {
+                Quaternion cameraOrientation {Quaternion::fromEuler(
+                    sbus::getChannel(5) * F_PI / 1000,
+                    sbus::getChannel(6) * F_PI_4 / 1000,
+                    0
+                )};
+                Quaternion cameraRotation {deviceOrientation.conjugate() * cameraOrientation};
+                auto cameraAngles {cameraRotation.toEuler()};
+
+                for (uint8_t i {0}; i < 3; ++i) {
+                    data::inputs[i + 2][0] = cameraAngles[i][0] / F_PI_4 * 1000;
                 }
                 break;
             }
         }
         
-        Quaternion cameraOrientation {};
-        Quaternion cameraRotation {cameraOrientation * deviceOrientation.conjugate()};
-        auto cameraAngles {cameraRotation.toEuler()};
-        
         for (uint8_t i {0}; i < 3; ++i) {
-            data::inputs[i + 2][0] = cameraAngles[i][0] * 1273;
+            data::inputs[i + 5][0] = deviceAngles[i][0] / F_PI * 1000;
         }
         
         data::calculateOutputs();

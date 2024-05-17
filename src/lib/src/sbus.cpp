@@ -93,7 +93,7 @@ void sbus::init() {
 
 
 bool sbus::available() {
-    return bytesReceived && (util::getTime() - lastPacketReceived < 20);
+    return util::getTime() - lastPacketReceived < 20;
 }
 
 
@@ -103,7 +103,7 @@ int16_t sbus::getChannel(uint8_t channel) {
     } else if (channel < 16) {   
         int16_t value = getValue(buffer + 1, channel);
         
-        return value? util::map(static_cast<int>(value), 160, 1850, -1500, 1500) : 0;
+        return value? util::map(static_cast<int>(value), 0, 2014, -1210, 1250) : 0;
     } else if (channel < 18) {
         /* Calculate the bit corresponding to the channel
          * 
