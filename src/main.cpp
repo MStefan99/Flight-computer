@@ -132,7 +132,7 @@ int main() {
         
         pitchTarget = sbus::getChannel(0) / 1273.0f;
         rollTarget = sbus::getChannel(1) / 1273.0f;
-        flightMode = sbus::available() ? static_cast<FlightMode>((sbus::getChannel(3) + 1100) / 333) : FlightMode::Position;
+        flightMode = sbus::available() ? static_cast<FlightMode>((sbus::getChannel(8) + 1100) / 333) : FlightMode::Position;
         
         if (!sbus::available()) {
             if (!failsafe) {
@@ -149,7 +149,8 @@ int main() {
         }
         
         switch (flightMode) {
-            case (FlightMode::Manual): {
+            case (FlightMode::Manual):
+            default: {
                 data::inputs[0][0] = sbus::getChannel(0);
                 data::inputs[1][0] = sbus::getChannel(1);
                 break;
@@ -173,14 +174,9 @@ int main() {
                 data::inputs[1][0] = data::pitchPID.process(deviceAngles[1][0], pitchTarget);
                 break;
             }
-            default: {
-                data::inputs[0][0] = 0;
-                data::inputs[1][0] = 0;
-                break;
-            }
         }
 
-        GimbalMode gimbalMode {static_cast<GimbalMode>((sbus::getChannel(4) + 1100) / 1000)};
+        GimbalMode gimbalMode {static_cast<GimbalMode>((sbus::getChannel(10) + 1100) / 1000)};
         
         switch (gimbalMode) {
             case (GimbalMode::Fixed): {
