@@ -38,7 +38,7 @@ void calibrate(bool force = false) {
         // If all offsets are zero, recalibrate
         Vector3<float, uint8_t> zeroOffsets {};
 
-        for (uint16_t i {0}; i < 100; ++i) {
+        for (uint16_t i {0}; i < 500; ++i) {
             LSM6DSO32::update();
             auto rates {LSM6DSO32::getAngularRates()};
 
@@ -205,8 +205,8 @@ int main() {
             }
             case (GimbalMode::Horizon): {
                 Quaternion cameraOrientation {Quaternion::fromEuler(
-                    deviceAngles[0][0] + sbus::getChannel(5) * F_PI_4 / 1000,
-                    sbus::getChannel(6) * F_PI_4 / 1000,
+                    deviceAngles[0][0] - sbus::getChannel(3) * F_PI_4 / 1000,
+                    -sbus::getChannel(4) * F_PI_4 / 1000,
                     0
                 )};
                 Quaternion cameraRotation {deviceOrientation.conjugate() * cameraOrientation};
@@ -219,8 +219,8 @@ int main() {
             }
             case (GimbalMode::Direction): {
                 Quaternion cameraOrientation {Quaternion::fromEuler(
-                    sbus::getChannel(5) * F_PI / 1000,
-                    sbus::getChannel(6) * F_PI_4 / 1000,
+                    -sbus::getChannel(3) * F_PI / 1000,
+                    -sbus::getChannel(4) * F_PI_4 / 1000,
                     0
                 )};
                 Quaternion cameraRotation {deviceOrientation.conjugate() * cameraOrientation};
