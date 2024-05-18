@@ -23,7 +23,7 @@ struct InlinePID {
 	InlinePID(PIDCoefficients* coefficients, T iLim);
 	InlinePID(T* kp, T* ki, T* kd, T iLim);
 
-	T process(T sp, T val);
+	T process(T sp, T val, float dt = 0.01f);
 
 	T* kp {};
 	T* ki {};
@@ -49,11 +49,11 @@ InlinePID<T>::InlinePID(T* kp, T* ki, T* kd, T iLim):
 }
 
 template <class T>
-T InlinePID<T>::process(T val, T sp) {
+T InlinePID<T>::process(T val, T sp, float dt) {
 	T error {val - sp};
 	
-	_sum = util::clamp(*ki * error + _sum, -iLim, iLim);
-	T out = *kp * error + *ki * _sum + *kd * (val - _prev);
+	_sum = util::clamp(*ki * error * dt + _sum, -iLim, iLim);
+	T out = *kp * error + _sum + *kd * (val - _prev) / dt;
 	_prev = val;
 	
 	return out;

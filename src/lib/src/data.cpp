@@ -19,13 +19,13 @@ InlineMatrix<int16_t, uint8_t, data::outputChannelNumber, 2> data::limits {data:
 InlineMatrix<int16_t, uint8_t, data::outputChannelNumber, 1> data::outputs {data::usbOutputsResponse.outputs};
 
 InlinePID<float> data::pids[data::pidNumber] {
-    {data::usbPIDsResponse.coefficients, F_PI_8}, 
-    {data::usbPIDsResponse.coefficients + 1, F_PI_8},
+    {data::usbPIDsResponse.coefficients, 500},
+    {data::usbPIDsResponse.coefficients + 1, 500},
     {data::usbPIDsResponse.coefficients + 2, F_PI_8}
 };
 
-InlinePID<float>& data::rollPID {data::pids[0]};
-InlinePID<float>& data::pitchPID {data::pids[2]};
+InlinePID<float>& data::pitchPID {data::pids[0]};
+InlinePID<float>& data::rollPID {data::pids[1]};
 InlinePID<float>& data::headingPID {data::pids[2]};
 
 void data::calculateOutputs() {

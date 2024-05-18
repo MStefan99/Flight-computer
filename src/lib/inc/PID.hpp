@@ -39,7 +39,7 @@ T PID<T>::process(T val, T sp) {
 	T error {val - sp};
 	
 	_sum = util::clamp(ki * error + _sum, -iLim, iLim);
-	T out = kp * error + ki * _sum + kd * (val - _prev);
+	T out = kp * error + _sum + kd * (val - _prev);
 	_prev = val;
 	
 	return out;
