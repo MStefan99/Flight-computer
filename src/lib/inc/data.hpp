@@ -49,6 +49,7 @@ namespace data {
         int16_t yaw;
         int16_t pitch;
         int16_t roll;
+        int8_t receiverStatus;
     };
     
     struct __attribute__((packed)) USBSensorsResponse {

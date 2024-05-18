@@ -21,11 +21,12 @@ extern "C" {
         
         buffer[bytesReceived++] = byte;
         
-        if (bytesReceived == PACKET_SIZE) {
-            bytesReceived = 0; // Reset counter to start receiving new packet
+        if (bytesReceived == PACKET_SIZE) { // Checking last byte
             if (byte == END_BYTE) {
+                bytesReceived = 0; // Reset counter to start receiving new packet
                 lastPacketReceived = util::getTime();
             } else {
+                bytesReceived = 1; // If a false start packet was found inside the packet, skip it and start searching again
                 lastPacketReceived = 0;
             }
         }
@@ -86,9 +87,6 @@ void sbus::init() {
 			| SERCOM_USART_INT_CTRLA_ENABLE(1);
     
     NVIC_EnableIRQ(SERCOM3_IRQn);
-    
-    util::sleep(1);
-    SERCOM_REGS->USART_INT.SERCOM_DATA = 0x55;
 }
 
 
@@ -107,10 +105,12 @@ int16_t sbus::getChannel(uint8_t channel) {
     } else if (channel < 18) {
         /* Calculate the bit corresponding to the channel
          * 
-         * Bit 7: digital channel 17 (0x80)
-         * Bit 6: digital channel 18 (0x40)
+         * Bit 0: channel 17 (0x01)
+         * Bit 1: channel 18 (0x02)
+         * Bit 2: frame lost (0x04)
+         * Bit 3: failsafe activated (0x08)
          */
-        uint8_t bit = 24 - channel;
+        uint8_t bit = channel - 16;
         return ((buffer[23]) >> bit) & 0x1;
     } else {
         return 0;
@@ -119,10 +119,10 @@ int16_t sbus::getChannel(uint8_t channel) {
 
 
 bool sbus::frameLost() {
-    return (buffer[23] >> 5u) & 0x1;
+    return (buffer[23] >> 2u) & 0x1;
 }
 
 
 bool sbus::failsafeActive() {
-    return (buffer[23] >> 4u) & 0x1;
+    return (buffer[23] >> 3u) & 0x1;
 }

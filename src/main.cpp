@@ -90,6 +90,20 @@ void updateSensors() {
 
     data::usbStatusResponse.pitch = deviceAngles[1][0] * ATT_LSB;
     data::usbStatusResponse.roll = deviceAngles[2][0] * ATT_LSB;
+    data::usbStatusResponse.receiverStatus = !!sbus::available()
+        | (!!sbus::failsafeActive() << 1u);
+}
+
+float getDifference(float angleA, float angleB) {
+    float diff = angleA - angleB;
+    
+    if (diff > F_PI) {
+        return diff - F_2_PI;
+    } else if (diff < -F_PI) {
+        return diff + F_2_PI;
+    } else {
+        return diff;
+    }
 }
 
 void startWatchdog() {
@@ -121,7 +135,7 @@ int main() {
     float pitchTarget {0};
     float rollTarget {0};
     float headingTarget {0};
-    bool failsafe {false};
+    bool rthSet {false};
     
     startWatchdog();
 
@@ -135,17 +149,21 @@ int main() {
         flightMode = sbus::available() ? static_cast<FlightMode>((sbus::getChannel(8) + 1100) / 333) : FlightMode::Position;
         
         if (!sbus::available()) {
-            if (!failsafe) {
-                PORT_REGS->GROUP[0].PORT_OUTSET = 0x1 << 27u;
+            PORT_REGS->GROUP[0].PORT_OUTSET = 0x1 << 27u;
+        } else {
+            PORT_REGS->GROUP[0].PORT_OUTCLR = 0x1 << 27u;
+        }
+        
+        if (sbus::failsafeActive()) {
+            if (!rthSet) {
                 headingTarget = deviceAngles[0][0] + F_PI;
                 if (headingTarget > F_PI) {
                     headingTarget -= F_2_PI;
                 }
-                failsafe = true;
+                rthSet = true;
             }  
         } else {
-            PORT_REGS->GROUP[0].PORT_OUTCLR = 0x1 << 27u;
-            failsafe = false;
+            rthSet = false;
         }
         
         switch (flightMode) {
@@ -159,19 +177,19 @@ int main() {
                 rollTarget = sbus::getChannel(0) * F_PI_4 / 1000;
                 pitchTarget = -sbus::getChannel(1) * F_PI_4 / 1000;
                 
-                data::inputs[0][0] = data::rollPID.process(deviceAngles[2][0], rollTarget);
-                data::inputs[1][0] = data::pitchPID.process(deviceAngles[1][0], pitchTarget);
+                data::inputs[0][0] = data::rollPID.process(getDifference(deviceAngles[2][0], rollTarget), 0);
+                data::inputs[1][0] = data::pitchPID.process(getDifference(deviceAngles[1][0], pitchTarget), 0);
                 break;
             }
             case (FlightMode::Position): {
-                if (sbus::available()) {
+                if (!rthSet) {
                     headingTarget = -sbus::getChannel(0) * F_PI / 1000;
                 }
-                rollTarget = util::clamp(data::headingPID.process(deviceAngles[0][0], headingTarget), -F_PI_4, F_PI_4);
+                rollTarget = util::clamp(data::headingPID.process(getDifference(deviceAngles[0][0], headingTarget), 0), -F_PI_4, F_PI_4);
                 pitchTarget = -sbus::getChannel(1) * F_PI_4 / 1000;
                 
-                data::inputs[0][0] = data::rollPID.process(deviceAngles[2][0], rollTarget);
-                data::inputs[1][0] = data::pitchPID.process(deviceAngles[1][0], pitchTarget);
+                data::inputs[0][0] = data::rollPID.process(getDifference(deviceAngles[2][0], rollTarget), 0);
+                data::inputs[1][0] = data::pitchPID.process(getDifference(deviceAngles[1][0], pitchTarget), 0);
                 break;
             }
         }
