@@ -38,12 +38,12 @@ void calibrate(bool force = false) {
         // If all offsets are zero, recalibrate
         Vector3<float, uint8_t> zeroOffsets {};
 
-        for (uint16_t i {0}; i < 500; ++i) {
+        for (uint16_t i {0}; i < 100; ++i) {
             LSM6DSO32::update();
             auto rates {LSM6DSO32::getAngularRates()};
 
             zeroOffsets += (rates - zeroOffsets) / 2;
-            util::sleep(1);
+            util::sleep(10);
         }
 
         LSM6DSO32::setOffsets(zeroOffsets);
@@ -54,7 +54,8 @@ void calibrate(bool force = false) {
         
         nvm::write();
     } else { // Otherwise load previous calibration
-        LSM6DSO32::setOffsets({{nvm::options->angularRateOffsets[0]},
+        LSM6DSO32::setOffsets({
+            {nvm::options->angularRateOffsets[0]},
             {nvm::options->angularRateOffsets[1]},
             {nvm::options->angularRateOffsets[2]}
         });
