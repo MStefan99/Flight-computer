@@ -11,47 +11,32 @@ static uart::DefaultCallback::callback_type callback2 {nullptr};
 
 
 static void initSERCOM(sercom_registers_t* regs, unsigned txPad = SERCOM_USART_INT_CTRLA_TXPO_PAD0, unsigned rxPad = SERCOM_USART_INT_CTRLA_RXPO_PAD1)  {
-    regs->USART_INT.SERCOM_CTRLB = SERCOM_USART_INT_CTRLB_RXEN(1)
-					| SERCOM_USART_INT_CTRLB_PMODE_ODD
-					| SERCOM_USART_INT_CTRLB_SBMODE_1_BIT
-					| SERCOM_USART_INT_CTRLB_CHSIZE_8_BIT;
+    regs->USART_INT.SERCOM_CTRLB = SERCOM_USART_INT_CTRLB_TXEN(1)
+            | SERCOM_USART_INT_CTRLB_RXEN(1)
+            | SERCOM_USART_INT_CTRLB_PMODE_ODD
+            | SERCOM_USART_INT_CTRLB_SBMODE_1_BIT
+            | SERCOM_USART_INT_CTRLB_CHSIZE_8_BIT;
 	regs->USART_INT.SERCOM_BAUD = 63020; // 115200 baud
     regs->USART_INT.SERCOM_DBGCTRL = SERCOM_USART_INT_DBGCTRL_DBGSTOP(1);
 	regs->USART_INT.SERCOM_CTRLA = SERCOM_USART_INT_CTRLA_DORD_LSB
-					| SERCOM_USART_INT_CTRLA_CMODE_ASYNC
-                    | SERCOM_USART_INT_CTRLA_SAMPR_16X_ARITHMETIC
-					| SERCOM_USART_INT_CTRLA_FORM_USART_FRAME_WITH_PARITY
-					| txPad
-					| rxPad
-					| SERCOM_USART_INT_CTRLA_MODE_USART_INT_CLK
-					| SERCOM_USART_INT_CTRLA_ENABLE(1);
+            | SERCOM_USART_INT_CTRLA_CMODE_ASYNC
+            | SERCOM_USART_INT_CTRLA_SAMPR_16X_ARITHMETIC
+            | SERCOM_USART_INT_CTRLA_FORM_USART_FRAME_WITH_PARITY
+            | txPad
+            | rxPad
+            | SERCOM_USART_INT_CTRLA_MODE_USART_INT_CLK
+            | SERCOM_USART_INT_CTRLA_ENABLE(1);
     
 	regs->USART_INT.SERCOM_INTENSET = SERCOM_USART_INT_INTENSET_RXC(1)
             | SERCOM_USART_INT_INTENSET_TXC(1);
 }
 
 
-static void disableTx(sercom_registers_t* regs) {
-    regs->USART_INT.SERCOM_CTRLB &= ~SERCOM_USART_INT_CTRLB_TXEN(1);
-    while (regs->USART_INT.SERCOM_SYNCBUSY & SERCOM_USART_INT_SYNCBUSY_CTRLB_Msk);
-}
-
-static void enableTx(sercom_registers_t* regs) {
-    regs->USART_INT.SERCOM_CTRLB |= SERCOM_USART_INT_CTRLB_TXEN(1);
-    while (regs->USART_INT.SERCOM_SYNCBUSY & SERCOM_USART_INT_SYNCBUSY_CTRLB_Msk);
-}
-
-
-static void startTransfer(sercom_registers_t* regs, uart::DefaultQueue& outQueue, bool force = false) {
-    if (regs->USART_INT.SERCOM_CTRLB & SERCOM_USART_INT_CTRLB_TXEN_Msk && !force) { // SERCOM busy
-        return;
-    }
-    
+static void startTransfer(sercom_registers_t* regs, uart::DefaultQueue& outQueue) {
     if (outQueue.empty()) { // No pending transactions
         return;
     }
     
-    enableTx(regs);
     regs->USART_INT.SERCOM_DATA = outQueue.front().buffer[0];
 }
 
@@ -60,35 +45,19 @@ static void SERCOM_Handler(sercom_registers_t* regs,
         uart::DefaultQueue& outQueue, 
         uart::DefaultCallback::buffer_type& inBuffer, 
         uart::DefaultCallback::callback_type callback) {
-    if (!(regs->USART_INT.SERCOM_STATUS & SERCOM_USART_INT_STATUS_FERR_Msk)){// Not a framing error
-            if (regs->USART_INT.SERCOM_CTRLB & SERCOM_USART_INT_CTRLB_TXEN_Msk) { // Transmitter enabled (outgoing transfer)
-                --outQueue.front().remaining;
-                if (!outQueue.front().remaining) { // Transmitted last byte, turning off transmitter
-                    outQueue.pop_front();
-                    if (outQueue.empty()) {
-                        disableTx(regs);
-                    } else {
-                        startTransfer(regs, outQueue, true);
-                    }
-                } else {
-                    regs->USART_INT.SERCOM_DATA = outQueue.front().buffer[++outQueue.front().transferred];
-                }
-            } else { // Transmitter disabled (incoming transfer)
-                if (!inBuffer.remaining) { // Received first byte, set up new transfer
-                    inBuffer.buffer[0] = regs->USART_INT.SERCOM_DATA;
-                    inBuffer.remaining = (inBuffer.buffer[0] >> 4u) - 1;
-                    inBuffer.transferred = 1;
-                } else { // Continued transfer   
-                    inBuffer.buffer[inBuffer.transferred++] = regs->USART_INT.SERCOM_DATA;
-                    --inBuffer.remaining;
-                    if (!inBuffer.remaining && callback) { // Received last byte, ready to process
-                        callback(inBuffer);
-                    }
-                }
+    if (regs->USART_INT.SERCOM_INTFLAG & SERCOM_USART_INT_INTFLAG_TXC_Msk) { // Outgoing transfer
+        --outQueue.front().remaining;
+        if (!outQueue.front().remaining) { // Transmitted last byte
+            outQueue.pop_front();
+            if (!outQueue.empty()) {
+                startTransfer(regs, outQueue);
             }
+        } else {
+            regs->USART_INT.SERCOM_DATA = outQueue.front().buffer[++outQueue.front().transferred];
         }
-        (void)regs->USART_INT.SERCOM_DATA; // Clear the RXC interrupt flag
-        regs->USART_INT.SERCOM_INTFLAG = SERCOM_USART_INT_INTFLAG_Msk;
+    }
+    (void)regs->USART_INT.SERCOM_DATA; // Clear the RXC interrupt flag
+    regs->USART_INT.SERCOM_INTFLAG = SERCOM_USART_INT_INTFLAG_Msk;
 }
 
 extern "C" {

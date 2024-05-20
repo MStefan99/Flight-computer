@@ -65,7 +65,7 @@ void util::init() { // TODO: move away
     GCLK_REGS->GCLK_GENCTRL[2] = GCLK_GENCTRL_GENEN(1) // Enable GCLK 2
             | GCLK_GENCTRL_SRC_OSC16M // Set OSC16M as a source
             | GCLK_GENCTRL_DIVSEL_DIV2 // Set division mode (2^(x+1))
-            | GCLK_GENCTRL_DIV(4); // Divide by 32 (2^(4+1))
+            | GCLK_GENCTRL_DIV(5); // Divide by 64 (2^(5+1))
     
     // SysTick setup
     SysTick_Config(48000);

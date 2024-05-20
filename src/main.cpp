@@ -15,6 +15,7 @@
 #include "lib/inc/uart.hpp"
 
 #define NVMTEMP ((uint32_t*)0x00806030)
+#define DV_OUT 1
 
 static constexpr float ATT_LSB {10430.0f};
 
@@ -22,6 +23,12 @@ enum class FlightMode : uint8_t {
     Manual = 0x0,
     Attitude = 0x1,
     Position = 0x2
+};
+
+enum class OrientationMode : uint8_t {
+    Normal = 0x0,
+    Inverted = 0x1,
+    Tailsitter = 0x2 // Unused for now
 };
 
 enum class GimbalMode : uint8_t {
@@ -112,6 +119,17 @@ void startWatchdog() {
     WDT_REGS->WDT_CTRLA = WDT_CTRLA_ENABLE(1);
 }
 
+#if DV_OUT
+struct DVData {        
+    uint8_t header {0x03};
+    uint16_t dt {};
+    float yaw {};
+    float pitch {};
+    float roll {};
+    uint8_t footer {0xfc};
+} __attribute__((packed));
+#endif
+
 int main() {
     util::init();
     
@@ -123,6 +141,7 @@ int main() {
     servo::init();
     LSM6DSO32::init();
     usb::init();
+    uart::init();
     
     calibrate();
     
@@ -141,13 +160,17 @@ int main() {
     startWatchdog();
 
     while (1) {
+        #if DV_OUT
+            auto startMs = util::getTime();
+            auto startUs = SysTick->VAL;
+        #endif
+        
         updateSensors();
         
         auto deviceAngles {deviceOrientation.toEuler()};
         
-        pitchTarget = sbus::getChannel(0) / 1273.0f;
-        rollTarget = sbus::getChannel(1) / 1273.0f;
         flightMode = sbus::available() ? static_cast<FlightMode>((sbus::getChannel(8) + 1100) / 333) : FlightMode::Position;
+        OrientationMode orientationMode {static_cast<OrientationMode>((sbus::getChannel(9) + 1100) / 1000)};
         
         if (!sbus::available()) {
             PORT_REGS->GROUP[0].PORT_OUTSET = 0x1 << 27u;
@@ -178,8 +201,15 @@ int main() {
                 rollTarget = sbus::getChannel(0) * F_PI_4 / 1000;
                 pitchTarget = -sbus::getChannel(1) * F_PI_4 / 1000;
                 
-                data::inputs[0][0] = data::rollPID.process(getDifference(deviceAngles[2][0], rollTarget), 0);
-                data::inputs[1][0] = data::pitchPID.process(getDifference(deviceAngles[1][0], pitchTarget), 0);
+                if (orientationMode == OrientationMode::Inverted) {
+                    pitchTarget = pitchTarget + F_PI;
+                    if (pitchTarget > F_PI) {
+                        pitchTarget -= F_2_PI;
+                    }
+                }
+                
+                data::inputs[0][0] = data::rollPID.process(getDifference(deviceAngles[2][0], rollTarget));
+                data::inputs[1][0] = util::sign(F_PI_2 - deviceAngles[2][0]) * data::pitchPID.process(getDifference(deviceAngles[1][0], pitchTarget));
                 break;
             }
             case (FlightMode::Position): {
@@ -189,12 +219,19 @@ int main() {
                 rollTarget = util::clamp(data::headingPID.process(getDifference(deviceAngles[0][0], headingTarget), 0), -F_PI_4, F_PI_4);
                 pitchTarget = -sbus::getChannel(1) * F_PI_4 / 1000;
                 
-                data::inputs[0][0] = data::rollPID.process(getDifference(deviceAngles[2][0], rollTarget), 0);
-                data::inputs[1][0] = data::pitchPID.process(getDifference(deviceAngles[1][0], pitchTarget), 0);
+                if (orientationMode == OrientationMode::Inverted) {
+                    pitchTarget = pitchTarget + F_PI;
+                    if (pitchTarget > F_PI) {
+                        pitchTarget -= F_2_PI;
+                    }
+                }
+                
+                data::inputs[0][0] = data::rollPID.process(getDifference(deviceAngles[2][0], rollTarget));
+                data::inputs[1][0] = util::sign(F_PI_2 - deviceAngles[2][0]) * data::pitchPID.process(getDifference(deviceAngles[1][0], pitchTarget));
                 break;
             }
         }
-
+        
         GimbalMode gimbalMode {static_cast<GimbalMode>((sbus::getChannel(10) + 1100) / 1000)};
         
         switch (gimbalMode) {
@@ -239,6 +276,16 @@ int main() {
         for (uint8_t i {0}; i < data::outputChannelNumber; ++i) {
             servo::setChannel(i, data::outputs[i][0]);
         }
+        
+        #if DV_OUT
+            DVData data {};
+
+            data.dt = (util::getTime() - startMs) * 1000 + (startUs - SysTick->VAL) / 48;
+            data.yaw = deviceAngles[0][0];
+            data.pitch = deviceAngles[1][0];
+            data.roll = deviceAngles[2][0];
+            uart::sendTo1(reinterpret_cast<uint8_t*>(&data), sizeof(data));
+        #endif
         
         util::sleep(10);
         

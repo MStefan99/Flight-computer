@@ -15,7 +15,7 @@ struct PID {
 	PID() = default;
 	PID(T kp, T ki, T kd, T iLim);
 
-	T process(T sp, T val);
+	T process(T val, T sp = 0);
 
 	T kp {};
 	T ki {};

@@ -23,7 +23,7 @@ struct InlinePID {
 	InlinePID(PIDCoefficients* coefficients, T iLim);
 	InlinePID(T* kp, T* ki, T* kd, T iLim);
 
-	T process(T sp, T val, float dt = 0.01f);
+	T process(T val, T sp = 0, float dt = 0.01f);
 
 	T* kp {};
 	T* ki {};
