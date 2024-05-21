@@ -14,8 +14,7 @@
 #include "lib/inc/sbus.hpp"
 #include "lib/inc/uart.hpp"
 
-#define NVMTEMP ((uint32_t*)0x00806030)
-#define DV_OUT 1
+#define DV_OUT 0
 
 static constexpr float ATT_LSB {10430.0f};
 
@@ -71,10 +70,10 @@ void calibrate(bool force = false) {
 
 
 // Temperature calibration values
-static uint8_t tempR = NVMTEMP[0] & 0xff;
-static uint16_t adcR = (NVMTEMP[1] & 0xfff00) >> 8u;
-static uint8_t tempH = (NVMTEMP[0] & 0xff0000) >> 12u;
-static uint16_t adcH = (NVMTEMP[1] & 0xfff00000) >> 20u;
+static uint8_t tempR = TEMP_LOG_FUSES_REGS->FUSES_TEMP_LOG_WORD_0 & FUSES_TEMP_LOG_WORD_0_ROOM_TEMP_VAL_INT_Msk;
+static uint8_t tempH = (TEMP_LOG_FUSES_REGS->FUSES_TEMP_LOG_WORD_0 & FUSES_TEMP_LOG_WORD_0_HOT_TEMP_VAL_INT_Msk) >> FUSES_TEMP_LOG_WORD_0_HOT_TEMP_VAL_INT_Pos;
+static uint16_t adcR = (TEMP_LOG_FUSES_REGS->FUSES_TEMP_LOG_WORD_1 & FUSES_TEMP_LOG_WORD_1_ROOM_ADC_VAL_Msk) >> FUSES_TEMP_LOG_WORD_1_ROOM_ADC_VAL_Pos;
+static uint16_t adcH = (TEMP_LOG_FUSES_REGS->FUSES_TEMP_LOG_WORD_1 & FUSES_TEMP_LOG_WORD_1_HOT_ADC_VAL_Msk) >> FUSES_TEMP_LOG_WORD_1_HOT_ADC_VAL_Pos;
 
 static Mahony mahony {};
 static Quaternion deviceOrientation {};
@@ -141,7 +140,6 @@ int main() {
     servo::init();
     LSM6DSO32::init();
     usb::init();
-    uart::init();
     
     calibrate();
     
