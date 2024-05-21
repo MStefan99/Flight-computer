@@ -200,14 +200,18 @@ int main() {
                 pitchTarget = -sbus::getChannel(1) * F_PI_4 / 1000;
                 
                 if (orientationMode == OrientationMode::Inverted) {
-                    pitchTarget = pitchTarget + F_PI;
-                    if (pitchTarget > F_PI) {
-                        pitchTarget -= F_2_PI;
+                    rollTarget = rollTarget + F_PI;
+                    if (rollTarget > F_PI) {
+                        rollTarget -= F_2_PI;
                     }
                 }
                 
                 data::inputs[0][0] = data::rollPID.process(getDifference(deviceAngles[2][0], rollTarget));
-                data::inputs[1][0] = util::sign(F_PI_2 - deviceAngles[2][0]) * data::pitchPID.process(getDifference(deviceAngles[1][0], pitchTarget));
+                data::inputs[1][0] = data::pitchPID.process(getDifference(deviceAngles[1][0], pitchTarget));
+                
+                if (deviceAngles[2][0] < -F_PI_2 || deviceAngles[2][0] > F_PI_2) {
+                    data::inputs[1][0] = -data::inputs[1][0];
+                }
                 break;
             }
             case (FlightMode::Position): {
@@ -218,14 +222,18 @@ int main() {
                 pitchTarget = -sbus::getChannel(1) * F_PI_4 / 1000;
                 
                 if (orientationMode == OrientationMode::Inverted) {
-                    pitchTarget = pitchTarget + F_PI;
-                    if (pitchTarget > F_PI) {
-                        pitchTarget -= F_2_PI;
+                    rollTarget = rollTarget + F_PI;
+                    if (rollTarget > F_PI) {
+                        rollTarget -= F_2_PI;
                     }
                 }
                 
                 data::inputs[0][0] = data::rollPID.process(getDifference(deviceAngles[2][0], rollTarget));
-                data::inputs[1][0] = util::sign(F_PI_2 - deviceAngles[2][0]) * data::pitchPID.process(getDifference(deviceAngles[1][0], pitchTarget));
+                data::inputs[1][0] = data::pitchPID.process(getDifference(deviceAngles[1][0], pitchTarget));
+                
+                if (deviceAngles[2][0] < -F_PI_2 || deviceAngles[2][0] > F_PI_2) {
+                    data::inputs[1][0] = -data::inputs[1][0];
+                }
                 break;
             }
         }
@@ -234,8 +242,8 @@ int main() {
         
         switch (gimbalMode) {
             case (GimbalMode::Fixed): {
-                data::inputs[2][0] = sbus::getChannel(5);
-                data::inputs[3][0] = sbus::getChannel(6);
+                data::inputs[2][0] = -sbus::getChannel(3);
+                data::inputs[3][0] = -sbus::getChannel(4);
                 data::inputs[4][0] = 0;
                 break;   
             }
