@@ -10,17 +10,8 @@
             <logicalFolder name="f2" displayName="clock" projectFiles="true">
               <itemPath>../src/config/default/peripheral/clock/plib_clock.h</itemPath>
             </logicalFolder>
-            <logicalFolder name="f6" displayName="evsys" projectFiles="true">
-              <itemPath>../src/config/default/peripheral/evsys/plib_evsys.h</itemPath>
-            </logicalFolder>
             <logicalFolder name="f3" displayName="nvic" projectFiles="true">
               <itemPath>../src/config/default/peripheral/nvic/plib_nvic.h</itemPath>
-            </logicalFolder>
-            <logicalFolder name="f5" displayName="nvmctrl" projectFiles="true">
-              <itemPath>../src/config/default/peripheral/nvmctrl/plib_nvmctrl.h</itemPath>
-            </logicalFolder>
-            <logicalFolder name="f4" displayName="pm" projectFiles="true">
-              <itemPath>../src/config/default/peripheral/pm/plib_pm.h</itemPath>
             </logicalFolder>
             <logicalFolder name="f1" displayName="port" projectFiles="true">
               <itemPath>../src/config/default/peripheral/port/plib_port.h</itemPath>
@@ -90,6 +81,7 @@
             <itemPath>../src/packs/ATSAML21E16B_DFP/component/trng.h</itemPath>
             <itemPath>../src/packs/ATSAML21E16B_DFP/component/usb.h</itemPath>
             <itemPath>../src/packs/ATSAML21E16B_DFP/component/wdt.h</itemPath>
+            <itemPath>../src/packs/ATSAML21E16B_DFP/component/fuses.h</itemPath>
           </logicalFolder>
           <logicalFolder name="f2" displayName="instance" projectFiles="true">
             <itemPath>../src/packs/ATSAML21E16B_DFP/instance/ac.h</itemPath>
@@ -132,6 +124,7 @@
             <itemPath>../src/packs/ATSAML21E16B_DFP/instance/trng.h</itemPath>
             <itemPath>../src/packs/ATSAML21E16B_DFP/instance/usb.h</itemPath>
             <itemPath>../src/packs/ATSAML21E16B_DFP/instance/wdt.h</itemPath>
+            <itemPath>../src/packs/ATSAML21E16B_DFP/instance/fuses.h</itemPath>
           </logicalFolder>
           <logicalFolder name="f3" displayName="pio" projectFiles="true">
             <itemPath>../src/packs/ATSAML21E16B_DFP/pio/saml21e16b.h</itemPath>
@@ -174,6 +167,7 @@
       </logicalFolder>
       <itemPath>Makefile</itemPath>
       <itemPath>../src/config/default/harmony-manifest-success.yml</itemPath>
+      <itemPath>controller.mc3</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -193,17 +187,8 @@
             <logicalFolder name="f2" displayName="clock" projectFiles="true">
               <itemPath>../src/config/default/peripheral/clock/plib_clock.c</itemPath>
             </logicalFolder>
-            <logicalFolder name="f6" displayName="evsys" projectFiles="true">
-              <itemPath>../src/config/default/peripheral/evsys/plib_evsys.c</itemPath>
-            </logicalFolder>
             <logicalFolder name="f3" displayName="nvic" projectFiles="true">
               <itemPath>../src/config/default/peripheral/nvic/plib_nvic.c</itemPath>
-            </logicalFolder>
-            <logicalFolder name="f5" displayName="nvmctrl" projectFiles="true">
-              <itemPath>../src/config/default/peripheral/nvmctrl/plib_nvmctrl.c</itemPath>
-            </logicalFolder>
-            <logicalFolder name="f4" displayName="pm" projectFiles="true">
-              <itemPath>../src/config/default/peripheral/pm/plib_pm.c</itemPath>
             </logicalFolder>
             <logicalFolder name="f1" displayName="port" projectFiles="true">
               <itemPath>../src/config/default/peripheral/port/plib_port.c</itemPath>
@@ -236,6 +221,7 @@
         <itemPath>../src/lib/src/sbus.cpp</itemPath>
       </logicalFolder>
       <itemPath>../src/main.cpp</itemPath>
+      <itemPath>../src/config/default/pin_configurations.csv</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>
@@ -314,6 +300,7 @@
       <C32>
         <property key="additional-warnings" value="true"/>
         <property key="addresss-attribute-use" value="false"/>
+        <property key="appendMe" value=""/>
         <property key="enable-app-io" value="false"/>
         <property key="enable-omit-frame-pointer" value="false"/>
         <property key="enable-symbols" value="true"/>
@@ -324,7 +311,7 @@
         <property key="generate-16-bit-code" value="false"/>
         <property key="generate-micro-compressed-code" value="false"/>
         <property key="isolate-each-function" value="true"/>
-        <property key="make-warnings-into-errors" value="false"/>
+        <property key="make-warnings-into-errors" value="true"/>
         <property key="optimization-level" value="-O1"/>
         <property key="place-data-into-section" value="true"/>
         <property key="post-instruction-scheduling" value="default"/>
@@ -370,6 +357,7 @@
         <property key="additional-options-use-response-files" value="false"/>
         <property key="additional-options-write-sla" value="false"/>
         <property key="allocate-dinit" value="false"/>
+        <property key="appendMe" value=""/>
         <property key="code-dinit" value="false"/>
         <property key="ebase-addr" value=""/>
         <property key="enable-check-sections" value="false"/>
@@ -386,7 +374,7 @@
         <property key="generate-16-bit-code" value="false"/>
         <property key="generate-cross-reference-file" value="false"/>
         <property key="generate-micro-compressed-code" value="false"/>
-        <property key="heap-size" value="512"/>
+        <property key="heap-size" value="0"/>
         <property key="input-libraries" value=""/>
         <property key="kseg-length" value=""/>
         <property key="kseg-origin" value=""/>
@@ -409,6 +397,7 @@
       <C32CPP>
         <property key="additional-warnings" value="false"/>
         <property key="addresss-attribute-use" value="false"/>
+        <property key="appendMe" value=""/>
         <property key="check-new" value="false"/>
         <property key="eh-specs" value="false"/>
         <property key="enable-app-io" value="false"/>
@@ -1484,6 +1473,8 @@
         <property key="memories.programmemory" value="true"/>
         <property key="memories.programmemory.ranges" value="0-ffff"/>
         <property key="poweroptions.powerenable" value="false"/>
+        <property key="programmerToGoFilePath"
+                  value="D:/Programming/embedded/flight_computer/receiver/firmware/receiver.X/debug/default/receiver_ptg"/>
         <property key="programmerToGoImageName" value="receiver_ptg"/>
         <property key="programoptions.donoteraseauxmem" value="false"/>
         <property key="programoptions.eraseb4program" value="true"/>

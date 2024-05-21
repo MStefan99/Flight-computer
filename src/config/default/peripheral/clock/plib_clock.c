@@ -41,21 +41,25 @@
 #include "plib_clock.h"
 #include "device.h"
 
+
+
 static void OSCCTRL_Initialize(void)
 {
+    /**************** OSC16M IniTialization *************/
+    OSCCTRL_REGS->OSCCTRL_OSC16MCTRL = OSCCTRL_OSC16MCTRL_FSEL(0x3U) | OSCCTRL_OSC16MCTRL_ONDEMAND_Msk | OSCCTRL_OSC16MCTRL_ENABLE_Msk;
 }
 
 static void OSC32KCTRL_Initialize(void)
 {
-    OSC32KCTRL_REGS->OSC32KCTRL_OSC32K = 0x0;
+    OSC32KCTRL_REGS->OSC32KCTRL_OSC32K = 0x0U;
 
-    OSC32KCTRL_REGS->OSC32KCTRL_RTCCTRL = OSC32KCTRL_RTCCTRL_RTCSEL(0);
+    OSC32KCTRL_REGS->OSC32KCTRL_RTCCTRL = OSC32KCTRL_RTCCTRL_RTCSEL(0U);
 }
 
 static void DFLL_Initialize(void)
 {
     /****************** DFLL Initialization  *********************************/
-    OSCCTRL_REGS->OSCCTRL_DFLLCTRL = 0 ;
+    OSCCTRL_REGS->OSCCTRL_DFLLCTRL = 0U ;
 
     while((OSCCTRL_REGS->OSCCTRL_STATUS & OSCCTRL_STATUS_DFLLRDY_Msk) != OSCCTRL_STATUS_DFLLRDY_Msk)
     {
@@ -63,9 +67,15 @@ static void DFLL_Initialize(void)
     }
 
     /*Load Calibration Value*/
-    uint8_t calibCoarse = (uint8_t)(((*(uint32_t*)0x806020) >> 26 ) & 0x3f);
+    uint8_t calibCoarse = (uint8_t)(((*(uint32_t*)0x00806020U) >> 26U ) & 0x3fU);
 
-    OSCCTRL_REGS->OSCCTRL_DFLLVAL = OSCCTRL_DFLLVAL_COARSE(calibCoarse) | OSCCTRL_DFLLVAL_FINE(512);
+    OSCCTRL_REGS->OSCCTRL_DFLLVAL = OSCCTRL_DFLLVAL_COARSE((uint32_t)calibCoarse) | OSCCTRL_DFLLVAL_FINE(512U);
+
+    while((OSCCTRL_REGS->OSCCTRL_STATUS & OSCCTRL_STATUS_DFLLRDY_Msk) != OSCCTRL_STATUS_DFLLRDY_Msk)
+    {
+        /* Waiting for the Ready state */
+    }
+    OSCCTRL_REGS->OSCCTRL_DFLLMUL = OSCCTRL_DFLLMUL_MUL(48000U) | OSCCTRL_DFLLMUL_FSTEP(1U) | OSCCTRL_DFLLMUL_CSTEP(1U);
 
     while((OSCCTRL_REGS->OSCCTRL_STATUS & OSCCTRL_STATUS_DFLLRDY_Msk) != OSCCTRL_STATUS_DFLLRDY_Msk)
     {
@@ -73,12 +83,13 @@ static void DFLL_Initialize(void)
     }
 
     /* Configure DFLL    */
-    OSCCTRL_REGS->OSCCTRL_DFLLCTRL = OSCCTRL_DFLLCTRL_ENABLE_Msk ;
+    OSCCTRL_REGS->OSCCTRL_DFLLCTRL = OSCCTRL_DFLLCTRL_ENABLE_Msk | OSCCTRL_DFLLCTRL_MODE_Msk | OSCCTRL_DFLLCTRL_USBCRM_Msk ;
 
     while((OSCCTRL_REGS->OSCCTRL_STATUS & OSCCTRL_STATUS_DFLLRDY_Msk) != OSCCTRL_STATUS_DFLLRDY_Msk)
     {
         /* Waiting for DFLL to be ready */
     }
+    
 }
 
 
@@ -86,11 +97,33 @@ static void DFLL_Initialize(void)
 static void GCLK0_Initialize(void)
 {
 
-    GCLK_REGS->GCLK_GENCTRL[0] = GCLK_GENCTRL_DIV(1) | GCLK_GENCTRL_SRC(7) | GCLK_GENCTRL_GENEN_Msk;
+    GCLK_REGS->GCLK_GENCTRL[0] = GCLK_GENCTRL_DIV(1U) | GCLK_GENCTRL_SRC(7U) | GCLK_GENCTRL_GENEN_Msk;
 
     while((GCLK_REGS->GCLK_SYNCBUSY & GCLK_SYNCBUSY_GENCTRL0_Msk) == GCLK_SYNCBUSY_GENCTRL0_Msk)
     {
         /* wait for the Generator 0 synchronization */
+    }
+}
+
+
+static void GCLK1_Initialize(void)
+{
+    GCLK_REGS->GCLK_GENCTRL[1] = GCLK_GENCTRL_DIV(1U) | GCLK_GENCTRL_SRC(7U) | GCLK_GENCTRL_GENEN_Msk;
+
+    while((GCLK_REGS->GCLK_SYNCBUSY & GCLK_SYNCBUSY_GENCTRL1_Msk) == GCLK_SYNCBUSY_GENCTRL1_Msk)
+    {
+        /* wait for the Generator 1 synchronization */
+    }
+}
+
+
+static void GCLK2_Initialize(void)
+{
+    GCLK_REGS->GCLK_GENCTRL[2] = GCLK_GENCTRL_DIV(5U) | GCLK_GENCTRL_SRC(6U) | GCLK_GENCTRL_DIVSEL_Msk | GCLK_GENCTRL_GENEN_Msk;
+
+    while((GCLK_REGS->GCLK_SYNCBUSY & GCLK_SYNCBUSY_GENCTRL2_Msk) == GCLK_SYNCBUSY_GENCTRL2_Msk)
+    {
+        /* wait for the Generator 2 synchronization */
     }
 }
 
@@ -102,19 +135,68 @@ void CLOCK_Initialize (void)
     /* Function to Initialize the 32KHz Oscillators */
     OSC32KCTRL_Initialize();
 
-    /*Initialize low Power Divider*/
-    MCLK_REGS->MCLK_LPDIV = MCLK_LPDIV_LPDIV(0x01);
-
     /*Initialize Backup Divider*/
-    MCLK_REGS->MCLK_BUPDIV = MCLK_BUPDIV_BUPDIV(0x08);
+    MCLK_REGS->MCLK_BUPDIV = MCLK_BUPDIV_BUPDIV(0x08U);
+
+    /*Initialize low Power Divider*/
+    MCLK_REGS->MCLK_LPDIV = MCLK_LPDIV_LPDIV(0x01U);
 
     DFLL_Initialize();
+    GCLK2_Initialize();
     GCLK0_Initialize();
+    GCLK1_Initialize();
+
+
+    /* Selection of the Generator and write Lock for USB */
+    GCLK_REGS->GCLK_PCHCTRL[4] = GCLK_PCHCTRL_GEN(0x1U)  | GCLK_PCHCTRL_CHEN_Msk;
+
+    while ((GCLK_REGS->GCLK_PCHCTRL[4] & GCLK_PCHCTRL_CHEN_Msk) != GCLK_PCHCTRL_CHEN_Msk)
+    {
+        /* Wait for synchronization */
+    }
+    /* Selection of the Generator and write Lock for SERCOM1_CORE */
+    GCLK_REGS->GCLK_PCHCTRL[19] = GCLK_PCHCTRL_GEN(0x1U)  | GCLK_PCHCTRL_CHEN_Msk;
+
+    while ((GCLK_REGS->GCLK_PCHCTRL[19] & GCLK_PCHCTRL_CHEN_Msk) != GCLK_PCHCTRL_CHEN_Msk)
+    {
+        /* Wait for synchronization */
+    }
+    /* Selection of the Generator and write Lock for SERCOM2_CORE */
+    GCLK_REGS->GCLK_PCHCTRL[20] = GCLK_PCHCTRL_GEN(0x1U)  | GCLK_PCHCTRL_CHEN_Msk;
+
+    while ((GCLK_REGS->GCLK_PCHCTRL[20] & GCLK_PCHCTRL_CHEN_Msk) != GCLK_PCHCTRL_CHEN_Msk)
+    {
+        /* Wait for synchronization */
+    }
+    /* Selection of the Generator and write Lock for SERCOM4_CORE */
+    GCLK_REGS->GCLK_PCHCTRL[22] = GCLK_PCHCTRL_GEN(0x1U)  | GCLK_PCHCTRL_CHEN_Msk;
+
+    while ((GCLK_REGS->GCLK_PCHCTRL[22] & GCLK_PCHCTRL_CHEN_Msk) != GCLK_PCHCTRL_CHEN_Msk)
+    {
+        /* Wait for synchronization */
+    }
+    /* Selection of the Generator and write Lock for TCC0 TCC1 */
+    GCLK_REGS->GCLK_PCHCTRL[25] = GCLK_PCHCTRL_GEN(0x1U)  | GCLK_PCHCTRL_CHEN_Msk;
+
+    while ((GCLK_REGS->GCLK_PCHCTRL[25] & GCLK_PCHCTRL_CHEN_Msk) != GCLK_PCHCTRL_CHEN_Msk)
+    {
+        /* Wait for synchronization */
+    }
+    /* Selection of the Generator and write Lock for TCC2 */
+    GCLK_REGS->GCLK_PCHCTRL[26] = GCLK_PCHCTRL_GEN(0x1U)  | GCLK_PCHCTRL_CHEN_Msk;
+
+    while ((GCLK_REGS->GCLK_PCHCTRL[26] & GCLK_PCHCTRL_CHEN_Msk) != GCLK_PCHCTRL_CHEN_Msk)
+    {
+        /* Wait for synchronization */
+    }
+    /* Selection of the Generator and write Lock for ADC */
+    GCLK_REGS->GCLK_PCHCTRL[30] = GCLK_PCHCTRL_GEN(0x2U)  | GCLK_PCHCTRL_CHEN_Msk;
+
+    while ((GCLK_REGS->GCLK_PCHCTRL[30] & GCLK_PCHCTRL_CHEN_Msk) != GCLK_PCHCTRL_CHEN_Msk)
+    {
+        /* Wait for synchronization */
+    }
 
 
 
-
-
-    /*Disable internal RC oscillator*/
-    OSCCTRL_REGS->OSCCTRL_OSC16MCTRL = 0;
 }
