@@ -168,7 +168,7 @@ int main() {
         auto deviceAngles {deviceOrientation.toEuler()};
         
         flightMode = sbus::available() ? static_cast<FlightMode>((sbus::getChannel(8) + 1100) / 333) : FlightMode::Position;
-        OrientationMode orientationMode {static_cast<OrientationMode>((sbus::getChannel(9) + 1100) / 1000)};
+        OrientationMode orientationMode {sbus::available() ? static_cast<OrientationMode>((sbus::getChannel(9) + 1100) / 1000) : OrientationMode::Normal};
         
         if (!sbus::available()) {
             PORT_REGS->GROUP[0].PORT_OUTSET = 0x1 << 27u;
@@ -206,8 +206,8 @@ int main() {
                     }
                 }
                 
-                data::inputs[0][0] = data::rollPID.process(getDifference(deviceAngles[2][0], rollTarget));
-                data::inputs[1][0] = data::pitchPID.process(getDifference(deviceAngles[1][0], pitchTarget));
+                data::inputs[0][0] = data::rollPID.process(getDifference(rollTarget, deviceAngles[2][0]));
+                data::inputs[1][0] = data::pitchPID.process(getDifference(pitchTarget, deviceAngles[1][0]));
                 
                 if (deviceAngles[2][0] < -F_PI_2 || deviceAngles[2][0] > F_PI_2) {
                     data::inputs[1][0] = -data::inputs[1][0];
@@ -228,8 +228,8 @@ int main() {
                     }
                 }
                 
-                data::inputs[0][0] = data::rollPID.process(getDifference(deviceAngles[2][0], rollTarget));
-                data::inputs[1][0] = data::pitchPID.process(getDifference(deviceAngles[1][0], pitchTarget));
+                data::inputs[0][0] = data::rollPID.process(getDifference(rollTarget, deviceAngles[2][0]));
+                data::inputs[1][0] = data::pitchPID.process(getDifference(pitchTarget, deviceAngles[1][0]));
                 
                 if (deviceAngles[2][0] < -F_PI_2 || deviceAngles[2][0] > F_PI_2) {
                     data::inputs[1][0] = -data::inputs[1][0];
@@ -238,7 +238,7 @@ int main() {
             }
         }
         
-        GimbalMode gimbalMode {static_cast<GimbalMode>((sbus::getChannel(10) + 1100) / 1000)};
+        GimbalMode gimbalMode {sbus::available() ? static_cast<GimbalMode>((sbus::getChannel(10) + 1100) / 1000) : GimbalMode::Horizon};
         
         switch (gimbalMode) {
             case (GimbalMode::Fixed): {
