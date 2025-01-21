@@ -1,4 +1,4 @@
-#include "lib/inc/sbus.hpp"
+#include "sbus.hpp"
 
 #define SERCOM_REGS SERCOM3_REGS
 

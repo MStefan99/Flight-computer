@@ -1,6 +1,6 @@
-#include "lib/inc/data.hpp"
+#include "data.hpp"
 
-#include "lib/inc/nvm.hpp"
+#include "nvm.hpp"
 
 
 data::USBStatusResponse   data::usbStatusResponse {};

@@ -1,18 +1,18 @@
 #include "device.h"
 // #include <xc.h>  // TODO: explore, possibly delete Harmony files
 
-#include "lib/inc/data.hpp"
-#include "lib/inc/dma.hpp"
-#include "lib/inc/i2c.hpp"
-#include "lib/inc/LSM6DSO32.hpp"
-#include "lib/inc/Mahony.hpp"
-#include "lib/inc/nvm.hpp"
-#include "lib/inc/Quaternion.hpp"
-#include "lib/inc/sbus.hpp"
-#include "lib/inc/servo.hpp"
-#include "lib/inc/uart.hpp"
-#include "lib/inc/usb.hpp"
-#include "lib/inc/util.hpp"
+#include "data.hpp"
+#include "dma.hpp"
+#include "i2c.hpp"
+#include "LSM6DSO32.hpp"
+#include "Mahony.hpp"
+#include "nvm.hpp"
+#include "Quaternion.hpp"
+#include "sbus.hpp"
+#include "servo.hpp"
+#include "uart.hpp"
+#include "usb.hpp"
+#include "util.hpp"
 
 #define DV_OUT 0
 

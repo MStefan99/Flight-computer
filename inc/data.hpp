@@ -10,9 +10,9 @@
 
 #include "device.h"
 
-#include "lib/inc/InlineMatrix.hpp"
-#include "lib/inc/InlinePID.hpp"
-#include "lib/inc/util.hpp"
+#include "InlineMatrix.hpp"
+#include "InlinePID.hpp"
+#include "util.hpp"
 
 namespace data {
 	constexpr uint8_t inputChannelNumber {8};

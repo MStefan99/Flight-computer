@@ -1,4 +1,4 @@
-#include "lib/inc/Quaternion.hpp"
+#include "Quaternion.hpp"
 
 Quaternion::Quaternion(float w, float x, float y, float z):
   _w(w),

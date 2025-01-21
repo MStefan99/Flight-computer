@@ -11,7 +11,7 @@
 #include "device.h"
 #include "LSM6DSO32_regs.h"
 
-#include "lib/inc/i2c.hpp"
+#include "i2c.hpp"
 #include "Matrix.hpp"
 #include "util.hpp"
 

@@ -1,8 +1,8 @@
-#include "lib/inc/usb.hpp"
+#include "usb.hpp"
 
-#include "lib/inc/nvm.hpp"
-#include "lib/inc/servo.hpp"
-#include "lib/inc/uart.hpp"
+#include "nvm.hpp"
+#include "servo.hpp"
+#include "uart.hpp"
 
 using namespace usb;
 

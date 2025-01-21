@@ -10,8 +10,8 @@
 
 #include "device.h"
 
-#include "lib/inc/dma.hpp"
-#include "lib/inc/util.hpp"
+#include "dma.hpp"
+#include "util.hpp"
 
 namespace uart {
 	template <class size_type, size_type C>

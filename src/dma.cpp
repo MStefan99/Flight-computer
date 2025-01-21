@@ -1,4 +1,4 @@
-#include "lib/inc/dma.hpp"
+#include "dma.hpp"
 
 #define I2C_REGS  SERCOM2_REGS
 #define UART_REGS SERCOM3_REGS

@@ -11,8 +11,8 @@
 
 #include "device.h"
 
-#include "lib/inc/dma.hpp"
-#include "lib/inc/util.hpp"
+#include "dma.hpp"
+#include "util.hpp"
 
 namespace i2c {
 	void init();

@@ -1,4 +1,4 @@
-#include "lib/inc/Mahony.hpp"
+#include "Mahony.hpp"
 
 Mahony::Mahony(float Kp, float Ki):
   _twoKp {Kp * 2.0f},

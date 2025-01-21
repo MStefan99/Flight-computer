@@ -1,4 +1,4 @@
-#include "lib/inc/util.hpp"
+#include "util.hpp"
 
 
 static uint32_t ticks {0};

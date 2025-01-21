@@ -1,4 +1,4 @@
-#include "lib/inc/uart.hpp"
+#include "uart.hpp"
 
 
 static uart::DefaultQueue                   outQueue1 {};

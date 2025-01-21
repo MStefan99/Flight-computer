@@ -1,4 +1,4 @@
-#include "lib/inc/servo.hpp"
+#include "servo.hpp"
 
 
 static tcc_registers_t* getTimer(uint8_t channel);
