@@ -92,7 +92,7 @@ void updateSensors() {
 	}
 
 	mahony.updateIMU(LSM6DSO32::getAngularRates(), LSM6DSO32::getAccelerations(), 0.01f);
-	deviceOrientation = mahony.getQuat();
+	deviceOrientation = mahony.getQuaternion();
 	auto deviceAngles {deviceOrientation.toEuler()};
 
 	data::usbStatusResponse.pitch = deviceAngles[1][0] * ATT_LSB;

@@ -1,3 +1,17 @@
+// Adafruit Mahony filter implementation
+// https://github.com/adafruit/Adafruit_AHRS
+//
+//=============================================================================================
+//
+// Madgwick's implementation of Mayhony's AHRS algorithm.
+// See: http://www.x-io.co.uk/open-source-imu-and-ahrs-algorithms/
+//
+// Date			Author			Notes
+// 29/09/2011	SOH Madgwick    Initial release
+// 02/10/2011	SOH Madgwick	Optimised for reduced CPU load
+//
+//=============================================================================================
+
 #include "Mahony.hpp"
 
 Mahony::Mahony(float Kp, float Ki):
@@ -23,12 +37,14 @@ void Mahony::setKi(float Ki) {
 	_twoKi = Ki * 2.0f;
 }
 
-Quaternion Mahony::getQuat() const {
+Quaternion Mahony::getQuaternion() const {
 	return _quat;
 }
 
-// Thanks to Adafruit for Mahony filter implementation
-// https://github.com/adafruit/Adafruit_AHRS
+void Mahony::setQuaternion(const Quaternion& quat) {
+	_quat = quat;
+}
+
 void Mahony::update(Vector3<float, uint8_t> rot, Vector3<float, uint8_t> acc, Vector3<float, uint8_t> mag, float dt) {
 	// Use IMU algorithm if magnetometer measurement invalid
 	// (avoids NaN in magnetometer normalization)
