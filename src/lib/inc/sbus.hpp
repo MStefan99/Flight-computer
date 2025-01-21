@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   receiver.h
  * Author: mikha
  *
@@ -6,22 +6,20 @@
  */
 
 #ifndef SBUS_HPP
-#define	SBUS_HPP
+#define SBUS_HPP
 
 #include "device.h"
 
-#include "util.hpp"
 #include "dma.hpp"
-
+#include "util.hpp"
 
 namespace sbus {
 	void init();
 
-    bool available();
+	bool    available();
 	int16_t getChannel(uint8_t channel);  // Channels start from 0
-    bool frameLost();
-    bool failsafeActive();
+	bool    frameLost();
+	bool    failsafeActive();
 }
 
-#endif	/* SBUS_HPP */
-
+#endif /* SBUS_HPP */
