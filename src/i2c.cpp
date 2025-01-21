@@ -2,7 +2,8 @@
 
 #define SERCOM_REGS SERCOM2_REGS
 
-void i2c::init() {                                                         // GCLK config
+void i2c::init() {
+	// GCLK config
 	GCLK_REGS->GCLK_PCHCTRL[SERCOM2_GCLK_ID_CORE] = GCLK_PCHCTRL_CHEN(1)     // Enable SERCOM3 clock
 	                                              | GCLK_PCHCTRL_GEN_GCLK0;  // Set GCLK0 as a clock source
 
@@ -16,10 +17,10 @@ void i2c::init() {                                                         // GC
 	SERCOM_REGS->I2CM.SERCOM_CTRLB = SERCOM_I2CM_CTRLB_SMEN(1);
 
 	// SERCOM config
-	SERCOM_REGS->I2CM.SERCOM_BAUD = SERCOM_I2CM_BAUD_BAUD(9) | SERCOM_I2CM_BAUD_BAUDLOW(19);  // 1MHz
-	SERCOM_REGS->I2CM.SERCOM_CTRLA = SERCOM_I2CM_CTRLA_LOWTOUTEN(1) | SERCOM_I2CM_CTRLA_SPEED_FASTPLUS_MODE
-	                               | SERCOM_I2CM_CTRLA_PINOUT(0) | SERCOM_I2CM_CTRLA_MODE_I2C_MASTER
-	                               | SERCOM_I2CM_CTRLA_ENABLE(1);
+	SERCOM_REGS->I2CM.SERCOM_BAUD = SERCOM_I2CM_BAUD_BAUD(30)      // 1.3us
+	                              | SERCOM_I2CM_BAUD_BAUDLOW(72);  // 0.6us, 400kHz
+	SERCOM_REGS->I2CM.SERCOM_CTRLA = SERCOM_I2CM_CTRLA_SPEED_STANDARD_AND_FAST_MODE | SERCOM_I2CM_CTRLA_PINOUT(0)
+	                               | SERCOM_I2CM_CTRLA_MODE_I2C_MASTER | SERCOM_I2CM_CTRLA_ENABLE(1);
 	SERCOM_REGS->I2CM.SERCOM_INTENSET = SERCOM_I2CM_INTENSET_ERROR(1);
 	NVIC_EnableIRQ(SERCOM2_IRQn);
 
