@@ -30,7 +30,7 @@ namespace uart {
 	};
 
 	using DefaultCallback = Callback<uint8_t, 8>;
-	using DefaultQueue = RingBuffer<uart::Buffer<uint8_t, 16>, uint8_t, 4>;
+	using DefaultQueue = RingBuffer<uart::Buffer<uint8_t, 32>, uint8_t, 32>;
 
 	void    init();
 	uint8_t print(const char* buf);

@@ -3,7 +3,7 @@
 #include "uart.hpp"
 
 constexpr static float ACC_LSB {0.122f / 1000.0f};  // mg
-constexpr static float ROT_LSB {8.75f / 1000.0f};   // dps
+constexpr static float ROT_LSB {35.0f / 1000.0f};   // dps
 
 static int16_t rawAccelerations[3] {0};
 static int16_t rawAngularRates[3] {0};
@@ -15,7 +15,7 @@ static float angularRates[3] {0};
 
 void LSM6DSO32::init() {
 	uint8_t ctrl1_xl {LSM6DSO32_CTRL1_XL_ODR_XL_104Hz};
-	uint8_t ctrl2_g {LSM6DSO32_CTRL2_G_ODR_G_104Hz};
+	uint8_t ctrl2_g {LSM6DSO32_CTRL2_G_ODR_G_104Hz | LSM6DSO32_CTRL2_G_FS_G_1000DPS};
 	i2c::write(LSM6DSO32_ADDR_0, LSM6DSO32_CTRL1_XL_ADDR, &ctrl1_xl);
 	i2c::write(LSM6DSO32_ADDR_0, LSM6DSO32_CTRL2_G_ADDR, &ctrl2_g);
 }
