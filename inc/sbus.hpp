@@ -10,7 +10,6 @@
 
 #include "device.h"
 
-#include "dma.hpp"
 #include "util.hpp"
 
 namespace sbus {

@@ -2,7 +2,6 @@
 // #include <xc.h>  // TODO: explore, possibly delete Harmony files
 
 #include "data.hpp"
-#include "dma.hpp"
 #include "i2c.hpp"
 #include "LSM6DSO32.hpp"
 #include "Mahony.hpp"
@@ -133,11 +132,11 @@ int main() {
 
 	nvm::load();
 
-	dma::init();
+	uart::init();
 	sbus::init();
 	i2c::init();
-	servo::init();
 	LSM6DSO32::init();
+	servo::init();
 	usb::init();
 
 	calibrate();

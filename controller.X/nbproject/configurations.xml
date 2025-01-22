@@ -40,7 +40,6 @@
         <itemPath>../inc/RingBuffer.hpp</itemPath>
         <itemPath>../inc/TaskScheduler.hpp</itemPath>
         <itemPath>../inc/data.hpp</itemPath>
-        <itemPath>../inc/dma.hpp</itemPath>
         <itemPath>../inc/i2c.hpp</itemPath>
         <itemPath>../inc/nvm.hpp</itemPath>
         <itemPath>../inc/sbus.hpp</itemPath>
@@ -211,7 +210,6 @@
         <itemPath>../src/Mahony.cpp</itemPath>
         <itemPath>../src/Quaternion.cpp</itemPath>
         <itemPath>../src/data.cpp</itemPath>
-        <itemPath>../src/dma.cpp</itemPath>
         <itemPath>../src/i2c.cpp</itemPath>
         <itemPath>../src/nvm.cpp</itemPath>
         <itemPath>../src/sbus.cpp</itemPath>

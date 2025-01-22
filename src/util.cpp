@@ -5,31 +5,12 @@ static uint32_t ticks {0};
 
 
 extern "C" {
-
 	void SysTick_Handler() {
 		++ticks;
 	}
 }
 
-void util::init() {  // TODO: move away
-	/* Clock distribution
-	 *
-	 * OSC16M @ 8MHz
-	 * |
-	 * `--> GCLK1 @ 500KHz
-	 *      |
-	 *      `--> ADC @ 250KHz
-	 *
-	 * DFLL48M @ 48MHz
-	 * |
-	 * `--> GCLK0 @ 48MHz
-	 *      |
-	 *      |--> MCLK @ 48MHz
-	 *      |
-	 *      `--> TCC @ 48MHz
-	 */
-
-
+void util::init() {
 	uint32_t calibration = *((uint32_t*)0x00806020);
 
 	// SUPC setup
