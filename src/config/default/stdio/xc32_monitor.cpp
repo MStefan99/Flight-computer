@@ -53,7 +53,6 @@ extern "C" {
     }
 
     int write(int handle, void * buffer, size_t count) {   
-        uart::sendTo1(reinterpret_cast<const uint8_t*>(buffer), count);
-        return count;
+        return uart::sendTo1(reinterpret_cast<const uint8_t*>(buffer), count);
     }
 }

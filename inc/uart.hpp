@@ -19,6 +19,8 @@ namespace uart {
 		uint8_t   buffer[C] {};
 		size_type transferred {0};
 		size_type remaining {0};
+
+		constexpr static size_type capacity {C};
 	};
 
 	template <class size_type, size_type C>
@@ -33,11 +35,11 @@ namespace uart {
 	void    init();
 	uint8_t print(const char* buf);
 
-	void sendTo1(const uint8_t* buf, uint8_t len);
-	void set1Callback(DefaultCallback::callback_type cb);
+	uint8_t sendTo1(const uint8_t* buf, uint8_t len);
+	void    set1Callback(DefaultCallback::callback_type cb);
 
-	void sendTo2(const uint8_t* buf, uint8_t len);
-	void set2Callback(uart::DefaultCallback::callback_type cb);
+	uint8_t sendTo2(const uint8_t* buf, uint8_t len);
+	void    set2Callback(uart::DefaultCallback::callback_type cb);
 }
 
 

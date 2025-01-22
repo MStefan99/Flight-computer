@@ -104,28 +104,32 @@ uint8_t uart::print(const char* buf) {
 	return len;
 }
 
-void uart::sendTo1(const uint8_t* buf, uint8_t len) {
+uint8_t uart::sendTo1(const uint8_t* buf, uint8_t len) {
 	if (outQueue1.full()) {
-		return;
+		return -1;
 	}
+	len = util::min(len, outQueue1[0].capacity);
 
 	outQueue1.push_back({{}, 0, len});
 	util::copy(outQueue1.back().buffer, buf, len);
 	startTransfer(SERCOM4_REGS, outQueue1);
+	return len;
 }
 
 void uart::set1Callback(uart::DefaultCallback::callback_type cb) {
 	callback1 = cb;
 }
 
-void uart::sendTo2(const uint8_t* buf, uint8_t len) {
+uint8_t uart::sendTo2(const uint8_t* buf, uint8_t len) {
 	if (outQueue2.full()) {
-		return;
+		return -1;
 	}
+	len = util::min(len, outQueue2[0].capacity);
 
 	outQueue2.push_back({{}, 0, len});
 	util::copy(outQueue2.back().buffer, buf, len);
 	startTransfer(SERCOM1_REGS, outQueue2);
+	return len;
 }
 
 void uart::set2Callback(uart::DefaultCallback::callback_type cb) {
