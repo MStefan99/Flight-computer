@@ -135,7 +135,7 @@ static void nextI2CTransfer() {
 static void I2CStreamOut(const dma::I2CTransfer& transfer) {
 	DMAC_REGS->DMAC_CHID = DMA_CH_I2C_TX;
 	DESCRIPTOR_TABLE[DMA_CH_I2C_TX].DMAC_BTCNT = transfer.len;
-	DESCRIPTOR_TABLE[DMA_CH_I2C_TX].DMAC_SRCADDR = reinterpret_cast<uint32_t>(&transfer.buf) + transfer.len;
+	DESCRIPTOR_TABLE[DMA_CH_I2C_TX].DMAC_SRCADDR = reinterpret_cast<uint32_t>(transfer.buf) + transfer.len;
 	DESCRIPTOR_TABLE[DMA_CH_I2C_TX].DMAC_DSTADDR = reinterpret_cast<uint32_t>(&I2C_REGS->I2CM.SERCOM_DATA);
 	DMAC_REGS->DMAC_CHCTRLA = DMAC_CHCTRLA_ENABLE(1);
 

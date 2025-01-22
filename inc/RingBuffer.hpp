@@ -2,8 +2,8 @@
 // Created by mikha on 30.11.21.
 //
 
-#ifndef RINGBUFFER_H
-#define RINGBUFFER_H
+#ifndef RING_BUFFER_HPP
+#define RING_BUFFER_HPP
 
 #include <cstdint>
 #include <new>
@@ -24,10 +24,7 @@ public:
 	using reference = value_type&;
 	using const_reference = const value_type&;
 
-	RingBuffer():
-	  _front(0),
-	  _back(0),
-	  _size(0) {}
+	RingBuffer() = default;
 
 	RingBuffer(const RingBuffer& buffer);
 #if !PLAIN_DATA
@@ -61,9 +58,10 @@ public:
 	const_reference operator[] (size_type index) const;
 	RingBuffer&     operator= (const RingBuffer& buffer) = default;
 
+	size_type _front {0};
+
 protected:
 	T                          _elements[C];
-	size_type                  _front {0};
 	size_type                  _back {0};
 	size_type                  _size {0};
 	constexpr static size_type _capacity {C};
@@ -226,4 +224,4 @@ typename RingBuffer<T, size_type, C>::const_reference RingBuffer<T, size_type, C
 }
 
 
-#endif  // RINGBUFFER_H
+#endif  // RING_BUFFER_HPP

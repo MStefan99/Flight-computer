@@ -31,8 +31,11 @@ static void startTransfer(sercom_registers_t* regs, uart::DefaultQueue& outQueue
 	if (outQueue.empty()) {  // No pending transactions
 		return;
 	}
+	if (outQueue.front().transferred) {  // Another transfer ongoing
+		return;
+	}
 
-	regs->USART_INT.SERCOM_DATA = outQueue.front().buffer[0];
+	regs->USART_INT.SERCOM_DATA = outQueue.front().buffer[outQueue.front().transferred++];
 }
 
 static void SERCOM_Handler(
@@ -49,7 +52,7 @@ static void SERCOM_Handler(
 				startTransfer(regs, outQueue);
 			}
 		} else {
-			regs->USART_INT.SERCOM_DATA = outQueue.front().buffer[++outQueue.front().transferred];
+			regs->USART_INT.SERCOM_DATA = outQueue.front().buffer[outQueue.front().transferred++];
 		}
 	}
 	(void)regs->USART_INT.SERCOM_DATA;  // Clear the RXC interrupt flag
